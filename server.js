@@ -1,16 +1,18 @@
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
+const path = require('path'); // <-- NOUVEAU : Outil pour gérer les dossiers sur Linux
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
 // --- 🔒 PARAMÈTRES DE SÉCURITÉ CENTURIO ---
-const MOT_DE_PASSE_MATIN = "centurio24"; // Le mot de passe que l'animateur tape 1 seule fois le matin
-const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz"; // Le badge invisible donné au téléphone
+const MOT_DE_PASSE_MATIN = "centurio24"; 
+const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz"; 
 
-app.use(express.static('public'));
+// <-- NOUVEAU : On force le serveur à trouver le dossier exact pour Render
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // Gestion des connexions temps réel
@@ -25,7 +27,6 @@ io.on('connection', (socket) => {
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === MOT_DE_PASSE_MATIN) {
-        // Mot de passe correct, on donne le badge invisible !
         res.json({ success: true, token: ADMIN_TOKEN });
     } else {
         res.json({ success: false });
@@ -36,7 +37,6 @@ app.post('/api/login', (req, res) => {
 app.post('/api/validate', (req, res) => {
     const { userId, gameId, token } = req.body;
 
-    // Le serveur vérifie que le téléphone possède bien le badge invisible
     if (token === ADMIN_TOKEN) {
         io.to(userId).emit('challenge_validated', gameId);
         res.json({ success: true });
@@ -49,5 +49,5 @@ app.post('/api/validate', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`🚀 Serveur Centurio sécurisé démarré sur http://localhost:${PORT}`);
+    console.log(`🚀 Serveur Centurio sécurisé démarré sur le port ${PORT}`);
 });
