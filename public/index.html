@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="header-v2">
+    <div class="header-v2" style="position: relative;">
         <div class="header-title">Gaming Zone <span>24h du Mans</span></div>
+        <div onclick="checkAdmin()" style="position: absolute; right: 20px; font-size: 20px; cursor: pointer;">🔒</div>
     </div>
 
     <div class="page-accueil-full">
@@ -24,5 +25,45 @@
         <a href="defis.html" class="nav-btn">Défis</a>
         <a href="reglement.html" class="nav-btn">Règles</a>
     </nav>
+
+    <div class="modal-overlay" id="login-modal">
+        <div class="modal">
+            <h3>Espace Animateur</h3>
+            <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Accès réservé au staff Centurio.</p>
+            <input type="password" id="admin-pwd" placeholder="Mot de passe">
+            <button class="btn-submit" onclick="login()">Se connecter</button>
+            <button class="btn-cancel" onclick="document.getElementById('login-modal').style.display='none'">Fermer</button>
+            <p id="login-error" style="color: red; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect</p>
+        </div>
+    </div>
+
+    <script>
+        // Si l'animateur est déjà connecté, le cadenas l'envoie direct au scanner
+        function checkAdmin() {
+            if (localStorage.getItem('centurioAdminToken')) {
+                window.location.href = "scan.html";
+            } else {
+                document.getElementById('login-modal').style.display = 'flex';
+            }
+        }
+
+        function login() {
+            const pwd = document.getElementById('admin-pwd').value;
+            fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ password: pwd })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    localStorage.setItem('centurioAdminToken', data.token);
+                    window.location.href = "scan.html"; // Redirection vers le scanner !
+                } else {
+                    document.getElementById('login-error').style.display = 'block';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Centurio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+    <div class="header-v2">
+        <div class="header-title">Scanner <span>Admin</span></div>
+    </div>
+
+    <div class="page-content" style="text-align: center;">
+        <h2 style="margin-bottom: 10px;">Valider un défi</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pointez la caméra vers le QR Code du joueur.</p>
+        
+        <div id="reader" style="width: 100%; max-width: 400px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary);"></div>
+        
+        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 15px; border-radius: 10px; display: none;">
+            </div>
+
+        <button class="btn-cancel" onclick="logout()" style="margin-top: 30px; text-decoration: underline;">Se déconnecter</button>
+    </div>
+
+    <nav class="navbar">
+        <a href="scan.html" class="nav-btn active">📸 Scanner</a>
+    </nav>
+
+    <script>
+        const token = localStorage.getItem('centurioAdminToken');
+        if (!token) {
+            window.location.href = "index.html"; // Sécurité : expulse si pas connecté
+        }
+
+        const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
+
+        // Quand la caméra détecte un QR Code
+        function onScanSuccess(decodedText) {
+            // On met en pause le scanner pour ne pas flasher 100 fois de suite
+            html5QrcodeScanner.pause();
+            
+            try {
+                // Le QR code contient une URL, on la décrypte pour extraire "user" et "game"
+                const url = new URL(decodedText);
+                const userId = url.searchParams.get('user');
+                const gameId = url.searchParams.get('game');
+
+                if (userId && gameId) {
+                    // On envoie la validation au serveur
+                    fetch('/api/validate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: userId, gameId: gameId, token: token })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        const resultDiv = document.getElementById('scan-result');
+                        resultDiv.style.display = 'block';
+                        
+                        if(data.success) {
+                            resultDiv.style.backgroundColor = '#d4edda';
+                            resultDiv.style.color = '#155724';
+                            resultDiv.innerText = "✅ DÉFI VALIDÉ !";
+                            
+                            // On relance le scanner après 3 secondes
+                            setTimeout(() => {
+                                resultDiv.style.display = 'none';
+                                html5QrcodeScanner.resume();
+                            }, 3000);
+                        } else {
+                            resultDiv.style.backgroundColor = '#f8d7da';
+                            resultDiv.style.color = '#721c24';
+                            resultDiv.innerText = "❌ ERREUR : " + data.message;
+                            setTimeout(() => { resultDiv.style.display = 'none'; html5QrcodeScanner.resume(); }, 3000);
+                        }
+                    });
+                } else {
+                    alert("QR Code invalide pour ce jeu.");
+                    html5QrcodeScanner.resume();
+                }
+            } catch(e) {
+                alert("Ce n'est pas un QR Code Centurio.");
+                html5QrcodeScanner.resume();
+            }
+        }
+
+        html5QrcodeScanner.render(onScanSuccess);
+
+        function logout() {
+            localStorage.removeItem('centurioAdminToken');
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
