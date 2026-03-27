@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 🌍 NOUVEAU DESIGN DU MENU DES LANGUES */
+        /* 🌍 MENU DES LANGUES */
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
         .lang-btn:active { transform: scale(0.9); }
@@ -15,12 +15,22 @@
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
         .lang-menu div:hover { background: #f0f0f0; }
         
-        /* 🪄 CACHER LE MOTEUR NATIVE DE GOOGLE */
+        /* 🪄 MOTEUR DE GOOGLE */
         body > .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         .goog-te-banner-frame { display: none !important; }
         .goog-tooltip { display: none !important; }
         .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
+
+        /* ✨ NOUVEAU DESIGN DES RÈGLES */
+        .rules-container { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
+        .rule-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; align-items: flex-start; text-align: left; }
+        .rule-icon { font-size: 24px; margin-right: 15px; background: #fff3e0; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
+        .rule-text h4 { margin: 0 0 5px 0; color: var(--brand, #f8aa37); font-weight: 800; font-size: 15px; text-transform: uppercase; }
+        .rule-text p { margin: 0; font-size: 13px; color: #555; line-height: 1.5; }
+        
+        /* 🏆 CRÉDITS DISCRETS */
+        .credits { margin-top: 40px; font-size: 11px; color: #a0a0a0; text-align: center; padding: 0 20px; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -37,16 +47,52 @@
             </div>
         </div>
         <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
-        <div style="width: 24px;"></div> </div>
+        <div style="width: 24px;"></div>
+    </div>
 
     <div class="page-content" style="padding-bottom: 100px;">
-        <h2>Règlement du Jeu</h2>
-        <div style="text-align: left; margin-top: 20px; line-height: 1.6; color: var(--text-dark); font-size: 14px;">
-            <p><strong>1. Inscription :</strong><br>Le jeu est gratuit et ouvert à tous les visiteurs de la Gaming Zone Centurio.</p>
-            <p><strong>2. Déroulement :</strong><br>Jouez sur les stands et demandez à un animateur de scanner votre QR Code en cas de victoire.</p>
-            <p><strong>3. Récompense :</strong><br>Présentez-vous à l'accueil avec vos défis validés pour récupérer votre cadeau.</p>
-            <p><strong>4. Anti-Triche :</strong><br>Une seule participation par appareil. Toute tentative de fraude entraînera l'annulation de la progression.</p>
+        <h2 style="margin-bottom: 5px;">Règlement</h2>
+        <p style="font-size: 13px; color: #666;">Comment fonctionne la Gaming Zone ?</p>
+
+        <div class="rules-container">
+            <div class="rule-card">
+                <div class="rule-icon">📝</div>
+                <div class="rule-text">
+                    <h4>1. Inscription Libre</h4>
+                    <p>Le jeu est entièrement gratuit et ouvert à tous les visiteurs de l'espace Centurio.</p>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-icon">🎮</div>
+                <div class="rule-text">
+                    <h4>2. Déroulement</h4>
+                    <p>Jouez sur nos stands. En cas de victoire, demandez à l'animateur de scanner votre QR Code de profil.</p>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-icon">🎁</div>
+                <div class="rule-text">
+                    <h4>3. Récompense</h4>
+                    <p>Une fois vos défis validés, rendez-vous à l'accueil pour récupérer un cadeau proportionnel à vos exploits !</p>
+                </div>
+            </div>
+
+            <div class="rule-card">
+                <div class="rule-icon">🛡️</div>
+                <div class="rule-text">
+                    <h4>4. Fair-Play</h4>
+                    <p>Une seule participation par appareil. Toute tentative de triche entraînera l'annulation automatique de vos défis.</p>
+                </div>
+            </div>
         </div>
+
+        <div class="credits">
+            Application conçue et développée par <strong>[Noa Belaid]</strong><br>
+            Propulsée par <strong>[Virtual Studio Code, Github] & [Render]</strong>
+        </div>
+
     </div>
 
     <nav class="navbar">
