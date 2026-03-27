@@ -6,31 +6,46 @@
     <title>Règles - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 🌍 NOUVEAU DESIGN DU MENU DES LANGUES */
+        .lang-dropdown { position: relative; z-index: 1000; }
+        .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
+        .lang-btn:active { transform: scale(0.9); }
+        .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
+        .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
+        .lang-menu div:hover { background: #f0f0f0; }
+        
+        /* 🪄 CACHER LE MOTEUR NATIVE DE GOOGLE */
+        body > .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        .goog-te-banner-frame { display: none !important; }
+        .goog-tooltip { display: none !important; }
+        .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
+    </style>
 </head>
 <body>
-    <div class="header-v2">
-        <div class="header-title">Gaming Zone <span>24h du Mans</span></div>
-    </div>
+    <div class="header-v2" style="display: flex; align-items: center; justify-content: space-between; padding: 0 15px;">
+        <div class="lang-dropdown">
+            <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
+            <div class="lang-menu" id="lang-list">
+                <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
+                <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
+                <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
+            </div>
+        </div>
+        <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div style="width: 24px;"></div> </div>
 
-    <div class="page-content">
-        <h2>Règlement</h2>
-        <div class="rules-list">
-            <div class="rule-item">
-                <div class="rule-icon">🍸❌</div>
-                <div class="rule-text">Pas d'alcool. La consommation d'alcool est strictement interdite dans toute la zone de jeu.</div>
-            </div>
-            <div class="rule-item">
-                <div class="rule-icon">👕❌</div>
-                <div class="rule-text">Pas de personne torse nue. Une tenue vestimentaire décente et respectueuse est exigée.</div>
-            </div>
-            <div class="rule-item">
-                <div class="rule-icon">🤝✅</div>
-                <div class="rule-text">Respect des autres. Le fair-play, le respect des autres joueurs, du personnel et du matériel est impératif.</div>
-            </div>
-            <div class="rule-item">
-                <div class="rule-icon">🎮✅</div>
-                <div class="rule-text">Respect du matériel. Jouez avec soin. Tout matériel endommagé sera facturé.</div>
-            </div>
+    <div class="page-content" style="padding-bottom: 100px;">
+        <h2>Règlement du Jeu</h2>
+        <div style="text-align: left; margin-top: 20px; line-height: 1.6; color: var(--text-dark); font-size: 14px;">
+            <p><strong>1. Inscription :</strong><br>Le jeu est gratuit et ouvert à tous les visiteurs de la Gaming Zone Centurio.</p>
+            <p><strong>2. Déroulement :</strong><br>Jouez sur les stands et demandez à un animateur de scanner votre QR Code en cas de victoire.</p>
+            <p><strong>3. Récompense :</strong><br>Présentez-vous à l'accueil avec vos défis validés pour récupérer votre cadeau.</p>
+            <p><strong>4. Anti-Triche :</strong><br>Une seule participation par appareil. Toute tentative de fraude entraînera l'annulation de la progression.</p>
         </div>
     </div>
 
@@ -39,5 +54,28 @@
         <a href="defis.html" class="nav-btn">Défis</a>
         <a href="reglement.html" class="nav-btn active">Règles</a>
     </nav>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        function toggleLang() {
+            const menu = document.getElementById('lang-list');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        function changeLang(langCode, flag) {
+            document.querySelector('.lang-btn').innerText = flag;
+            document.getElementById('lang-list').style.display = 'none';
+            localStorage.setItem('centurioFlag', flag);
+            const select = document.querySelector('.goog-te-combo');
+            if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } 
+            else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedFlag = localStorage.getItem('centurioFlag');
+            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
+        });
+    </script>
 </body>
 </html>
