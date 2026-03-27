@@ -7,6 +7,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        /* 🪄 LA MAGIE EST ICI : On cache le petit cadre sombre de visée ! */
+        #qr-shaded-region {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
     <div class="header-v2">
@@ -15,12 +21,12 @@
 
     <div class="page-content" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
         <h2 style="margin-bottom: 5px;">Validation Rapide</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Pointez n'importe où vers le QR Code.</p>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Pointez n'importe où sur la caméra.</p>
         
-        <div id="reader" style="width: 100%; max-width: 500px; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"></div>
+        <div id="reader" style="width: 100%; max-width: 350px; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"></div>
         
-        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 400px;">
-            </div>
+        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 350px;">
+        </div>
 
         <button class="btn-cancel" onclick="logout()" style="margin-top: 30px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Staff</button>
     </div>
@@ -30,7 +36,6 @@
     </nav>
 
     <script>
-        // 1. SÉCURITÉ : Vérification du badge invisible
         const token = localStorage.getItem('centurioAdminToken');
         if (!token) {
             window.location.href = "index.html"; 
@@ -43,7 +48,6 @@
             if (isProcessing) return; 
             isProcessing = true;
             
-            // Effet visuel : la bordure de la caméra change pour montrer qu'on a "attrapé" le code
             document.getElementById('reader').style.borderColor = "var(--brand)";
 
             try {
@@ -59,4 +63,50 @@
                     })
                     .then(res => res.json())
                     .then(data => {
-                        const resultDiv = document.getElementById('scan-
+                        const resultDiv = document.getElementById('scan-result');
+                        resultDiv.style.display = 'block';
+                        
+                        if(data.success) {
+                            resultDiv.style.backgroundColor = '#d4edda'; 
+                            resultDiv.style.color = '#155724'; 
+                            resultDiv.style.border = "2px solid #c3e6cb";
+                            resultDiv.innerText = "✅ DÉFI " + gameId.toUpperCase() + " VALIDÉ !";
+                            document.getElementById('reader').style.borderColor = "var(--success)";
+                        } else {
+                            resultDiv.style.backgroundColor = '#f8d7da'; 
+                            resultDiv.style.color = '#721c24'; 
+                            resultDiv.style.border = "2px solid #f5c6cb";
+                            resultDiv.innerText = "❌ ERREUR : " + data.message;
+                            document.getElementById('reader').style.borderColor = "red";
+                        }
+
+                        setTimeout(() => {
+                            resultDiv.style.display = 'none';
+                            document.getElementById('reader').style.borderColor = "var(--secondary)";
+                            isProcessing = false;
+                        }, 2500);
+                    })
+                    .catch(err => {
+                        alert("🚨 ERREUR RÉSEAU : Impossible de joindre le serveur.");
+                        isProcessing = false;
+                        document.getElementById('reader').style.borderColor = "var(--secondary)";
+                    });
+                } else {
+                    setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
+                }
+            } catch(e) {
+                setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
+            }
+        }
+
+        // On lance la caméra en lui donnant une forme carrée (aspectRatio: 1.0)
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            { 
+                fps: 15, 
+                aspectRatio: 1.0 // Force la caméra à faire un beau carré
+            }, 
+            onScanSuccess,
+            (errorMessage) => { }
+        ).catch((err) => {
+            alert("🚨 ERREUR CAM
