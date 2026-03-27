@@ -6,9 +6,36 @@
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 🌍 STYLE DU MENU DES LANGUES */
+        .lang-dropdown { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); z-index: 1000; }
+        .lang-btn { font-size: 24px; cursor: pointer; background: white; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); user-select: none; }
+        .lang-menu { display: none; position: absolute; top: 50px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
+        .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
+        .lang-menu div:hover { background: #f0f0f0; }
+        
+        /* 🪄 CACHER LE MOTEUR NATIVE DE GOOGLE */
+        body > .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        .goog-te-banner-frame { display: none !important; }
+        .goog-tooltip { display: none !important; }
+        .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
+    </style>
 </head>
 <body>
-    <div class="header-v2">
+    <div class="header-v2" style="position: relative;">
+        <div class="lang-dropdown">
+            <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
+            <div class="lang-menu" id="lang-list">
+                <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
+                <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
+                <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
+            </div>
+        </div>
+
         <div class="header-title">Gaming Zone <span>24h du Mans</span></div>
     </div>
 
@@ -23,10 +50,9 @@
             <div class="chart-label">Défis accomplis</div>
         </div>
 
-        <p id="last-validation-info" style="font-size: 12px; color: #888; font-style: italic; margin-top: 10px; margin-bottom: 20px; display: none;">
-            </p>
+        <p id="last-validation-info" style="font-size: 12px; color: #888; font-style: italic; margin-top: 10px; margin-bottom: 20px; display: none;"></p>
 
-        <p style="margin-bottom: 25px;">Relevez les 7 défis sur nos différents stands.<br>Prêt ? Jouez ! 🎮</p>
+        <p style="margin-bottom: 25px;">Relevez les défis sur nos différents stands.<br>Prêt ? Jouez ! 🎮</p>
         
         <div id="games-list" style="width: 100%; max-width: 500px;"></div>
     </div>
@@ -58,13 +84,51 @@
         <div class="modal">
             <div class="final-modal-icon" style="animation: popIn 0.5s ease;">🏆🎉</div>
             <div class="final-modal-title">BRAVO ! 🎉</div>
-            <p class="final-modal-text">Incroyable ! Vous avez réussi les 7 défis de la Gaming Zone Centurio.<br><br>Rendez-vous à l'accueil pour récupérer votre cadeau bien mérité !<br>🎁</p>
+            <p class="final-modal-text">Incroyable ! Vous avez réussi les défis de la Gaming Zone Centurio.<br><br>Rendez-vous à l'accueil pour récupérer votre cadeau bien mérité !<br>🎁</p>
             <button class="btn-final" onclick="closeFinalModal()">Génial !</button>
         </div>
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
+    
+    <div id="google_translate_element" style="display:none;"></div>
+    <script>
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element');
+        }
+    </script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
     <script src="script.js"></script>
+
+    <script>
+        // --- LOGIQUE DES DRAPEAUX MULTILINGUES ---
+        function toggleLang() {
+            const menu = document.getElementById('lang-list');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function changeLang(langCode, flag) {
+            document.querySelector('.lang-btn').innerText = flag;
+            document.getElementById('lang-list').style.display = 'none';
+            localStorage.setItem('centurioFlag', flag);
+
+            const select = document.querySelector('.goog-te-combo');
+            if (select) {
+                select.value = langCode;
+                select.dispatchEvent(new Event('change'));
+            } else {
+                document.cookie = `googtrans=/fr/${langCode}; path=/`;
+                window.location.reload();
+            }
+        }
+
+        // Au chargement, on remet le bon drapeau
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedFlag = localStorage.getItem('centurioFlag');
+            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
+        });
+    </script>
 </body>
 </html>
