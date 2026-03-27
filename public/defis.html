@@ -12,32 +12,45 @@
         <div class="header-title">Gaming Zone <span>24h du Mans</span></div>
     </div>
 
-    <div class="page-content">
-        <h2>Liste des défis</h2>
+    <div class="page-content page-content-epure">
+        <div class="chart-container">
+            <h3>Progression</h3>
+            <canvas id="progress-chart" width="200" height="200"></canvas>
+            <div id="chart-text">0%</div>
+            <div class="chart-label">Défis accomplis</div>
+        </div>
+
+        <p>Relevez les 7 défis sur nos différents stands.<br>Prêt ? Jouez ! 🎮</p>
+        
         <div id="games-list"></div>
     </div>
 
-<nav class="navbar">
-        <a href="index.html" class="nav-btn active">Accueil</a>
-        <a href="defis.html" class="nav-btn">Défis</a>
+    <nav class="navbar">
+        <a href="index.html" class="nav-btn">Accueil</a>
+        <a href="defis.html" class="nav-btn active">Défis</a>
         <a href="reglement.html" class="nav-btn">Règles</a>
-</nav>
+    </nav>
 
     <div class="modal-overlay" id="animator-modal">
         <div class="modal">
-            <h3>QR Code de Validation</h3>
-            <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Montrez cet écran à l'animateur Centurio pour qu'il le scanne.</p>
-            
-            <div id="qr-container" style="margin-bottom: 20px;">
-                </div>
-            
+            <h3>Validation</h3>
+            <p style="font-size: 13px; margin-bottom: 15px; color: #666;">Montrez ce QR Code à un animateur Centurio.</p>
+            <div id="qr-container" style="margin-bottom: 20px;"></div>
             <button class="btn-cancel" onclick="closeModal()">Fermer</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="success-modal">
+        <div class="modal" style="border: 5px solid var(--success); transform: scale(1.1);">
+            <div style="font-size: 70px; margin-bottom: 10px; animation: popIn 0.5s ease;">✅</div>
+            <h2 style="color: var(--success); font-weight: 800; text-transform: uppercase;">Défi Validé !</h2>
+            <p style="font-size: 14px; margin-top: 10px; color: var(--text-dark);">Génial ! Passez au stand suivant.</p>
         </div>
     </div>
 
     <div class="modal-overlay" id="final-modal">
         <div class="modal">
-            <div class="final-modal-icon">🏆🎉</div>
+            <div class="final-modal-icon" style="animation: popIn 0.5s ease;">🏆🎉</div>
             <div class="final-modal-title">BRAVO ! 🎉</div>
             <p class="final-modal-text">Incroyable ! Vous avez réussi les 7 défis de la Gaming Zone Centurio.<br><br>Rendez-vous à l'accueil pour récupérer votre cadeau bien mérité !<br>🎁</p>
             <button class="btn-final" onclick="closeFinalModal()">Génial !</button>
