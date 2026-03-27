@@ -8,11 +8,12 @@ const server = http.createServer(app);
 const io = new Server(server);
 
 // --- 🔒 PARAMÈTRES DE SÉCURITÉ ---
-const MOT_DE_PASSE_MATIN = "admincenturio25"; 
+const MOT_DE_PASSE_MATIN = "admincenturio26"; 
 const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz"; 
 
-// 🧠 LA LISTE NOIRE : Mémoire vive du serveur
-const joueursTermines = new Set(); 
+// 🧠 LA MÉMOIRE ABSOLUE DU SERVEUR
+// On va stocker les défis de chaque joueur sous cette forme : { "id_du_telephone": ["mk", "mp"] }
+const memoireJoueurs = {}; 
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -32,30 +33,39 @@ app.post('/api/login', (req, res) => {
     }
 });
 
-// --- ROUTE DE VALIDATION DU SCANNER ---
+// --- ROUTE DE VALIDATION DU SCANNER (ULTRA SÉCURISÉE) ---
 app.post('/api/validate', (req, res) => {
     const { userId, gameId, token } = req.body;
 
+    // 1. Est-ce bien un animateur ?
     if (token === ADMIN_TOKEN) {
-        // 🚨 SÉCURITÉ : Est-ce que ce téléphone a déjà fini le jeu avant de vider son cache ?
-        if (joueursTermines.has(userId)) {
-            return res.json({ success: false, message: "🛑 TRICHE : Ce joueur a déjà complété les 7 défis !" });
+        
+        // 2. Si c'est un nouveau joueur qu'on n'a jamais vu, on lui crée un dossier vide
+        if (!memoireJoueurs[userId]) {
+            memoireJoueurs[userId] = [];
         }
 
+        // 3. 🚨 ANTI-TRICHE : Est-ce qu'il a DÉJÀ fait ce défi précis ?
+        if (memoireJoueurs[userId].includes(gameId)) {
+            return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi précis !" });
+        }
+
+        // 4. 🚨 ANTI-TRICHE : Est-ce qu'il a déjà fait les 7 défis au total ?
+        if (memoireJoueurs[userId].length >= 7) {
+            return res.json({ success: false, message: "🛑 Ce joueur a déjà eu son cadeau !" });
+        }
+
+        // 5. TOUT EST BON ! On enregistre la victoire dans la mémoire du serveur
+        memoireJoueurs[userId].push(gameId);
+
+        // On envoie l'animation au joueur
         io.to(userId).emit('challenge_validated', gameId);
         res.json({ success: true });
-    } else {
-        res.json({ success: false, message: "🚨 TENTATIVE DE FRAUDE !" });
-    }
-});
 
-// 🚨 NOUVELLE ROUTE : Inscrire un joueur sur la liste noire quand il a 100%
-app.post('/api/finish', (req, res) => {
-    const { userId } = req.body;
-    if (userId) {
-        joueursTermines.add(userId);
+    } else {
+        // Le token est faux
+        res.json({ success: false, message: "🚨 TENTATIVE DE FRAUDE ! Vous n'êtes pas Staff." });
     }
-    res.json({ success: true });
 });
 
 const PORT = process.env.PORT || 3000;
