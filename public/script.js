@@ -8,26 +8,39 @@ const games = [
     { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' }
 ];
 
-// 1. Générer un ID unique pour le téléphone du visiteur
+// 1. Identité du Visiteur
 let userId = localStorage.getItem('centurioUserId');
 if (!userId) {
     userId = 'user_' + Math.random().toString(36).substr(2, 9);
     localStorage.setItem('centurioUserId', userId);
 }
 
-// 2. Connexion au serveur Node.js via Socket.io
+// 2. Connexion Magique au Serveur (Temps Réel)
 const socket = io();
 socket.emit('register_user', userId);
 
-// 3. Écouter l'ordre de validation envoyé par l'animateur
+// 🌟 3. LE SPECTACLE : Quand l'animateur scanne avec succès !
 socket.on('challenge_validated', (gameId) => {
+    // A. On sauvegarde la victoire dans le téléphone du joueur
     let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
     savedProgress[gameId] = true;
     localStorage.setItem('centurioProgress', JSON.stringify(savedProgress));
     
+    // B. On cache le QR Code instantanément
     closeModal();
-    renderGames(); // Met à jour l'écran
-    alert("🎉 Un animateur vient de valider votre défi !");
+    
+    // C. On fait exploser l'animation de succès sur l'écran du joueur !
+    const successModal = document.getElementById('success-modal');
+    if(successModal) {
+        successModal.style.display = 'flex';
+        // L'animation reste à l'écran 3 secondes puis se ferme toute seule
+        setTimeout(() => {
+            successModal.style.display = 'none';
+        }, 3000);
+    }
+    
+    // D. On met à jour la jauge et les boutons
+    renderGames(); 
 });
 
 // Gère l'affichage sur la page "Défis"
@@ -49,7 +62,7 @@ function renderGames() {
         
         let buttonHtml = isDone 
             ? '<button class="btn-valider">Validé</button>' 
-            : `<button class="btn-valider" onclick="openModal('${game.id}')">QR Code Animateur</button>`;
+            : `<button class="btn-valider" onclick="openModal('${game.id}')">QR Code</button>`;
 
         card.innerHTML = `
             <div class="game-info">
@@ -63,11 +76,14 @@ function renderGames() {
 
     updateProgressChart(completedCount, games.length);
     if (completedCount === games.length) {
-        openFinalModal();
+        // Un petit délai pour que le joueur voit d'abord la modale de succès du dernier défi
+        setTimeout(() => {
+            openFinalModal();
+        }, 3500); 
     }
 }
 
-// Dessiner le graphique en camembert
+// Graphique Camembert
 function updateProgressChart(completed, total) {
     const canvas = document.getElementById('progress-chart');
     if (!canvas) return;
@@ -100,25 +116,18 @@ function updateProgressChart(completed, total) {
     }
 }
 
-// Modale QR Code
 function openModal(gameId) {
     document.getElementById('animator-modal').style.display = 'flex';
     
-    // Pour l'instant, l'URL est sur ton ordinateur local.
-    // LORSQUE LE SITE SERA EN LIGNE, remplace l'URL ici :
     const myDomain = window.location.origin; 
-    const adminUrl = `${myDomain}/admin.html?user=${userId}&game=${gameId}`;
+    const adminUrl = `${myDomain}/scan.html?user=${userId}&game=${gameId}`;
     
-    // Génère le QR Code via une API publique
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(adminUrl)}`;
-    
-    document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary);">`;
+    // QR Code HD
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=20&data=${encodeURIComponent(adminUrl)}`;
+    document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary); max-width: 100%;">`;
 }
 
-function closeModal() {
-    document.getElementById('animator-modal').style.display = 'none';
-}
-
+function closeModal() { document.getElementById('animator-modal').style.display = 'none'; }
 function openFinalModal() { document.getElementById('final-modal').style.display = 'flex'; }
 function closeFinalModal() { document.getElementById('final-modal').style.display = 'none'; }
 
