@@ -69,13 +69,15 @@ app.post('/api/validate', (req, res) => {
             return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi précis !" });
         }
 
-        if (memoireJoueurs[userId].length >= 7) {
+        // 🚨 MODIFICATION ICI : On passe la limite à 8 (7 jeux + 1 cadeau)
+        if (memoireJoueurs[userId].length >= 8) {
             return res.json({ success: false, message: "🛑 TRICHE : Ce joueur a déjà eu son cadeau !" });
         }
 
         memoireJoueurs[userId].push(gameId);
 
-        if (memoireJoueurs[userId].length === 7) {
+        // 📊 STATS : Un gagnant "total" est quelqu'un qui a fait les 8 actions
+        if (memoireJoueurs[userId].length === 8) {
             stats.totalGagnants++; 
             sauvegarderStats(); 
         }
@@ -118,7 +120,7 @@ app.get('/api/stats_centurio_secret', (req, res) => {
     "            <div class='stat-number' style='color: #f8aa37;'>" + stats.totalVisiteurs + "</div>\n" +
     "        </div>\n" +
     "        <div class='stat-card winner'>\n" +
-    "            <div class='stat-label'>🏆 Défis 7/7 Complétés</div>\n" +
+    "            <div class='stat-label'>🏆 Défis à 100% (Cadeau Inclus)</div>\n" +
     "            <div class='stat-number' style='color: #28a745;'>" + stats.totalGagnants + "</div>\n" +
     "        </div>\n" +
     "        <div class='stat-card admin'>\n" +
