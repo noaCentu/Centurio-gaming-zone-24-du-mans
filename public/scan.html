@@ -8,9 +8,17 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        /* 🪄 LA MAGIE EST ICI : On cache le petit cadre sombre de visée ! */
-        #qr-shaded-region {
+        /* 🪄 ASTUCE N°1 : On cache le cadre de visée dessiné par la bibliothèque */
+        #reader svg {
             display: none !important;
+        }
+        
+        /* 🪄 ASTUCE N°2 : On force la vidéo à remplir notre joli cadre sans se déformer */
+        #reader video {
+            object-fit: cover !important;
+            width: 100% !important;
+            height: 100% !important;
+            border-radius: 10px !important;
         }
     </style>
 </head>
@@ -21,9 +29,9 @@
 
     <div class="page-content" style="text-align: center; display: flex; flex-direction: column; align-items: center;">
         <h2 style="margin-bottom: 5px;">Validation Rapide</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Pointez n'importe où sur la caméra.</p>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">Pointez vers le QR Code (toute l'image scanne).</p>
         
-        <div id="reader" style="width: 100%; max-width: 350px; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"></div>
+        <div id="reader" style="width: 100%; max-width: 350px; height: 350px; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"></div>
         
         <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 100%; max-width: 350px;">
         </div>
@@ -76,37 +84,4 @@
                             resultDiv.style.backgroundColor = '#f8d7da'; 
                             resultDiv.style.color = '#721c24'; 
                             resultDiv.style.border = "2px solid #f5c6cb";
-                            resultDiv.innerText = "❌ ERREUR : " + data.message;
-                            document.getElementById('reader').style.borderColor = "red";
-                        }
-
-                        setTimeout(() => {
-                            resultDiv.style.display = 'none';
-                            document.getElementById('reader').style.borderColor = "var(--secondary)";
-                            isProcessing = false;
-                        }, 2500);
-                    })
-                    .catch(err => {
-                        alert("🚨 ERREUR RÉSEAU : Impossible de joindre le serveur.");
-                        isProcessing = false;
-                        document.getElementById('reader').style.borderColor = "var(--secondary)";
-                    });
-                } else {
-                    setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
-                }
-            } catch(e) {
-                setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
-            }
-        }
-
-        // On lance la caméra en lui donnant une forme carrée (aspectRatio: 1.0)
-        html5QrCode.start(
-            { facingMode: "environment" }, 
-            { 
-                fps: 15, 
-                aspectRatio: 1.0 // Force la caméra à faire un beau carré
-            }, 
-            onScanSuccess,
-            (errorMessage) => { }
-        ).catch((err) => {
-            alert("🚨 ERREUR CAM
+                            resultDiv.innerText =
