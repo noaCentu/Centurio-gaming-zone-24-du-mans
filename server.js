@@ -46,17 +46,14 @@ io.on('connection', (socket) => {
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === MOT_DE_PASSE_MATIN) {
-        // 📊 STATS : +1 connexion Staff quand le mot de passe est bon
         stats.totalAdmins++;
         sauvegarderStats();
-        
         res.json({ success: true, token: ADMIN_TOKEN });
     } else {
         res.json({ success: false });
     }
 });
 
-// --- ROUTE DE VALIDATION DU SCANNER ---
 app.post('/api/validate', (req, res) => {
     const { userId, gameId, token } = req.body;
 
@@ -91,63 +88,55 @@ app.post('/api/validate', (req, res) => {
     }
 });
 
-// --- 🕵️‍♂️ ROUTE SECRÈTE (TABLEAU DE BORD DESIGN) ---
 app.get('/api/stats_centurio_secret', (req, res) => {
-    // Le serveur génère une belle page web à la volée !
-    const html = `
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Bilan - Centurio Gaming</title>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-        <style>
-            body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; text-align: center; padding: 40px 20px; margin: 0; }
-            h1 { color: #f8aa37; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; font-size: 28px; }
-            p.subtitle { color: #666; margin-bottom: 40px; font-size: 14px; }
-            .stats-container { display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto; }
-            .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-left: 6px solid #f8aa37; display: flex; flex-direction: column; align-items: center; }
-            .stat-card.admin { border-left-color: #2c3e50; }
-            .stat-card.winner { border-left-color: #28a745; }
-            .stat-number { font-size: 45px; font-weight: 800; margin: 5px 0; line-height: 1; }
-            .stat-label { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-            .footer { margin-top: 50px; font-size: 11px; color: #aaa; }
-        </style>
-    </head>
-    <body>
-        <h1>📊 Bilan en Direct</h1>
-        <p class="subtitle">Statistiques officielles - Gaming Zone 24h</p>
-
-        <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-label">🎮 Visiteurs Uniques</div>
-                <div class="stat-number" style="color: #f8aa37;">${stats.totalVisiteurs}</div>
-            </div>
-            
-            <div class="stat-card winner">
-                <div class="stat-label">🏆 Défis 7/7 Complétés</div>
-                <div class="stat-number" style="color: #28a745;">${stats.totalGagnants}</div>
-            </div>
-            
-            <div class="stat-card admin">
-                <div class="stat-label">👮‍♂️ Connexions Staff</div>
-                <div class="stat-number" style="color: #2c3e50;">${stats.totalAdmins}</div>
-            </div>
-        </div>
-        
-        <div class="footer">
-            Système Centurio Pro &copy; 2024<br>
-            Mise à jour automatique à chaque actualisation de la page.
-        </div>
-    </body>
-    </html>
-    `;
+    const html = "<!DOCTYPE html>\n" +
+    "<html lang='fr'>\n" +
+    "<head>\n" +
+    "    <meta charset='UTF-8'>\n" +
+    "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n" +
+    "    <title>Bilan - Centurio Gaming</title>\n" +
+    "    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap' rel='stylesheet'>\n" +
+    "    <style>\n" +
+    "        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; text-align: center; padding: 40px 20px; margin: 0; }\n" +
+    "        h1 { color: #f8aa37; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; font-size: 28px; }\n" +
+    "        p.subtitle { color: #666; margin-bottom: 40px; font-size: 14px; }\n" +
+    "        .stats-container { display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto; }\n" +
+    "        .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-left: 6px solid #f8aa37; display: flex; flex-direction: column; align-items: center; }\n" +
+    "        .stat-card.admin { border-left-color: #2c3e50; }\n" +
+    "        .stat-card.winner { border-left-color: #28a745; }\n" +
+    "        .stat-number { font-size: 45px; font-weight: 800; margin: 5px 0; line-height: 1; }\n" +
+    "        .stat-label { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }\n" +
+    "        .footer { margin-top: 50px; font-size: 11px; color: #aaa; }\n" +
+    "    </style>\n" +
+    "</head>\n" +
+    "<body>\n" +
+    "    <h1>📊 Bilan en Direct</h1>\n" +
+    "    <p class='subtitle'>Statistiques officielles - Gaming Zone 24h</p>\n" +
+    "    <div class='stats-container'>\n" +
+    "        <div class='stat-card'>\n" +
+    "            <div class='stat-label'>🎮 Visiteurs Uniques</div>\n" +
+    "            <div class='stat-number' style='color: #f8aa37;'>" + stats.totalVisiteurs + "</div>\n" +
+    "        </div>\n" +
+    "        <div class='stat-card winner'>\n" +
+    "            <div class='stat-label'>🏆 Défis 7/7 Complétés</div>\n" +
+    "            <div class='stat-number' style='color: #28a745;'>" + stats.totalGagnants + "</div>\n" +
+    "        </div>\n" +
+    "        <div class='stat-card admin'>\n" +
+    "            <div class='stat-label'>👮‍♂️ Connexions Staff</div>\n" +
+    "            <div class='stat-number' style='color: #2c3e50;'>" + stats.totalAdmins + "</div>\n" +
+    "        </div>\n" +
+    "    </div>\n" +
+    "    <div class='footer'>\n" +
+    "        Système Centurio Pro &copy; 2024<br>\n" +
+    "        Mise à jour automatique à chaque actualisation de la page.\n" +
+    "    </div>\n" +
+    "</body>\n" +
+    "</html>";
     
     res.send(html);
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(\`🚀 Serveur Centurio sécurisé démarré sur le port \${PORT}\`);
+    console.log("🚀 Serveur Centurio securise demarre sur le port " + PORT);
 });
