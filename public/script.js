@@ -5,7 +5,8 @@ const games = [
     { id: 'tk', name: 'Tekken', desc: 'Gagner un combat' },
     { id: 'jd', name: 'Just Dance', desc: 'Obtenir 4 étoiles minimum' },
     { id: 'tm', name: 'Trackmania', desc: 'Battre le temps fantôme' },
-    { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' }
+    { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' },
+    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: "Va à l'accueil récupérer ton cadeau (Attention : plus tu as de défis validés, plus ton cadeau sera gros !)" }
 ];
 
 // 1. Identité du Visiteur : On charge ce qu'on a en mémoire
