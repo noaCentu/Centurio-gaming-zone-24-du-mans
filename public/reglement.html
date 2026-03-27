@@ -22,15 +22,60 @@
         .goog-tooltip { display: none !important; }
         .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
 
-        /* ✨ DESIGN DES RÈGLES */
+        /* ✨ NOUVEAU DESIGN DES RÈGLES (ACCORDÉON) */
         .rules-container { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
-        .rule-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); display: flex; align-items: flex-start; text-align: left; }
-        .rule-icon { font-size: 24px; margin-right: 15px; background: #fff3e0; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
-        .rule-text h4 { margin: 0 0 5px 0; color: var(--brand, #f8aa37); font-weight: 800; font-size: 15px; text-transform: uppercase; }
-        .rule-text p { margin: 0; font-size: 13px; color: #555; line-height: 1.5; }
         
-        /* 🏆 CRÉDITS TOUT EN BAS */
-        .credits { margin-top: 60px; font-size: 11px; color: #b0b0b0; text-align: center; padding: 0 20px; line-height: 1.6; }
+        details.rule-card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            text-align: left; 
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        details.rule-card:hover { background: #fafafa; }
+        
+        /* Style du titre cliquable */
+        summary {
+            list-style: none; /* Enlève la flèche par défaut */
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        summary::-webkit-details-marker { display: none; } /* Enlève la flèche sur Chrome/Safari */
+        
+        .summary-left {
+            display: flex;
+            align-items: center;
+        }
+
+        .rule-icon { font-size: 24px; margin-right: 15px; background: #fff3e0; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
+        .rule-text h4 { margin: 0; color: var(--brand, #f8aa37); font-weight: 800; font-size: 15px; text-transform: uppercase; }
+        
+        /* Flèche personnalisée animée */
+        .arrow-icon {
+            font-size: 14px;
+            color: #d0d0d0;
+            transition: transform 0.3s ease;
+        }
+        details[open] .arrow-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Contenu du texte déroulant */
+        .rule-content { 
+            margin-top: 15px; 
+            padding-left: 60px; /* Aligné avec le texte, sans compter l'icône */
+            font-size: 13px; 
+            color: #555; 
+            line-height: 1.5; 
+        }
+        .rule-content p { margin: 0; }
+        
+        /* 🏆 CRÉDITS DISCRETS */
+        .credits { margin-top: 40px; font-size: 11px; color: #a0a0a0; text-align: center; padding: 0 20px; line-height: 1.6; }
     </style>
 </head>
 <body>
@@ -50,55 +95,108 @@
         <div style="width: 24px;"></div>
     </div>
 
-    <div class="page-content" style="padding-bottom: 120px;">
+    <div class="page-content" style="padding-bottom: 100px;">
         <h2 style="margin-bottom: 5px;">Règlement</h2>
-        <p style="font-size: 13px; color: #666;">Comment fonctionne la Gaming Zone ?</p>
+        <p style="font-size: 13px; color: #666;">Cliquez sur les règles pour lire les détails.</p>
 
         <div class="rules-container">
-            <div class="rule-card">
-                <div class="rule-icon">📝</div>
-                <div class="rule-text">
-                    <h4>1. Inscription Libre</h4>
+            
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">📝</div>
+                        <div class="rule-text"><h4>1. Inscription Libre</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
                     <p>Le jeu est entièrement gratuit et ouvert à tous les visiteurs de l'espace Centurio.</p>
                 </div>
-            </div>
+            </details>
 
-            <div class="rule-card">
-                <div class="rule-icon">🎮</div>
-                <div class="rule-text">
-                    <h4>2. Déroulement</h4>
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">🎮</div>
+                        <div class="rule-text"><h4>2. Déroulement</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
                     <p>Jouez sur nos stands. En cas de victoire, demandez à l'animateur de scanner votre QR Code de profil.</p>
                 </div>
-            </div>
+            </details>
 
-            <div class="rule-card">
-                <div class="rule-icon">🎁</div>
-                <div class="rule-text">
-                    <h4>3. Récompense</h4>
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">🎁</div>
+                        <div class="rule-text"><h4>3. Récompense</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
                     <p>Une fois vos défis validés, rendez-vous à l'accueil pour récupérer un cadeau proportionnel à vos exploits !</p>
                 </div>
-            </div>
+            </details>
 
-            <div class="rule-card">
-                <div class="rule-icon">🛡️</div>
-                <div class="rule-text">
-                    <h4>4. Fair-Play</h4>
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">🛡️</div>
+                        <div class="rule-text"><h4>4. Fair-Play</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
                     <p>Une seule participation par appareil. Toute tentative de triche entraînera l'annulation automatique de vos défis.</p>
                 </div>
-            </div>
+            </details>
 
-            <div class="rule-card">
-                <div class="rule-icon">💾</div>
-                <div class="rule-text">
-                    <h4>5. Sauvegarde</h4>
-                    <p>Pour conserver votre progression visuelle si vous quittez le stand, <strong>ne supprimez pas l'historique de cette page</strong> et n'utilisez pas la navigation privée.</p>
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">🖥️</div>
+                        <div class="rule-text"><h4>5. Respect du matériel</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
+                    <p>Le matériel mis à votre disposition coûte cher. Il est strictement interdit de le frapper ou de le dégrader. Toute casse volontaire ou due à de la négligence devra être remboursée.</p>
                 </div>
-            </div>
+            </details>
+
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">🤝</div>
+                        <div class="rule-text"><h4>6. Respect des autres</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
+                    <p>La zone est un espace de détente. Les insultes, comportements toxiques ou cris abusifs ne sont pas tolérés. Gardons une bonne ambiance !</p>
+                </div>
+            </details>
+
+            <details class="rule-card">
+                <summary>
+                    <div class="summary-left">
+                        <div class="rule-icon">🚫</div>
+                        <div class="rule-text"><h4>7. Alcool et Tabac</h4></div>
+                    </div>
+                    <div class="arrow-icon">▼</div>
+                </summary>
+                <div class="rule-content">
+                    <p>Pour la sécurité de tous et la protection des machines, fumer (y compris les puffs/cigarettes électroniques) et consommer de l'alcool est formellement interdit dans la Gaming Zone.</p>
+                </div>
+            </details>
+
         </div>
 
         <div class="credits">
-            Application conçue et développée par <strong>Noa Belaid</strong><br>
-            Propulsée par <strong>Vitrual Studio Code, Github & Render</strong>
+            Application conçue et développée par <strong>[Noa Belaid]</strong><br>
+            Propulsée par <strong>[Virtual Studio Code, Github] & [Render]</strong>
         </div>
 
     </div>
