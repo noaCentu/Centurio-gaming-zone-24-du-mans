@@ -8,43 +8,45 @@ const games = [
     { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' }
 ];
 
-// 1. Identité du Visiteur
+// 1. Identité du Visiteur : On charge ce qu'on a en mémoire
 let userId = localStorage.getItem('centurioUserId');
-if (!userId) {
-    userId = 'user_' + Math.random().toString(36).substr(2, 9);
-    localStorage.setItem('centurioUserId', userId);
-}
-
-// 2. Connexion au Serveur (Temps Réel)
 const socket = io();
-socket.emit('register_user', userId);
 
-// 🌟 3. LE SPECTACLE : Quand l'animateur scanne avec succès !
+// 🛡️ NOUVEAU : Chargement de l'empreinte matérielle (Anti-Triche)
+FingerprintJS.load().then(fp => {
+    fp.get().then(result => {
+        const hardwareId = result.visitorId; // Le code unique et indestructible de ce téléphone
+        
+        // Si c'est un nouveau ou qu'il a supprimé son historique, on force son ID matériel
+        if (!userId || userId !== hardwareId) {
+            userId = hardwareId;
+            localStorage.setItem('centurioUserId', userId);
+        }
+        
+        socket.emit('register_user', userId);
+    });
+});
+
+// 🌟 LE SPECTACLE : Quand l'animateur scanne avec succès !
 socket.on('challenge_validated', (gameId) => {
-    // A. On sauvegarde la victoire
     let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
     savedProgress[gameId] = true;
     localStorage.setItem('centurioProgress', JSON.stringify(savedProgress));
     
-    // B. On enregistre LA DATE ET L'HEURE EXACTE 🕒
     const now = new Date();
-    // On crée un beau format "27/03/2026 à 14h30"
     const formattedDate = now.toLocaleDateString('fr-FR');
     const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
     const timeString = `Dernier défi validé le ${formattedDate} à ${formattedTime}`;
     localStorage.setItem('centurioLastValidationTime', timeString);
 
-    // C. On cache le QR Code instantanément
     closeModal();
     
-    // D. L'animation de succès sur l'écran du joueur
     const successModal = document.getElementById('success-modal');
     if(successModal) {
         successModal.style.display = 'flex';
         setTimeout(() => { successModal.style.display = 'none'; }, 3000);
     }
     
-    // E. On met à jour l'écran
     renderGames(); 
 });
 
@@ -65,7 +67,6 @@ function renderGames() {
         card.className = `game-card animate-pop-in ${isDone ? 'done' : ''}`;
         card.style.animationDelay = `${index * 80}ms`;
         
-        // La petite carte d'affichage du jeu
         let buttonHtml = isDone 
             ? '<button class="btn-valider" style="opacity: 0.8; cursor: default;">Validé ✅</button>' 
             : `<button class="btn-valider" onclick="openModal('${game.id}')">QR Code</button>`;
@@ -82,15 +83,21 @@ function renderGames() {
 
     updateProgressChart(completedCount, games.length);
 
-    // 🕒 Affichage de la date/heure
     const timeInfo = document.getElementById('last-validation-info');
     const savedTime = localStorage.getItem('centurioLastValidationTime');
     if (savedTime && completedCount > 0 && timeInfo) {
         timeInfo.innerText = savedTime;
-        timeInfo.style.display = 'block'; // On rend le texte visible
+        timeInfo.style.display = 'block';
     }
 
     if (completedCount === games.length) {
+        // 🚨 NOUVEAU : Le joueur a fini ! On envoie son ID matériel à la liste noire du serveur
+        fetch('/api/finish', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: userId })
+        });
+
         setTimeout(() => { openFinalModal(); }, 3500); 
     }
 }
@@ -103,7 +110,6 @@ function updateProgressChart(completed, total) {
     const chartText = document.getElementById('chart-text');
     
     const percentage = (completed / total) * 100;
-    // On s'assure que le texte se met bien à jour à l'intérieur du canvas
     if(chartText) chartText.innerText = `${Math.round(percentage)}%`;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -111,14 +117,12 @@ function updateProgressChart(completed, total) {
     const centerY = canvas.height / 2;
     const radius = 90;
     
-    // Cercle gris de fond
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
     ctx.strokeStyle = '#e0e0e0';
     ctx.lineWidth = 15;
     ctx.stroke();
     
-    // Cercle orange de progression
     if (percentage > 0) {
         const startAngle = -0.5 * Math.PI;
         const endAngle = startAngle + (percentage / 100) * 2 * Math.PI;
@@ -132,12 +136,16 @@ function updateProgressChart(completed, total) {
 }
 
 function openModal(gameId) {
+    if (!userId) {
+        alert("Génération de votre profil sécurisé en cours. Réessayez dans 1 seconde !");
+        return;
+    }
+
     document.getElementById('animator-modal').style.display = 'flex';
     
     const myDomain = window.location.origin; 
     const adminUrl = `${myDomain}/scan.html?user=${userId}&game=${gameId}`;
     
-    // QR Code HD (400x400)
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=20&data=${encodeURIComponent(adminUrl)}`;
     document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary); max-width: 100%;">`;
 }
@@ -146,5 +154,4 @@ function closeModal() { document.getElementById('animator-modal').style.display 
 function openFinalModal() { document.getElementById('final-modal').style.display = 'flex'; }
 function closeFinalModal() { document.getElementById('final-modal').style.display = 'none'; }
 
-// Chargement initial
 window.onload = function() { renderGames(); };
