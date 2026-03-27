@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const fs = require('fs'); // 🛠️ NOUVEAU : Outil pour créer et lire des fichiers
+const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,15 +17,14 @@ const memoireJoueurs = {};
 
 // --- 📊 GESTION DU FICHIER DE STATISTIQUES ---
 const statsFilePath = path.join(__dirname, 'stats.json');
-let stats = { totalVisiteurs: 0, totalGagnants: 0 };
+// NOUVEAU : On ajoute "totalAdmins" pour séparer le staff des visiteurs
+let stats = { totalVisiteurs: 0, totalGagnants: 0, totalAdmins: 0 };
 
-// Si le fichier existe déjà, on le charge pour ne pas repartir de zéro
 if (fs.existsSync(statsFilePath)) {
     const rawData = fs.readFileSync(statsFilePath);
     stats = JSON.parse(rawData);
 }
 
-// Fonction qui écrit les chiffres dans le fichier
 function sauvegarderStats() {
     fs.writeFileSync(statsFilePath, JSON.stringify(stats, null, 2));
 }
@@ -37,11 +36,10 @@ io.on('connection', (socket) => {
     socket.on('register_user', (userId) => {
         socket.join(userId); 
         
-        // 📊 STATS : Si c'est la toute première fois qu'on voit cette empreinte
         if (!memoireJoueurs[userId]) {
             memoireJoueurs[userId] = [];
-            stats.totalVisiteurs++; // On ajoute +1 au compteur des visiteurs
-            sauvegarderStats(); // On sauvegarde dans le fichier
+            stats.totalVisiteurs++; 
+            sauvegarderStats(); 
         }
     });
 });
@@ -49,6 +47,10 @@ io.on('connection', (socket) => {
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
     if (password === MOT_DE_PASSE_MATIN) {
+        // 📊 STATS : +1 connexion Staff quand le mot de passe est bon
+        stats.totalAdmins++;
+        sauvegarderStats();
+        
         res.json({ success: true, token: ADMIN_TOKEN });
     } else {
         res.json({ success: false });
@@ -61,7 +63,6 @@ app.post('/api/validate', (req, res) => {
 
     if (token === ADMIN_TOKEN) {
         
-        // Sécurité au cas où le joueur n'a pas été détecté au lancement
         if (!memoireJoueurs[userId]) {
             memoireJoueurs[userId] = [];
             stats.totalVisiteurs++;
@@ -76,13 +77,11 @@ app.post('/api/validate', (req, res) => {
             return res.json({ success: false, message: "🛑 TRICHE : Ce joueur a déjà eu son cadeau !" });
         }
 
-        // On enregistre la victoire
         memoireJoueurs[userId].push(gameId);
 
-        // 📊 STATS : Si avec ce scan, il atteint exactement 7 défis validés
         if (memoireJoueurs[userId].length === 7) {
-            stats.totalGagnants++; // On ajoute +1 au compteur des gagnants
-            sauvegarderStats(); // On sauvegarde
+            stats.totalGagnants++; 
+            sauvegarderStats(); 
         }
 
         io.to(userId).emit('challenge_validated', gameId);
@@ -93,13 +92,69 @@ app.post('/api/validate', (req, res) => {
     }
 });
 
-// --- 🕵️‍♂️ ROUTE SECRÈTE POUR VOIR LES STATS EN DIRECT ---
+// --- 🕵️‍♂️ ROUTE SECRÈTE (TABLEAU DE BORD DESIGN) ---
 app.get('/api/stats_centurio_secret', (req, res) => {
-    // Cette page affichera simplement le contenu du fichier
-    res.json(stats);
-});
-
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`🚀 Serveur Centurio sécurisé démarré sur le port ${PORT}`);
-});
+    // Le serveur génère une belle page web à la volée !
+    const html = `
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bilan - Centurio Gaming</title>
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: #f4f7f6;
+                color: #333;
+                text-align: center;
+                padding: 40px 20px;
+                margin: 0;
+            }
+            h1 { color: #f8aa37; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; font-size: 28px; }
+            p.subtitle { color: #666; margin-bottom: 40px; font-size: 14px; }
+            
+            .stats-container {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+            
+            .stat-card {
+                background: white;
+                padding: 25px;
+                border-radius: 15px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+                border-left: 6px solid #f8aa37;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .stat-card.admin { border-left-color: #2c3e50; }
+            .stat-card.winner { border-left-color: #28a745; }
+            
+            .stat-number {
+                font-size: 45px;
+                font-weight: 800;
+                margin: 5px 0;
+                line-height: 1;
+            }
+            
+            .stat-label {
+                font-size: 13px;
+                color: #888;
+                text-transform: uppercase;
+                letter-spacing: 1.5px;
+                font-weight: 600;
+            }
+            
+            .footer {
+                margin-top: 50px;
+                font-size: 11px;
+                color: #aaa;
+            }
+        </
