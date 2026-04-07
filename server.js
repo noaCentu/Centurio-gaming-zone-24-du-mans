@@ -10,7 +10,9 @@ const io = new Server(server);
 
 // --- 🔒 PARAMÈTRES DE SÉCURITÉ ---
 const MOT_DE_PASSE_MATIN = "admincenturio25"; 
+const MOT_DE_PASSE_STATS = "stat2026"; // <-- Nouveau mot de passe pour les stats
 const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz"; 
+const STATS_TOKEN = "jeton_secret_stats_2026_abc"; // <-- Nouveau jeton pour les stats
 
 // 🧠 LA MÉMOIRE ABSOLUE DU SERVEUR
 const memoireJoueurs = {}; 
@@ -45,10 +47,15 @@ io.on('connection', (socket) => {
 
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
+    
     if (password === MOT_DE_PASSE_MATIN) {
         stats.totalAdmins++;
         sauvegarderStats();
-        res.json({ success: true, token: ADMIN_TOKEN });
+        res.json({ success: true, token: ADMIN_TOKEN, role: 'admin' });
+        
+    } else if (password === MOT_DE_PASSE_STATS) {
+        res.json({ success: true, token: STATS_TOKEN, role: 'stats' });
+        
     } else {
         res.json({ success: false });
     }
@@ -69,7 +76,7 @@ app.post('/api/validate', (req, res) => {
             return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi précis !" });
         }
 
-        // 🚨 MODIFICATION ICI : On passe la limite à 8 (7 jeux + 1 cadeau)
+        // 🚨 LIMITE À 8 (7 jeux + 1 cadeau)
         if (memoireJoueurs[userId].length >= 8) {
             return res.json({ success: false, message: "🛑 TRICHE : Ce joueur a déjà eu son cadeau !" });
         }
@@ -90,6 +97,7 @@ app.post('/api/validate', (req, res) => {
     }
 });
 
+// L'ancienne route stats secrète (gardée au cas où, mais on utilisera la nouvelle page stats.html)
 app.get('/api/stats_centurio_secret', (req, res) => {
     const html = "<!DOCTYPE html>\n" +
     "<html lang='fr'>\n" +
