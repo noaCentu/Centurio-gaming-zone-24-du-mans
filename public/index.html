@@ -60,7 +60,7 @@
 
     <div class="modal-overlay" id="login-modal">
         <div class="modal">
-            <h3>Espace Animateur</h3>
+            <h3>Connexion Sécurisée</h3>
             <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Accès réservé au staff Centurio.</p>
             <input type="password" id="admin-pwd" placeholder="Mot de passe">
             <button class="btn-submit" onclick="login()">Se connecter</button>
@@ -75,22 +75,40 @@
 
     <script>
         function checkAdmin() {
-            if (localStorage.getItem('centurioAdminToken')) window.location.href = "scan.html";
-            else document.getElementById('login-modal').style.display = 'flex';
+            if (localStorage.getItem('centurioAdminToken')) {
+                window.location.href = "scan.html";
+            } else if (localStorage.getItem('centurioStatsToken')) {
+                window.location.href = "stats.html";
+            } else {
+                document.getElementById('login-modal').style.display = 'flex';
+            }
         }
+
         function login() {
             const pwd = document.getElementById('admin-pwd').value;
             fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd }) })
             .then(res => res.json())
             .then(data => {
-                if(data.success) { localStorage.setItem('centurioAdminToken', data.token); window.location.href = "scan.html"; } 
-                else { document.getElementById('login-error').style.display = 'block'; }
+                if(data.success) { 
+                    if(data.role === 'admin') {
+                        localStorage.setItem('centurioAdminToken', data.token); 
+                        window.location.href = "scan.html"; 
+                    } else if (data.role === 'stats') {
+                        localStorage.setItem('centurioStatsToken', data.token); 
+                        window.location.href = "stats.html"; 
+                    }
+                } 
+                else { 
+                    document.getElementById('login-error').style.display = 'block'; 
+                }
             });
         }
+
         function toggleLang() {
             const menu = document.getElementById('lang-list');
             menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
         }
+
         function changeLang(langCode, flag) {
             document.querySelector('.lang-btn').innerText = flag;
             document.getElementById('lang-list').style.display = 'none';
@@ -99,6 +117,7 @@
             if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } 
             else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); }
         }
+
         document.addEventListener('DOMContentLoaded', () => {
             const savedFlag = localStorage.getItem('centurioFlag');
             if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
