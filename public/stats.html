@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Stats - Centurio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .empty-dashboard {
+            margin-top: 30px;
+            min-height: 250px;
+            border: 3px dashed #ccc;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-weight: 600;
+            background-color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="header-v2">
+        <div class="header-title">Espace <span>Stats</span></div>
+    </div>
+
+    <div class="page-content" style="text-align: center;">
+        <h2 style="margin-bottom: 5px;">Tableau de Bord</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Aperçu des performances de la Gaming Zone.</p>
+        
+        <div class="empty-dashboard">
+            Interface des statistiques à venir...
+        </div>
+
+        <button class="btn-cancel" onclick="logout()" style="margin-top: 40px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('centurioStatsToken');
+        if (!token) {
+            window.location.href = "index.html"; 
+        }
+
+        function logout() {
+            localStorage.removeItem('centurioStatsToken');
+            window.location.href = "index.html";
+        }
+    </script>
+</body>
+</html>
