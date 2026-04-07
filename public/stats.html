@@ -6,48 +6,139 @@
     <title>Dashboard Stats - Centurio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-        .empty-dashboard {
-            margin-top: 30px;
-            min-height: 250px;
-            border: 3px dashed #ccc;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #aaa;
-            font-weight: 600;
-            background-color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-    </style>
 </head>
 <body>
     <div class="header-v2">
         <div class="header-title">Espace <span>Stats</span></div>
     </div>
 
-    <div class="page-content" style="text-align: center;">
-        <h2 style="margin-bottom: 5px;">Tableau de Bord</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Aperçu des performances de la Gaming Zone.</p>
+    <div class="page-content" style="max-width: 600px;">
+        <h2 style="text-align: center; margin-bottom: 25px;">Tableau de Bord</h2>
         
-        <div class="empty-dashboard">
-            Interface des statistiques à venir...
+        <div class="stats-grid">
+            <div class="stat-box">
+                <h4>Visiteurs (Semaine)</h4>
+                <div class="number" id="val-visiteurs">-</div>
+            </div>
+            <div class="stat-box">
+                <h4>Répondants (Avis)</h4>
+                <div class="number" id="val-repondants" style="color: var(--brand);">-</div>
+            </div>
         </div>
 
-        <button class="btn-cancel" onclick="logout()" style="margin-top: 40px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
+        <div class="stat-section" id="survey-results" style="display: none;">
+            <h3>📊 Moyennes de Satisfaction (sur 5)</h3>
+            
+            <div class="chart-row">
+                <div class="chart-label">Zone Gaming</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" id="bar-q1" style="width: 0%;"></div></div>
+                <div class="chart-value" id="score-q1">-</div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-label">App Mobile</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" id="bar-q2" style="width: 0%;"></div></div>
+                <div class="chart-value" id="score-q2">-</div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-label">Facilité App</div>
+                <div class="chart-bar-bg"><div class="chart-bar-fill" id="bar-q3" style="width: 0%;"></div></div>
+                <div class="chart-value" id="score-q3">-</div>
+            </div>
+        </div>
+
+        <div class="stat-section" id="comments-results" style="display: none;">
+            <h3>💡 Idées d'amélioration</h3>
+            <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Trié par récurrence. Les suggestions similaires ont été automatiquement regroupées.</p>
+            <div id="comments-list">
+                </div>
+        </div>
+
+        <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
     </div>
 
     <script>
         const token = localStorage.getItem('centurioStatsToken');
-        if (!token) {
-            window.location.href = "index.html"; 
-        }
+        if (!token) window.location.href = "index.html"; 
 
         function logout() {
             localStorage.removeItem('centurioStatsToken');
             window.location.href = "index.html";
         }
+
+        function calcAverage(scoresObj) {
+            let totalPoints = 0;
+            let totalVotes = 0;
+            for(let i=1; i<=5; i++) {
+                totalPoints += (i * scoresObj[i]);
+                totalVotes += scoresObj[i];
+            }
+            if(totalVotes === 0) return 0;
+            return (totalPoints / totalVotes).toFixed(1);
+        }
+
+        // Chargement des données depuis le serveur
+        fetch('/api/stats_data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: token })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                const s = data.stats;
+                
+                // Remplissage Bloc 1
+                document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
+                document.getElementById('val-repondants').innerText = s.surveyRespondents;
+
+                if (s.surveyRespondents > 0) {
+                    document.getElementById('survey-results').style.display = 'block';
+                    document.getElementById('comments-results').style.display = 'block';
+
+                    // Calcul et affichage Bloc 2 (Graphiques)
+                    const avg1 = calcAverage(s.surveyScores.q1);
+                    const avg2 = calcAverage(s.surveyScores.q2);
+                    const avg3 = calcAverage(s.surveyScores.q3);
+
+                    document.getElementById('score-q1').innerText = avg1;
+                    document.getElementById('bar-q1').style.width = (avg1 / 5 * 100) + "%";
+
+                    document.getElementById('score-q2').innerText = avg2;
+                    document.getElementById('bar-q2').style.width = (avg2 / 5 * 100) + "%";
+
+                    document.getElementById('score-q3').innerText = avg3;
+                    document.getElementById('bar-q3').style.width = (avg3 / 5 * 100) + "%";
+
+                    // Affichage Bloc 3 (Commentaires triés)
+                    const commentsObj = s.surveyComments;
+                    const commentsArray = Object.keys(commentsObj).map(key => {
+                        return { text: key, count: commentsObj[key] };
+                    });
+                    
+                    // Tri du plus récurrent au moins récurrent
+                    commentsArray.sort((a, b) => b.count - a.count);
+
+                    const listDiv = document.getElementById('comments-list');
+                    if (commentsArray.length === 0) {
+                        listDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>";
+                    } else {
+                        commentsArray.forEach(c => {
+                            listDiv.innerHTML += `
+                                <div class="comment-item">
+                                    <span class="comment-text">${c.text}</span>
+                                    <span class="comment-count">${c.count}x</span>
+                                </div>
+                            `;
+                        });
+                    }
+                }
+            } else {
+                alert("Session expirée.");
+                logout();
+            }
+        });
     </script>
 </body>
 </html>
