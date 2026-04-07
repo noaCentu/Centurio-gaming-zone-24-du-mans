@@ -10,24 +10,55 @@ const io = new Server(server);
 
 // --- 🔒 PARAMÈTRES DE SÉCURITÉ ---
 const MOT_DE_PASSE_MATIN = "admincenturio25"; 
-const MOT_DE_PASSE_STATS = "stat2026"; // <-- Nouveau mot de passe pour les stats
+const MOT_DE_PASSE_STATS = "stat2026"; 
 const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz"; 
-const STATS_TOKEN = "jeton_secret_stats_2026_abc"; // <-- Nouveau jeton pour les stats
+const STATS_TOKEN = "jeton_secret_stats_2026_abc"; 
 
-// 🧠 LA MÉMOIRE ABSOLUE DU SERVEUR
 const memoireJoueurs = {}; 
 
-// --- 📊 GESTION DU FICHIER DE STATISTIQUES ---
+// --- 📊 GESTION DES STATS ET DU QUESTIONNAIRE ---
 const statsFilePath = path.join(__dirname, 'stats.json');
-let stats = { totalVisiteurs: 0, totalGagnants: 0, totalAdmins: 0 };
+let stats = { 
+    totalVisiteurs: 0, 
+    totalGagnants: 0, 
+    totalAdmins: 0,
+    surveyRespondents: 0,
+    surveyScores: {
+        q1: { 1:0, 2:0, 3:0, 4:0, 5:0 }, // Gaming Zone
+        q2: { 1:0, 2:0, 3:0, 4:0, 5:0 }, // App mobile
+        q3: { 1:0, 2:0, 3:0, 4:0, 5:0 }  // Facilité
+    },
+    surveyComments: {} // Ex: { "Amélioration du design": 5, "Plus de jeux": 2 }
+};
 
 if (fs.existsSync(statsFilePath)) {
     const rawData = fs.readFileSync(statsFilePath);
     stats = JSON.parse(rawData);
+    // Rétrocompatibilité si les stats du questionnaire n'existaient pas encore
+    if(!stats.surveyScores) {
+        stats.surveyRespondents = 0;
+        stats.surveyScores = { q1: {1:0,2:0,3:0,4:0,5:0}, q2: {1:0,2:0,3:0,4:0,5:0}, q3: {1:0,2:0,3:0,4:0,5:0} };
+        stats.surveyComments = {};
+    }
 }
 
 function sauvegarderStats() {
     fs.writeFileSync(statsFilePath, JSON.stringify(stats, null, 2));
+}
+
+// 🧠 LOGIQUE DE REGROUPEMENT DES COMMENTAIRES (IA Basique)
+function normalizeComment(text) {
+    if (!text) return null;
+    let t = text.toLowerCase().trim();
+    if (t.length < 2) return null;
+
+    if (t.includes('design') || t.includes('interface') || t.includes('visuel') || t.includes('couleur')) return "Nouveau design / Interface";
+    if (t.includes('bug') || t.includes('lent') || t.includes('fluide') || t.includes('chargement')) return "Améliorer la fluidité / Bugs";
+    if (t.includes('jeu') || t.includes('défi') || t.includes('defi') || t.includes('stand')) return "Ajouter plus de jeux";
+    if (t.includes('cadeau') || t.includes('lot') || t.includes('recompense')) return "De meilleurs cadeaux";
+    
+    // Si pas de mot-clé, on met une majuscule et on renvoie le texte tel quel
+    return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -36,7 +67,6 @@ app.use(express.json());
 io.on('connection', (socket) => {
     socket.on('register_user', (userId) => {
         socket.join(userId); 
-        
         if (!memoireJoueurs[userId]) {
             memoireJoueurs[userId] = [];
             stats.totalVisiteurs++; 
@@ -47,15 +77,11 @@ io.on('connection', (socket) => {
 
 app.post('/api/login', (req, res) => {
     const { password } = req.body;
-    
     if (password === MOT_DE_PASSE_MATIN) {
-        stats.totalAdmins++;
-        sauvegarderStats();
+        stats.totalAdmins++; sauvegarderStats();
         res.json({ success: true, token: ADMIN_TOKEN, role: 'admin' });
-        
     } else if (password === MOT_DE_PASSE_STATS) {
         res.json({ success: true, token: STATS_TOKEN, role: 'stats' });
-        
     } else {
         res.json({ success: false });
     }
@@ -63,90 +89,53 @@ app.post('/api/login', (req, res) => {
 
 app.post('/api/validate', (req, res) => {
     const { userId, gameId, token } = req.body;
-
     if (token === ADMIN_TOKEN) {
+        if (!memoireJoueurs[userId]) { memoireJoueurs[userId] = []; stats.totalVisiteurs++; sauvegarderStats(); }
+        if (memoireJoueurs[userId].includes(gameId)) return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi !" });
+        if (memoireJoueurs[userId].length >= 8) return res.json({ success: false, message: "🛑 TRICHE : Cadeau déjà récupéré !" });
         
-        if (!memoireJoueurs[userId]) {
-            memoireJoueurs[userId] = [];
-            stats.totalVisiteurs++;
-            sauvegarderStats();
-        }
-
-        if (memoireJoueurs[userId].includes(gameId)) {
-            return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi précis !" });
-        }
-
-        // 🚨 LIMITE À 8 (7 jeux + 1 cadeau)
-        if (memoireJoueurs[userId].length >= 8) {
-            return res.json({ success: false, message: "🛑 TRICHE : Ce joueur a déjà eu son cadeau !" });
-        }
-
         memoireJoueurs[userId].push(gameId);
-
-        // 📊 STATS : Un gagnant "total" est quelqu'un qui a fait les 8 actions
-        if (memoireJoueurs[userId].length === 8) {
-            stats.totalGagnants++; 
-            sauvegarderStats(); 
-        }
+        if (memoireJoueurs[userId].length === 8) { stats.totalGagnants++; sauvegarderStats(); }
 
         io.to(userId).emit('challenge_validated', gameId);
         res.json({ success: true });
-
     } else {
-        res.json({ success: false, message: "🚨 TENTATIVE DE FRAUDE ! Vous n'êtes pas Staff." });
+        res.json({ success: false, message: "🚨 FRAUDE !" });
     }
 });
 
-// L'ancienne route stats secrète (gardée au cas où, mais on utilisera la nouvelle page stats.html)
-app.get('/api/stats_centurio_secret', (req, res) => {
-    const html = "<!DOCTYPE html>\n" +
-    "<html lang='fr'>\n" +
-    "<head>\n" +
-    "    <meta charset='UTF-8'>\n" +
-    "    <meta name='viewport' content='width=device-width, initial-scale=1.0'>\n" +
-    "    <title>Bilan - Centurio Gaming</title>\n" +
-    "    <link href='https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap' rel='stylesheet'>\n" +
-    "    <style>\n" +
-    "        body { font-family: 'Poppins', sans-serif; background-color: #f4f7f6; color: #333; text-align: center; padding: 40px 20px; margin: 0; }\n" +
-    "        h1 { color: #f8aa37; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; font-size: 28px; }\n" +
-    "        p.subtitle { color: #666; margin-bottom: 40px; font-size: 14px; }\n" +
-    "        .stats-container { display: flex; flex-direction: column; gap: 20px; max-width: 400px; margin: 0 auto; }\n" +
-    "        .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-left: 6px solid #f8aa37; display: flex; flex-direction: column; align-items: center; }\n" +
-    "        .stat-card.admin { border-left-color: #2c3e50; }\n" +
-    "        .stat-card.winner { border-left-color: #28a745; }\n" +
-    "        .stat-number { font-size: 45px; font-weight: 800; margin: 5px 0; line-height: 1; }\n" +
-    "        .stat-label { font-size: 13px; color: #888; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }\n" +
-    "        .footer { margin-top: 50px; font-size: 11px; color: #aaa; }\n" +
-    "    </style>\n" +
-    "</head>\n" +
-    "<body>\n" +
-    "    <h1>📊 Bilan en Direct</h1>\n" +
-    "    <p class='subtitle'>Statistiques officielles - Gaming Zone 24h</p>\n" +
-    "    <div class='stats-container'>\n" +
-    "        <div class='stat-card'>\n" +
-    "            <div class='stat-label'>🎮 Visiteurs Uniques</div>\n" +
-    "            <div class='stat-number' style='color: #f8aa37;'>" + stats.totalVisiteurs + "</div>\n" +
-    "        </div>\n" +
-    "        <div class='stat-card winner'>\n" +
-    "            <div class='stat-label'>🏆 Défis à 100% (Cadeau Inclus)</div>\n" +
-    "            <div class='stat-number' style='color: #28a745;'>" + stats.totalGagnants + "</div>\n" +
-    "        </div>\n" +
-    "        <div class='stat-card admin'>\n" +
-    "            <div class='stat-label'>👮‍♂️ Connexions Staff</div>\n" +
-    "            <div class='stat-number' style='color: #2c3e50;'>" + stats.totalAdmins + "</div>\n" +
-    "        </div>\n" +
-    "    </div>\n" +
-    "    <div class='footer'>\n" +
-    "        Système Centurio Pro &copy; 2024<br>\n" +
-    "        Mise à jour automatique à chaque actualisation de la page.\n" +
-    "    </div>\n" +
-    "</body>\n" +
-    "</html>";
+// --- 📝 NOUVEAU : SAUVEGARDER LE QUESTIONNAIRE ---
+app.post('/api/survey', (req, res) => {
+    const { q1, q2, q3, comment } = req.body;
     
-    res.send(html);
+    // Vérifier que les questions obligatoires sont répondues
+    if(!q1 || !q2 || !q3) return res.json({ success: false, message: "Questions 1 à 3 obligatoires." });
+
+    stats.surveyRespondents++;
+    stats.surveyScores.q1[q1]++;
+    stats.surveyScores.q2[q2]++;
+    stats.surveyScores.q3[q3]++;
+
+    const groupedComment = normalizeComment(comment);
+    if (groupedComment) {
+        if (!stats.surveyComments[groupedComment]) stats.surveyComments[groupedComment] = 0;
+        stats.surveyComments[groupedComment]++;
+    }
+
+    sauvegarderStats();
+    res.json({ success: true });
+});
+
+// --- 📊 NOUVEAU : RÉCUPÉRER LES STATS SÉCURISÉES ---
+app.post('/api/stats_data', (req, res) => {
+    if (req.body.token === STATS_TOKEN) {
+        res.json({ success: true, stats: stats });
+    } else {
+        res.json({ success: false });
+    }
 });
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log("🚀 Serveur Centurio securise demarre sur le port " + PORT);
+    console.log("🚀 Serveur Centurio démarré sur le port " + PORT);
 });
