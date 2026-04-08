@@ -12,13 +12,17 @@
         <div class="header-title">Espace <span>Stats</span></div>
     </div>
 
-    <div class="page-content" style="max-width: 600px;">
+    <div class="page-content" style="max-width: 700px;">
         <h2 style="text-align: center; margin-bottom: 25px;">Tableau de Bord</h2>
         
         <div class="stats-grid">
             <div class="stat-box">
-                <h4>Visiteurs (Semaine)</h4>
+                <h4>Visiteurs (Total)</h4>
                 <div class="number" id="val-visiteurs">-</div>
+            </div>
+            <div class="stat-box">
+                <h4>Pic Simultané</h4>
+                <div class="number" id="val-simultanes" style="color: #4CAF50;">-</div>
             </div>
             <div class="stat-box">
                 <h4>Répondants (Avis)</h4>
@@ -89,8 +93,9 @@
             if(data.success) {
                 const s = data.stats;
                 
-                // Remplissage Bloc 1
+                // Remplissage Bloc 1 (Les 3 compteurs)
                 document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
+                document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers; // 🚀 Affichage du Pic
                 document.getElementById('val-repondants').innerText = s.surveyRespondents;
 
                 if (s.surveyRespondents > 0) {
@@ -117,7 +122,6 @@
                         return { text: key, count: commentsObj[key] };
                     });
                     
-                    // Tri du plus récurrent au moins récurrent
                     commentsArray.sort((a, b) => b.count - a.count);
 
                     const listDiv = document.getElementById('comments-list');
