@@ -30,7 +30,8 @@
     </nav>
 
     <script>
-        const token = localStorage.getItem('centurioAdminToken');
+        // Vérification avec sessionStorage
+        const token = sessionStorage.getItem('centurioAdminToken');
         if (!token) {
             window.location.href = "index.html"; 
         }
@@ -92,11 +93,9 @@
             }
         }
 
-        // 🪄 LA VRAIE SOLUTION : En enlevant le mot "qrbox" de ce code, 
-        // la bibliothèque ne dessine pas le carré de visée et scanne sur 100% de la surface !
         html5QrCode.start(
             { facingMode: "environment" }, 
-            { fps: 15 }, // <-- Juste la vitesse, pas de taille imposée
+            { fps: 15 }, 
             onScanSuccess,
             (errorMessage) => { }
         ).catch((err) => {
@@ -106,14 +105,14 @@
         function logout() {
             if(html5QrCode.isScanning) {
                 html5QrCode.stop().then(() => {
-                    localStorage.removeItem('centurioAdminToken');
+                    sessionStorage.removeItem('centurioAdminToken');
                     window.location.href = "index.html";
                 }).catch(err => {
-                    localStorage.removeItem('centurioAdminToken');
+                    sessionStorage.removeItem('centurioAdminToken');
                     window.location.href = "index.html";
                 });
             } else {
-                localStorage.removeItem('centurioAdminToken');
+                sessionStorage.removeItem('centurioAdminToken');
                 window.location.href = "index.html";
             }
         }
