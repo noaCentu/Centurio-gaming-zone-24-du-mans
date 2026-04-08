@@ -23,7 +23,6 @@ mongoose.connect(MONGO_URI)
 
 // --- 📅 FONCTION POUR AVOIR LA DATE DU JOUR (Heure France) ---
 function getTodayDate() {
-    // Renvoie la date sous format "JJ/MM/AAAA"
     return new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 }
 
@@ -31,12 +30,12 @@ function getTodayDate() {
 const PlayerSchema = new mongoose.Schema({
     userId: String,
     games: [String],
-    visitedDays: { type: [String], default: [] } // 🚀 NOUVEAU : On retient les jours de visite
+    visitedDays: { type: [String], default: [] }
 });
 const Player = mongoose.model('Player', PlayerSchema);
 
 const StatsSchema = new mongoose.Schema({
-    idName: { type: String, default: "main" }, // "main" ou "09/06/2026"
+    idName: { type: String, default: "main" }, 
     totalVisiteurs: { type: Number, default: 0 },
     maxConcurrentUsers: { type: Number, default: 0 }, 
     totalGagnants: { type: Number, default: 0 },
@@ -83,7 +82,6 @@ let currentConnections = 0;
 io.on('connection', async (socket) => {
     currentConnections++; 
     
-    // Met à jour le pic simultané (Général + Aujourd'hui)
     const today = getTodayDate();
     for (let k of ["main", today]) {
         let stats = await initStats(k);
@@ -102,15 +100,12 @@ io.on('connection', async (socket) => {
             player = new Player({ userId: userId, games: [], visitedDays: [] });
         }
 
-        // S'il n'est pas encore venu aujourd'hui
         if (!player.visitedDays.includes(today)) {
             player.visitedDays.push(today);
             await player.save();
 
-            // +1 visiteur AUJOURD'HUI
             await GlobalStat.updateOne({ idName: today }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
 
-            // S'il n'est jamais venu de toute sa vie, +1 visiteur GÉNÉRAL
             if (player.visitedDays.length === 1) {
                 await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
             }
@@ -161,7 +156,7 @@ app.post('/api/survey', async (req, res) => {
     if(!q1 || !q2 || !q3) return res.json({ success: false, message: "Questions obligatoires." });
 
     const today = getTodayDate();
-    const keys = ["main", today]; // On met à jour le Général et Aujourd'hui
+    const keys = ["main", today]; 
     
     for (let k of keys) {
         let stats = await initStats(k);
@@ -186,7 +181,6 @@ app.post('/api/survey', async (req, res) => {
 
 app.post('/api/stats_data', async (req, res) => {
     if (req.body.token === STATS_TOKEN) {
-        // On récupère TOUS les classeurs de stats (Le main + les jours individuels)
         const allStats = await GlobalStat.find({});
         let result = {};
 
@@ -202,6 +196,18 @@ app.post('/api/stats_data', async (req, res) => {
         });
         
         res.json({ success: true, allData: result });
+    } else {
+        res.json({ success: false });
+    }
+});
+
+// 🚀 NOUVELLE ROUTE : Suppression de l'historique
+app.post('/api/reset_stats', async (req, res) => {
+    if (req.body.token === STATS_TOKEN) {
+        await GlobalStat.deleteMany({}); // Vide toutes les stats
+        await Player.deleteMany({}); // Vide tous les joueurs de test
+        await initStats("main"); // Recrée un tableau de bord vierge
+        res.json({ success: true });
     } else {
         res.json({ success: false });
     }
