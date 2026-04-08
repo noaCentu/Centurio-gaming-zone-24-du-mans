@@ -21,18 +21,24 @@ mongoose.connect(MONGO_URI)
     .then(() => console.log("🟢 Connecté avec succès au coffre-fort MongoDB !"))
     .catch(err => console.error("🔴 Erreur de connexion MongoDB :", err));
 
-// --- 🏗️ STRUCTURE DE LA BASE DE DONNÉES ---
+// --- 📅 FONCTION POUR AVOIR LA DATE DU JOUR (Heure France) ---
+function getTodayDate() {
+    // Renvoie la date sous format "JJ/MM/AAAA"
+    return new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
+}
 
+// --- 🏗️ STRUCTURE DE LA BASE DE DONNÉES ---
 const PlayerSchema = new mongoose.Schema({
     userId: String,
-    games: [String] 
+    games: [String],
+    visitedDays: { type: [String], default: [] } // 🚀 NOUVEAU : On retient les jours de visite
 });
 const Player = mongoose.model('Player', PlayerSchema);
 
 const StatsSchema = new mongoose.Schema({
-    idName: { type: String, default: "main" }, 
+    idName: { type: String, default: "main" }, // "main" ou "09/06/2026"
     totalVisiteurs: { type: Number, default: 0 },
-    maxConcurrentUsers: { type: Number, default: 0 }, // 🚀 NOUVEAU : Le record simultané
+    maxConcurrentUsers: { type: Number, default: 0 }, 
     totalGagnants: { type: Number, default: 0 },
     totalAdmins: { type: Number, default: 0 },
     surveyRespondents: { type: Number, default: 0 },
@@ -45,14 +51,15 @@ const StatsSchema = new mongoose.Schema({
 });
 const GlobalStat = mongoose.model('GlobalStat', StatsSchema);
 
-async function initStats() {
-    let stats = await GlobalStat.findOne({ idName: "main" });
+async function initStats(key) {
+    let stats = await GlobalStat.findOne({ idName: key });
     if (!stats) {
-        stats = new GlobalStat();
+        stats = new GlobalStat({ idName: key });
         await stats.save();
     }
+    return stats;
 }
-initStats();
+initStats("main");
 
 function normalizeComment(text) {
     if (!text) return null;
@@ -71,32 +78,47 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // --- 📡 GESTION EN TEMPS RÉEL (SOCKET.IO) ---
-let currentConnections = 0; // Compteur des gens connectés EN CE MOMENT
+let currentConnections = 0; 
 
 io.on('connection', async (socket) => {
-    currentConnections++; // +1 personne en direct
+    currentConnections++; 
     
-    // Met à jour le record dans MongoDB si on bat le pic précédent
-    const stats = await GlobalStat.findOne({ idName: "main" });
-    if (stats && currentConnections > stats.maxConcurrentUsers) {
-        stats.maxConcurrentUsers = currentConnections;
-        await stats.save();
+    // Met à jour le pic simultané (Général + Aujourd'hui)
+    const today = getTodayDate();
+    for (let k of ["main", today]) {
+        let stats = await initStats(k);
+        if (currentConnections > stats.maxConcurrentUsers) {
+            stats.maxConcurrentUsers = currentConnections;
+            await stats.save();
+        }
     }
 
     socket.on('register_user', async (userId) => {
         socket.join(userId); 
+        const today = getTodayDate();
         
         let player = await Player.findOne({ userId: userId });
         if (!player) {
-            player = new Player({ userId: userId, games: [] });
+            player = new Player({ userId: userId, games: [], visitedDays: [] });
+        }
+
+        // S'il n'est pas encore venu aujourd'hui
+        if (!player.visitedDays.includes(today)) {
+            player.visitedDays.push(today);
             await player.save();
-            await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } });
+
+            // +1 visiteur AUJOURD'HUI
+            await GlobalStat.updateOne({ idName: today }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+
+            // S'il n'est jamais venu de toute sa vie, +1 visiteur GÉNÉRAL
+            if (player.visitedDays.length === 1) {
+                await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+            }
         }
     });
 
-    // Quand la personne ferme la page web ou perd le réseau
     socket.on('disconnect', () => {
-        currentConnections--; // -1 personne en direct
+        currentConnections--; 
     });
 });
 
@@ -105,7 +127,6 @@ io.on('connection', async (socket) => {
 app.post('/api/login', async (req, res) => {
     const { password } = req.body;
     if (password === MOT_DE_PASSE_MATIN) {
-        await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalAdmins: 1 } });
         res.json({ success: true, token: ADMIN_TOKEN, role: 'admin' });
     } else if (password === MOT_DE_PASSE_STATS) {
         res.json({ success: true, token: STATS_TOKEN, role: 'stats' });
@@ -119,10 +140,7 @@ app.post('/api/validate', async (req, res) => {
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "🚨 FRAUDE !" });
 
     let player = await Player.findOne({ userId: userId });
-    if (!player) {
-        player = new Player({ userId: userId, games: [] });
-        await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } });
-    }
+    if (!player) return res.json({ success: false, message: "⚠️ Joueur introuvable" });
 
     if (player.games.includes(gameId)) return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi !" });
     if (player.games.length >= 8) return res.json({ success: false, message: "🛑 TRICHE : Cadeau déjà récupéré !" });
@@ -142,41 +160,48 @@ app.post('/api/survey', async (req, res) => {
     const { q1, q2, q3, comment } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false, message: "Questions obligatoires." });
 
-    const stats = await GlobalStat.findOne({ idName: "main" });
+    const today = getTodayDate();
+    const keys = ["main", today]; // On met à jour le Général et Aujourd'hui
     
-    stats.surveyRespondents++;
-    stats.surveyScores.q1[q1]++;
-    stats.surveyScores.q2[q2]++;
-    stats.surveyScores.q3[q3]++;
+    for (let k of keys) {
+        let stats = await initStats(k);
+        
+        stats.surveyRespondents++;
+        stats.surveyScores.q1[q1]++;
+        stats.surveyScores.q2[q2]++;
+        stats.surveyScores.q3[q3]++;
 
-    const groupedComment = normalizeComment(comment);
-    if (groupedComment) {
-        let currentCount = stats.surveyComments.get(groupedComment) || 0;
-        stats.surveyComments.set(groupedComment, currentCount + 1);
+        const groupedComment = normalizeComment(comment);
+        if (groupedComment) {
+            let currentCount = stats.surveyComments.get(groupedComment) || 0;
+            stats.surveyComments.set(groupedComment, currentCount + 1);
+        }
+
+        stats.markModified('surveyScores');
+        await stats.save();
     }
-
-    stats.markModified('surveyScores');
-    await stats.save();
+    
     res.json({ success: true });
 });
 
 app.post('/api/stats_data', async (req, res) => {
     if (req.body.token === STATS_TOKEN) {
-        const stats = await GlobalStat.findOne({ idName: "main" });
-        const commentsObj = Object.fromEntries(stats.surveyComments);
-        
-        res.json({ 
-            success: true, 
-            stats: { 
-                totalVisiteurs: stats.totalVisiteurs,
-                maxConcurrentUsers: stats.maxConcurrentUsers, // 🚀 NOUVEAU
-                totalGagnants: stats.totalGagnants,
-                totalAdmins: stats.totalAdmins,
-                surveyRespondents: stats.surveyRespondents,
-                surveyScores: stats.surveyScores,
+        // On récupère TOUS les classeurs de stats (Le main + les jours individuels)
+        const allStats = await GlobalStat.find({});
+        let result = {};
+
+        allStats.forEach(s => {
+            const commentsObj = Object.fromEntries(s.surveyComments);
+            result[s.idName] = { 
+                totalVisiteurs: s.totalVisiteurs,
+                maxConcurrentUsers: s.maxConcurrentUsers,
+                surveyRespondents: s.surveyRespondents,
+                surveyScores: s.surveyScores,
                 surveyComments: commentsObj
-            } 
+            };
         });
+        
+        res.json({ success: true, allData: result });
     } else {
         res.json({ success: false });
     }
