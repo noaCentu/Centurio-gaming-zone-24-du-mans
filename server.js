@@ -39,6 +39,9 @@ const StatsSchema = new mongoose.Schema({
     totalGagnants: { type: Number, default: 0 },
     totalAdmins: { type: Number, default: 0 },
     
+    // 🚀 OPTION 1 : STATS PAR STAND
+    gameStats: { type: Map, of: Number, default: {} },
+    
     // STATS VISITEURS
     surveyRespondents: { type: Number, default: 0 },
     surveyScores: {
@@ -48,12 +51,12 @@ const StatsSchema = new mongoose.Schema({
     },
     surveyComments: { type: Map, of: Number, default: {} },
     
-    // 🚀 NOUVEAU : STATS ADMINS
+    // STATS ADMINS
     adminSurveyRespondents: { type: Number, default: 0 },
     adminSurveyScores: {
         q1: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} },
         q2: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} },
-        q3: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} } // Question optionnelle papier
+        q3: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} }
     },
     adminSurveyComments: { type: Map, of: Number, default: {} }
 });
@@ -127,12 +130,21 @@ app.post('/api/validate', async (req, res) => {
 
     player.games.push(gameId);
     await player.save();
+    
+    // 🚀 OPTION 1 : ENREGISTREMENT DU SCAN POUR LE STAND
+    const today = getTodayDate();
+    for (let k of ["main", today]) {
+        let stats = await initStats(k);
+        let currentCount = stats.gameStats.get(gameId) || 0;
+        stats.gameStats.set(gameId, currentCount + 1);
+        await stats.save();
+    }
+
     if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
     io.to(userId).emit('challenge_validated', gameId);
     res.json({ success: true });
 });
 
-// AVIS VISITEURS
 app.post('/api/survey', async (req, res) => {
     const { q1, q2, q3, comment } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false });
@@ -152,11 +164,10 @@ app.post('/api/survey', async (req, res) => {
     res.json({ success: true });
 });
 
-// 🚀 NOUVEAU : AVIS ADMINS (STAFF)
 app.post('/api/admin_survey', async (req, res) => {
     const { q1, q2, q3, comment, token } = req.body;
     if(token !== ADMIN_TOKEN) return res.json({ success: false });
-    if(!q1 || !q2) return res.json({ success: false, message: "Q1 et Q2 obligatoires" }); // Q3 est optionnelle !
+    if(!q1 || !q2) return res.json({ success: false }); 
     
     const today = getTodayDate();
     for (let k of ["main", today]) {
@@ -164,7 +175,7 @@ app.post('/api/admin_survey', async (req, res) => {
         stats.adminSurveyRespondents++;
         stats.adminSurveyScores.q1[q1]++; 
         stats.adminSurveyScores.q2[q2]++;
-        if (q3) stats.adminSurveyScores.q3[q3]++; // Seulement s'ils ont répondu
+        if (q3) stats.adminSurveyScores.q3[q3]++; 
         
         const groupedComment = normalizeComment(comment);
         if (groupedComment) {
@@ -184,6 +195,7 @@ app.post('/api/stats_data', async (req, res) => {
         allStats.forEach(s => {
             result[s.idName] = { 
                 totalVisiteurs: s.totalVisiteurs, maxConcurrentUsers: s.maxConcurrentUsers,
+                gameStats: Object.fromEntries(s.gameStats || new Map()), // 🚀 NOUVEAU
                 surveyRespondents: s.surveyRespondents, surveyScores: s.surveyScores, surveyComments: Object.fromEntries(s.surveyComments),
                 adminSurveyRespondents: s.adminSurveyRespondents, adminSurveyScores: s.adminSurveyScores, adminSurveyComments: Object.fromEntries(s.adminSurveyComments)
             };
