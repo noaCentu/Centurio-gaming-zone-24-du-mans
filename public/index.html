@@ -74,11 +74,23 @@
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <script>
+        // 🔥 SÉCURITÉ ÉVÉNEMENT : Nettoyage automatique des vieux restes
+        // Si le navigateur a encore les anciens jetons en mémoire longue, on force l'effacement.
+        if (localStorage.getItem('centurioAdminToken') || localStorage.getItem('centurioStatsToken')) {
+            localStorage.removeItem('centurioAdminToken');
+            localStorage.removeItem('centurioStatsToken');
+            sessionStorage.clear();
+            console.log("🧹 Vieux restes nettoyés avec succès !");
+        }
+
         function checkAdmin() {
-            // Utilisation de sessionStorage pour forcer la reconnexion si la page est fermée
-            if (sessionStorage.getItem('centurioAdminToken')) {
+            // On vérifie STRICTEMENT la mémoire courte (sessionStorage)
+            const admin = sessionStorage.getItem('centurioAdminToken');
+            const stats = sessionStorage.getItem('centurioStatsToken');
+
+            if (admin) {
                 window.location.href = "scan.html";
-            } else if (sessionStorage.getItem('centurioStatsToken')) {
+            } else if (stats) {
                 window.location.href = "stats.html";
             } else {
                 document.getElementById('login-modal').style.display = 'flex';
@@ -87,10 +99,19 @@
 
         function login() {
             const pwd = document.getElementById('admin-pwd').value;
-            fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd }) })
+            const errorMsg = document.getElementById('login-error');
+            
+            fetch('/api/login', { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ password: pwd }) 
+            })
             .then(res => res.json())
             .then(data => {
                 if(data.success) { 
+                    // On nettoie tout avant de stocker le nouveau jeton
+                    sessionStorage.clear();
+                    
                     if(data.role === 'admin') {
                         sessionStorage.setItem('centurioAdminToken', data.token); 
                         window.location.href = "scan.html"; 
@@ -98,10 +119,13 @@
                         sessionStorage.setItem('centurioStatsToken', data.token); 
                         window.location.href = "stats.html"; 
                     }
-                } 
-                else { 
-                    document.getElementById('login-error').style.display = 'block'; 
+                } else { 
+                    errorMsg.style.display = 'block'; 
                 }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Erreur de connexion au serveur. Vérifiez votre réseau.");
             });
         }
 
