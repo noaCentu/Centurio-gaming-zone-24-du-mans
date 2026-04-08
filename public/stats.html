@@ -7,36 +7,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        .question-block { background: #ffffff; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); page-break-inside: avoid; break-inside: avoid; }
-        .question-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: #222; }
-        .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .dist-label { width: 35px; font-size: 13px; font-weight: bold; color: #555; text-align: right; }
-        .dist-bar-bg { flex: 1; background: #f0f0f0; height: 14px; border-radius: 7px; overflow: hidden; }
-        .dist-bar-fill { background: var(--brand, #f8aa37); height: 100%; width: 0%; transition: width 0.8s ease-out; border-radius: 7px; }
-        .dist-val { width: 35px; font-size: 13px; font-weight: bold; text-align: right; color: #333; }
-        .avg-box { margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ddd; text-align: right; font-size: 14px; color: #555; }
-        .avg-number { font-weight: 800; font-size: 18px; color: var(--brand, #f8aa37); }
-        .vote-count { font-size: 12px; font-weight: normal; color: #888; margin-left: 5px; }
-        
-        .filter-box { text-align: center; margin-bottom: 20px; }
-        .filter-box select { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; border: 2px solid var(--brand); outline: none; cursor: pointer; background: white; font-family: 'Poppins', sans-serif;}
-        
-        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; font-size: 14px; font-weight: 800; border: 2px solid var(--brand); background: transparent; color: var(--brand); border-radius: 10px; cursor: pointer; transition: 0.2s; }
-        .tab-btn.active { background: var(--brand); color: white; }
-
-        .btn-pdf { background: #2196F3; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); }
-        .btn-csv { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
-        .btn-reset { background: #ff4d4d; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3); }
-    </style>
 </head>
 <body>
     <div class="header-v2">
         <div class="header-title">Espace <span>Stats</span></div>
     </div>
 
-    <div class="page-content" style="max-width: 700px; padding-bottom: 50px;">
+    <div class="page-content" style="max-width: 700px;">
         
         <div class="filter-box">
             <select id="day-selector" onchange="updateDisplay()">
@@ -50,7 +27,7 @@
             </select>
         </div>
 
-        <div id="pdf-content" style="background: white; padding: 10px;">
+        <div id="pdf-content" style="background: white; padding: 15px; border-radius: 10px;">
             <h2 id="pdf-title" style="text-align: center; margin-bottom: 25px;">Statistiques - Vue Générale</h2>
             
             <div class="stats-grid">
@@ -68,8 +45,8 @@
                 </div>
             </div>
 
-            <div class="stat-section" id="games-results" style="page-break-inside: avoid; break-inside: avoid; margin-bottom: 25px;">
-                <h3 style="margin-bottom: 15px; color: #222;">🎮 Popularité des Stands</h3>
+            <div class="stat-section" id="games-results">
+                <h3 style="margin-bottom: 15px;">🎮 Popularité des Stands</h3>
                 <div id="games-list"></div>
             </div>
 
@@ -98,7 +75,7 @@
                 <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5 <span class="vote-count" id="count-q3">(0 avis)</span></div>
             </div>
 
-            <div class="stat-section" id="comments-results" style="page-break-inside: avoid; break-inside: avoid;">
+            <div class="stat-section" id="comments-results">
                 <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
                 <div id="comments-list"></div>
             </div>
@@ -106,10 +83,11 @@
 
         <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger le visuel (PDF)</button>
         <button class="btn-csv" onclick="downloadCSV()">📊 Exporter les données brutes (Excel)</button>
-        
         <button class="btn-reset" onclick="resetStats()">🚨 Remettre TOUTES les stats à zéro</button>
-        <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
+        <button class="btn-cancel" onclick="logout()">Se déconnecter de l'espace Stats</button>
     </div>
+
+    <button class="btn-night-mode" onclick="toggleNightMode()" id="night-btn" data-html2canvas-ignore>🌙</button>
 
     <script>
         const token = sessionStorage.getItem('centurioStatsToken');
@@ -120,6 +98,31 @@
 
         function logout() { sessionStorage.removeItem('centurioStatsToken'); window.location.href = "index.html"; }
 
+        // --- GESTION DU MODE NUIT ---
+        function toggleNightMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('centurioNightMode', isDark ? 'on' : 'off');
+            document.getElementById('night-btn').innerText = isDark ? '☀️' : '🌙';
+        }
+
+        function checkNightMode() {
+            const savedMode = localStorage.getItem('centurioNightMode');
+            const hour = new Date().getHours();
+            if (savedMode === 'on') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('night-btn').innerText = '☀️';
+            } else if (savedMode === 'off') {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('night-btn').innerText = '🌙';
+            } else if (hour >= 21 || hour < 6) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('night-btn').innerText = '☀️';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', checkNightMode);
+
+        // --- AFFICHAGE STATS ---
         function renderDistribution(containerId, dataObj, avgId, countId) {
             const container = document.getElementById(containerId); 
             container.innerHTML = ""; 
@@ -140,12 +143,11 @@
             document.getElementById(countId).innerText = `(${actualVotes} avis)`;
         }
 
-        // 🧮 Fonction utilitaire pour calculer une moyenne rapidement (pour le CSV)
         function calcAvg(scores) {
-            if (!scores) return 0;
+            if (!scores) return "0";
             let total = 0, count = 0;
             for(let i=1; i<=5; i++) { total += (scores[i]||0)*i; count += (scores[i]||0); }
-            return count > 0 ? (total/count).toFixed(2) : 0;
+            return count > 0 ? (total/count).toFixed(2) : "0";
         }
 
         function setSurveyTarget(target) {
@@ -154,13 +156,11 @@
             document.getElementById('tab-admins').className = target === 'admins' ? 'tab-btn active' : 'tab-btn';
             
             if (target === 'visiteurs') {
-                document.getElementById('label-repondants').innerText = "Formulaires (Total)";
                 document.getElementById('survey-section-title').innerText = "📊 Résultats du questionnaire (Visiteurs)";
                 document.getElementById('title-q1').innerText = "Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?";
                 document.getElementById('title-q2').innerText = "Q2. L'application mobile était-elle facile à utiliser ?";
                 document.getElementById('title-q3').innerText = "Q3. Globalement, quelle est votre satisfaction ?";
             } else {
-                document.getElementById('label-repondants').innerText = "Formulaires (Total)";
                 document.getElementById('survey-section-title').innerText = "🛡️ Résultats du questionnaire (Staff)";
                 document.getElementById('title-q1').innerText = "Q1. Facilité d'utilisation du scanner QR Code ?";
                 document.getElementById('title-q2').innerText = "Q2. Stabilité et rapidité de l'application ?";
@@ -184,14 +184,13 @@
             document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
             document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers;
 
-            // 🚀 AFFICHAGE DE LA POPULARITÉ DES STANDS
             const gamesObj = s.gameStats || {};
             const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
             const gamesListDiv = document.getElementById('games-list');
             if (gamesArray.length > 0) {
                 gamesListDiv.innerHTML = "";
                 gamesArray.forEach(g => {
-                    gamesListDiv.innerHTML += `<div class="comment-item" style="page-break-inside: avoid;"><span class="comment-text" style="font-weight: 800; color: var(--brand);">DÉFI : ${g.id.toUpperCase()}</span><span class="comment-count">${g.count} validations</span></div>`;
+                    gamesListDiv.innerHTML += `<div class="comment-item"><span class="comment-text" style="color: var(--brand);">DÉFI : ${g.id.toUpperCase()}</span><span class="comment-count">${g.count} validations</span></div>`;
                 });
             } else {
                 gamesListDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucun défi n'a encore été validé.</p>";
@@ -216,15 +215,21 @@
             const listDiv = document.getElementById('comments-list');
             if (commentsArray.length > 0) {
                 listDiv.innerHTML = ""; 
-                commentsArray.forEach(c => listDiv.innerHTML += `<div class="comment-item" style="page-break-inside: avoid;"><span class="comment-text">${c.text}</span><span class="comment-count">${c.count}x</span></div>`);
+                commentsArray.forEach(c => listDiv.innerHTML += `<div class="comment-item"><span class="comment-text">${c.text}</span><span class="comment-count">${c.count}x</span></div>`);
             } else {
                 listDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>";
             }
         }
 
+        // --- EXPORTS (PDF & CSV) ---
         function downloadPDF() {
             window.scrollTo(0, 0);
             const element = document.getElementById('pdf-content');
+            
+            // On force temporairement le PDF à être en clair même s'il fait nuit
+            const wasDark = document.body.classList.contains('dark-mode');
+            if(wasDark) document.body.classList.remove('dark-mode');
+
             const currentDay = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
             const tabName = currentTarget === "visiteurs" ? "Visiteurs" : "Staff"; 
 
@@ -235,15 +240,17 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: ['css', 'legacy'] }
             };
+            
             const btn = document.querySelector('.btn-pdf'); btn.innerText = "⏳ Génération en cours...";
+            
             setTimeout(() => {
                 html2pdf().set(opt).from(element).save().then(() => {
+                    if(wasDark) document.body.classList.add('dark-mode'); // On remet la nuit
                     btn.innerText = "✅ Téléchargement terminé !"; setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
                 });
             }, 500);
         }
 
-        // 🚀 OPTION 4 : GÉNÉRATEUR EXCEL (CSV)
         function downloadCSV() {
             const selector = document.getElementById('day-selector');
             const dayKey = selector.value;
@@ -252,35 +259,32 @@
             const s = allStatsData[dayKey];
             if (!s) return alert("Aucune donnée à exporter.");
 
-            // Le \uFEFF force Excel à lire correctement les accents (encodage UTF-8)
             let csvContent = "\uFEFF"; 
             csvContent += `Rapport Brut Centurio - ${selectedText}\n\n`;
 
             csvContent += "--- DONNÉES GLOBALES ---\n";
-            csvContent += `Visiteurs Uniques,${s.totalVisiteurs}\n`;
-            csvContent += `Pic de Connexions Simultanées,${s.maxConcurrentUsers}\n\n`;
+            csvContent += `Visiteurs Uniques;${s.totalVisiteurs}\n`;
+            csvContent += `Pic de Connexions Simultanées;${s.maxConcurrentUsers}\n\n`;
 
             csvContent += "--- POPULARITÉ DES STANDS ---\n";
             const gamesObj = s.gameStats || {};
             const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
             if (gamesArray.length === 0) {
-                csvContent += "Aucun stand validé,0\n";
+                csvContent += "Aucun stand validé;0\n";
             } else {
-                gamesArray.forEach(g => {
-                    csvContent += `Défi ${g.id.toUpperCase()},${g.count}\n`;
-                });
+                gamesArray.forEach(g => csvContent += `Défi ${g.id.toUpperCase()};${g.count}\n`);
             }
             csvContent += "\n";
 
             csvContent += `--- AVIS VISITEURS (${s.surveyRespondents} formulaires) ---\n`;
-            csvContent += `Note Ambiance (Moyenne),${calcAvg(s.surveyScores.q1)}\n`;
-            csvContent += `Note Application (Moyenne),${calcAvg(s.surveyScores.q2)}\n`;
-            csvContent += `Note Satisfaction (Moyenne),${calcAvg(s.surveyScores.q3)}\n\n`;
+            csvContent += `Note Ambiance (Moyenne);${calcAvg(s.surveyScores.q1).replace('.', ',')}\n`;
+            csvContent += `Note Application (Moyenne);${calcAvg(s.surveyScores.q2).replace('.', ',')}\n`;
+            csvContent += `Note Satisfaction (Moyenne);${calcAvg(s.surveyScores.q3).replace('.', ',')}\n\n`;
 
             csvContent += `--- AVIS STAFF ANIMATEURS (${s.adminSurveyRespondents} formulaires) ---\n`;
-            csvContent += `Note Scanner (Moyenne),${calcAvg(s.adminSurveyScores.q1)}\n`;
-            csvContent += `Note Stabilité (Moyenne),${calcAvg(s.adminSurveyScores.q2)}\n`;
-            csvContent += `Avantage par rapport au papier (Moyenne),${calcAvg(s.adminSurveyScores.q3)}\n`;
+            csvContent += `Note Scanner (Moyenne);${calcAvg(s.adminSurveyScores.q1).replace('.', ',')}\n`;
+            csvContent += `Note Stabilité (Moyenne);${calcAvg(s.adminSurveyScores.q2).replace('.', ',')}\n`;
+            csvContent += `Avantage par rapport au papier (Moyenne);${calcAvg(s.adminSurveyScores.q3).replace('.', ',')}\n`;
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
