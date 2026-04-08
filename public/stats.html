@@ -8,7 +8,12 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        .question-block { background: #ffffff; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        /* 🚀 L'ajout est ici : page-break-inside: avoid; empêche la coupure au milieu */
+        .question-block { 
+            background: #ffffff; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+            page-break-inside: avoid; 
+            break-inside: avoid;
+        }
         .question-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: #222; }
         .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
         .dist-label { width: 35px; font-size: 13px; font-weight: bold; color: #555; text-align: right; }
@@ -18,11 +23,9 @@
         .avg-box { margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ddd; text-align: right; font-size: 14px; color: #555; }
         .avg-number { font-weight: 800; font-size: 18px; color: var(--brand, #f8aa37); }
         
-        /* Design du filtre par jour */
         .filter-box { text-align: center; margin-bottom: 20px; }
         .filter-box select { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; border: 2px solid var(--brand); outline: none; cursor: pointer; background: white; font-family: 'Poppins', sans-serif;}
         
-        /* Bouton PDF */
         .btn-pdf { background: #2196F3; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); }
     </style>
 </head>
@@ -83,11 +86,12 @@
                 <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5</div>
             </div>
 
-            <div class="stat-section" id="comments-results" style="page-break-before: auto;">
+            <div class="stat-section" id="comments-results" style="page-break-before: auto; page-break-inside: avoid; break-inside: avoid;">
                 <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
                 <div id="comments-list"></div>
             </div>
         </div>
+
         <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger ce rapport en PDF</button>
         <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
     </div>
@@ -96,7 +100,7 @@
         const token = sessionStorage.getItem('centurioStatsToken');
         if (!token) window.location.href = "index.html"; 
 
-        let allStatsData = {}; // Va stocker toutes les données du serveur
+        let allStatsData = {}; 
 
         function logout() {
             sessionStorage.removeItem('centurioStatsToken');
@@ -128,7 +132,6 @@
         }
 
         function updateDisplay(dayKey) {
-            // S'il n'y a pas de données pour ce jour précis, on crée un objet vide à 0
             const s = allStatsData[dayKey] || {
                 totalVisiteurs: 0, maxConcurrentUsers: 0, surveyRespondents: 0,
                 surveyScores: { q1: {}, q2: {}, q3: {} }, surveyComments: {}
@@ -149,39 +152,36 @@
             if (commentsArray.length > 0) {
                 listDiv.innerHTML = ""; 
                 commentsArray.forEach(c => {
-                    listDiv.innerHTML += `<div class="comment-item"><span class="comment-text">${c.text}</span><span class="comment-count">${c.count}x</span></div>`;
+                    listDiv.innerHTML += `<div class="comment-item" style="page-break-inside: avoid; break-inside: avoid;"><span class="comment-text">${c.text}</span><span class="comment-count">${c.count}x</span></div>`;
                 });
             } else {
                 listDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>";
             }
         }
 
-        // Action quand on change le menu déroulant
         function changeDayView() {
             const selector = document.getElementById('day-selector');
             const selectedKey = selector.value;
             const selectedText = selector.options[selector.selectedIndex].text;
             
-            // Mise à jour du titre pour le PDF
             document.getElementById('pdf-title').innerText = "Statistiques - " + selectedText.replace('📊 ', '');
-            
             updateDisplay(selectedKey);
         }
 
-        // Action pour générer le PDF
         function downloadPDF() {
             const element = document.getElementById('pdf-content');
             const currentDay = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
             
+            // 🚀 L'ajout est ici : pagebreak évite de couper les éléments marqués
             const opt = {
                 margin:       10,
                 filename:     `Centurio_Stats_${currentDay.replace(/ /g, '_')}.pdf`,
                 image:        { type: 'jpeg', quality: 1 },
                 html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: 'css', avoid: ['.question-block', '.stat-section'] } 
             };
             
-            // Le bouton change de texte pendant la création
             const btn = document.querySelector('.btn-pdf');
             btn.innerText = "⏳ Génération en cours...";
             
@@ -191,7 +191,6 @@
             });
         }
 
-        // Chargement initial des données
         fetch('/api/stats_data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -201,7 +200,7 @@
         .then(data => {
             if(data.success) {
                 allStatsData = data.allData; 
-                changeDayView(); // Affiche la vue "Générale" par défaut
+                changeDayView(); 
             } else {
                 alert("Session expirée.");
                 logout();
