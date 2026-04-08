@@ -121,7 +121,6 @@
             <h2 style="color: var(--success); font-weight: 800; text-transform: uppercase;">Défi Validé !</h2>
         </div>
     </div>
-    
     <div class="modal-overlay" id="final-modal">
         <div class="modal">
             <div style="font-size: 50px;">🏆🎉</div>
@@ -209,37 +208,36 @@
         // --- GESTION DU TEMPS RÉEL (CONNEXION SCAN) ---
         const socket = io();
         
-        // On attend une demi-seconde que ton script.js crée bien le centurioUserId
-        setTimeout(() => {
-            let currentUserId = localStorage.getItem('centurioUserId');
-            if (currentUserId) {
-                socket.emit('register_user', currentUserId);
-            }
-        }, 500);
+        // 🚨 CORRECTION : Utilisation de FingerprintJS pour être sûr de l'empreinte vis-à-vis du serveur
+        const fpPromise = FingerprintJS.load();
+        fpPromise.then(fp => fp.get()).then(result => {
+            const visitorId = result.visitorId;
+            socket.emit('register_user', visitorId); // On réinscrit le joueur avec son empreinte unique !
+        });
 
-        // Écoute de l'événement quand l'animateur flashe le QR Code !
+        // Écoute de l'événement quand l'animateur flashe le QR Code
         socket.on('challenge_validated', (gameId) => {
-            // 1. Fermer le QR Code
+            // 1. Fermer le QR Code de l'écran
             document.getElementById('animator-modal').style.display = 'none';
             
-            // 2. Mémoriser la victoire (pour ton script.js)
+            // 2. Mémoriser la victoire
             let games = JSON.parse(localStorage.getItem('centurioGames') || '[]');
             if (!games.includes(gameId)) {
                 games.push(gameId);
                 localStorage.setItem('centurioGames', JSON.stringify(games));
             }
 
-            // 3. Afficher la belle modale de réussite que tu as créée
+            // 3. Afficher la belle modale de réussite
             if (games.length >= 8) {
                 document.getElementById('final-modal').style.display = 'flex';
             } else {
                 document.getElementById('success-modal').style.display = 'flex';
             }
 
-            // 4. Recharger la page après 2 secondes pour que ton script.js redessine le camembert !
+            // 4. Recharger la page après 2.5 secondes pour que le camembert (script.js) se mette à jour
             setTimeout(() => {
                 window.location.reload();
-            }, 2000);
+            }, 2500);
         });
     </script>
 </body>
