@@ -7,33 +7,75 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        .btn-avis { background: #673AB7; color: white; border: none; padding: 12px; width: 100%; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 30px; box-shadow: 0 4px 10px rgba(103, 58, 183, 0.3); }
+        .survey-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
+        .survey-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .survey-q { margin-bottom: 15px; text-align: left; }
+        .survey-q p { font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #333; line-height: 1.3; }
+        .stars { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
+        .stars span { font-size: 35px; color: #ddd; cursor: pointer; transition: 0.2s; }
+        .stars span.active { color: #f8aa37; }
+        .survey-content textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; margin-bottom: 15px; }
+        .btn-submit-survey { background: var(--brand); color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
+    </style>
 </head>
 <body>
     <div class="header-v2">
         <div class="header-title">Scanner <span>Staff</span></div>
     </div>
 
-    <div class="page-content" style="text-align: center;">
+    <div class="page-content" style="text-align: center; padding-bottom: 100px;">
         <h2 style="margin-bottom: 5px;">Validation Rapide</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pointez vers le QR Code (scan plein écran).</p>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pointez vers le QR Code.</p>
         
-        <div id="reader" style="width: 100%; max-width: 350px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);"></div>
+        <div id="reader" style="width: 100%; max-width: 350px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black;"></div>
         
-        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; margin-left: auto; margin-right: auto; max-width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-        </div>
+        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; margin-left: auto; margin-right: auto; max-width: 350px;"></div>
 
-        <button class="btn-cancel" onclick="logout()" style="margin-top: 40px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Staff</button>
+        <button id="btn-open-survey" class="btn-avis" onclick="document.getElementById('admin-survey').style.display='flex'">📝 Donner mon avis sur l'application</button>
+        <button class="btn-cancel" onclick="logout()" style="margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Staff</button>
     </div>
 
-    <nav class="navbar">
-        <a href="scan.html" class="nav-btn active">📸 Scanner</a>
-    </nav>
+    <div class="survey-modal" id="admin-survey">
+        <div class="survey-content">
+            <h3 style="margin-bottom: 15px; text-align: center;">Feedback Animateurs</h3>
+            
+            <div class="survey-q">
+                <p>1. Facilité d'utilisation du scanner QR Code ?</p>
+                <div class="stars" id="sq1">
+                    <span onclick="rate('sq1', 1)">★</span><span onclick="rate('sq1', 2)">★</span><span onclick="rate('sq1', 3)">★</span><span onclick="rate('sq1', 4)">★</span><span onclick="rate('sq1', 5)">★</span>
+                </div>
+            </div>
+
+            <div class="survey-q">
+                <p>2. Stabilité et rapidité de l'application ?</p>
+                <div class="stars" id="sq2">
+                    <span onclick="rate('sq2', 1)">★</span><span onclick="rate('sq2', 2)">★</span><span onclick="rate('sq2', 3)">★</span><span onclick="rate('sq2', 4)">★</span><span onclick="rate('sq2', 5)">★</span>
+                </div>
+            </div>
+
+            <div class="survey-q" style="background: #f9f9f9; padding: 10px; border-radius: 8px;">
+                <p style="color: var(--brand);">3. (Optionnel - Si présent l'an dernier)</p>
+                <p style="font-size: 12px; margin-bottom: 5px;">Trouvez-vous un réel avantage d'utiliser l'application par rapport au carnet papier ? (1 = Pire, 5 = Grand avantage)</p>
+                <div class="stars" id="sq3">
+                    <span onclick="rate('sq3', 1)">★</span><span onclick="rate('sq3', 2)">★</span><span onclick="rate('sq3', 3)">★</span><span onclick="rate('sq3', 4)">★</span><span onclick="rate('sq3', 5)">★</span>
+                </div>
+            </div>
+
+            <textarea id="s-comment" rows="3" placeholder="Une idée, un bug, une suggestion ?"></textarea>
+            
+            <button class="btn-submit-survey" onclick="submitAdminSurvey()">Envoyer mon avis</button>
+            <button class="btn-cancel" onclick="document.getElementById('admin-survey').style.display='none'" style="width: 100%; margin-top: 10px;">Fermer</button>
+        </div>
+    </div>
 
     <script>
-        // Vérification avec sessionStorage
         const token = sessionStorage.getItem('centurioAdminToken');
-        if (!token) {
-            window.location.href = "index.html"; 
+        if (!token) window.location.href = "index.html"; 
+
+        if (localStorage.getItem('centurioAdminSurveyDone')) {
+            document.getElementById('btn-open-survey').style.display = 'none';
         }
 
         const html5QrCode = new Html5Qrcode("reader");
@@ -42,7 +84,6 @@
         function onScanSuccess(decodedText) {
             if (isProcessing) return; 
             isProcessing = true;
-            
             document.getElementById('reader').style.borderColor = "var(--brand)";
 
             try {
@@ -51,40 +92,20 @@
                 const gameId = url.searchParams.get('game');
 
                 if (userId && gameId) {
-                    fetch('/api/validate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: userId, gameId: gameId, token: token })
-                    })
+                    fetch('/api/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: userId, gameId: gameId, token: token }) })
                     .then(res => res.json())
                     .then(data => {
-                        const resultDiv = document.getElementById('scan-result');
-                        resultDiv.style.display = 'block';
-                        
+                        const rDiv = document.getElementById('scan-result');
+                        rDiv.style.display = 'block';
                         if(data.success) {
-                            resultDiv.style.backgroundColor = '#d4edda'; 
-                            resultDiv.style.color = '#155724'; 
-                            resultDiv.style.border = "2px solid #c3e6cb";
-                            resultDiv.innerText = "✅ DÉFI " + gameId.toUpperCase() + " VALIDÉ !";
+                            rDiv.style.backgroundColor = '#d4edda'; rDiv.style.color = '#155724'; rDiv.innerText = "✅ VALIDÉ !";
                             document.getElementById('reader').style.borderColor = "var(--success)";
                         } else {
-                            resultDiv.style.backgroundColor = '#f8d7da'; 
-                            resultDiv.style.color = '#721c24'; 
-                            resultDiv.style.border = "2px solid #f5c6cb";
-                            resultDiv.innerText = "❌ ERREUR : " + data.message;
+                            rDiv.style.backgroundColor = '#f8d7da'; rDiv.style.color = '#721c24'; rDiv.innerText = "❌ ERREUR : " + data.message;
                             document.getElementById('reader').style.borderColor = "red";
                         }
-
-                        setTimeout(() => {
-                            resultDiv.style.display = 'none';
-                            document.getElementById('reader').style.borderColor = "var(--secondary)";
-                            isProcessing = false;
-                        }, 2500);
-                    })
-                    .catch(err => {
-                        isProcessing = false;
-                        document.getElementById('reader').style.borderColor = "var(--secondary)";
-                    });
+                        setTimeout(() => { rDiv.style.display = 'none'; document.getElementById('reader').style.borderColor = "var(--secondary)"; isProcessing = false; }, 2500);
+                    }).catch(err => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; });
                 } else {
                     setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
                 }
@@ -93,28 +114,37 @@
             }
         }
 
-        html5QrCode.start(
-            { facingMode: "environment" }, 
-            { fps: 15 }, 
-            onScanSuccess,
-            (errorMessage) => { }
-        ).catch((err) => {
-            alert("🚨 ERREUR CAMÉRA :\nImpossible d'accéder à la caméra arrière. Vérifiez vos autorisations.");
-        });
+        html5QrCode.start({ facingMode: "environment" }, { fps: 15 }, onScanSuccess, () => {}).catch(() => alert("🚨 ERREUR CAMÉRA"));
 
         function logout() {
-            if(html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    sessionStorage.removeItem('centurioAdminToken');
-                    window.location.href = "index.html";
-                }).catch(err => {
-                    sessionStorage.removeItem('centurioAdminToken');
-                    window.location.href = "index.html";
-                });
-            } else {
-                sessionStorage.removeItem('centurioAdminToken');
-                window.location.href = "index.html";
-            }
+            sessionStorage.removeItem('centurioAdminToken');
+            window.location.href = "index.html";
+        }
+
+        // --- GESTION AVIS ---
+        let scores = { sq1: 0, sq2: 0, sq3: 0 };
+        function rate(qId, val) {
+            scores[qId] = val;
+            let spans = document.getElementById(qId).getElementsByTagName('span');
+            for(let i=0; i<5; i++) { spans[i].className = i < val ? 'active' : ''; }
+        }
+
+        function submitAdminSurvey() {
+            if(scores.sq1 === 0 || scores.sq2 === 0) return alert("Veuillez noter les questions 1 et 2 !");
+            
+            fetch('/api/admin_survey', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ q1: scores.sq1, q2: scores.sq2, q3: scores.sq3, comment: document.getElementById('s-comment').value, token: token })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    localStorage.setItem('centurioAdminSurveyDone', 'true');
+                    document.getElementById('admin-survey').style.display = 'none';
+                    document.getElementById('btn-open-survey').style.display = 'none';
+                    alert("Merci pour votre retour !");
+                }
+            });
         }
     </script>
 </body>
