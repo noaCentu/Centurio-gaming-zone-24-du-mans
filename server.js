@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
-const mongoose = require('mongoose'); // 🧲 Le fameux connecteur MongoDB !
+const mongoose = require('mongoose'); 
 
 const app = express();
 const server = http.createServer(app);
@@ -15,26 +15,24 @@ const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz";
 const STATS_TOKEN = "jeton_secret_stats_2026_abc"; 
 
 // --- 🗄️ CONNEXION À MONGODB ---
-// J'ai ajouté /centurioDB pour nommer ta base de données proprement
 const MONGO_URI = "mongodb+srv://CenturioAdmin:CenturioAdmin@cluster0.xdadatq.mongodb.net/centurioDB?retryWrites=true&w=majority";
 
 mongoose.connect(MONGO_URI)
     .then(() => console.log("🟢 Connecté avec succès au coffre-fort MongoDB !"))
     .catch(err => console.error("🔴 Erreur de connexion MongoDB :", err));
 
-// --- 🏗️ STRUCTURE DE LA BASE DE DONNÉES (SCHÉMAS) ---
+// --- 🏗️ STRUCTURE DE LA BASE DE DONNÉES ---
 
-// 1. Structure pour mémoriser les joueurs et leurs défis
 const PlayerSchema = new mongoose.Schema({
     userId: String,
-    games: [String] // Liste des défis validés
+    games: [String] 
 });
 const Player = mongoose.model('Player', PlayerSchema);
 
-// 2. Structure pour mémoriser les statistiques globales
 const StatsSchema = new mongoose.Schema({
-    idName: { type: String, default: "main" }, // Un seul document global
+    idName: { type: String, default: "main" }, 
     totalVisiteurs: { type: Number, default: 0 },
+    maxConcurrentUsers: { type: Number, default: 0 }, // 🚀 NOUVEAU : Le record simultané
     totalGagnants: { type: Number, default: 0 },
     totalAdmins: { type: Number, default: 0 },
     surveyRespondents: { type: Number, default: 0 },
@@ -43,11 +41,10 @@ const StatsSchema = new mongoose.Schema({
         q2: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} },
         q3: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} }
     },
-    surveyComments: { type: Map, of: Number, default: {} } // Permet de stocker des textes variables
+    surveyComments: { type: Map, of: Number, default: {} } 
 });
 const GlobalStat = mongoose.model('GlobalStat', StatsSchema);
 
-// Création du document de stats s'il n'existe pas encore
 async function initStats() {
     let stats = await GlobalStat.findOne({ idName: "main" });
     if (!stats) {
@@ -57,7 +54,6 @@ async function initStats() {
 }
 initStats();
 
-// 🧠 LOGIQUE DE REGROUPEMENT DES COMMENTAIRES (IA Basique)
 function normalizeComment(text) {
     if (!text) return null;
     let t = text.toLowerCase().trim();
@@ -75,26 +71,37 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
 // --- 📡 GESTION EN TEMPS RÉEL (SOCKET.IO) ---
-io.on('connection', (socket) => {
+let currentConnections = 0; // Compteur des gens connectés EN CE MOMENT
+
+io.on('connection', async (socket) => {
+    currentConnections++; // +1 personne en direct
+    
+    // Met à jour le record dans MongoDB si on bat le pic précédent
+    const stats = await GlobalStat.findOne({ idName: "main" });
+    if (stats && currentConnections > stats.maxConcurrentUsers) {
+        stats.maxConcurrentUsers = currentConnections;
+        await stats.save();
+    }
+
     socket.on('register_user', async (userId) => {
         socket.join(userId); 
         
-        // Vérifie dans MongoDB si le joueur existe
         let player = await Player.findOne({ userId: userId });
         if (!player) {
-            // C'est un nouveau joueur ! On le crée.
             player = new Player({ userId: userId, games: [] });
             await player.save();
-            
-            // On ajoute +1 aux visiteurs
             await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } });
         }
+    });
+
+    // Quand la personne ferme la page web ou perd le réseau
+    socket.on('disconnect', () => {
+        currentConnections--; // -1 personne en direct
     });
 });
 
 // --- 🚦 ROUTES DE L'API ---
 
-// 1. Connexion (Staff & Stats)
 app.post('/api/login', async (req, res) => {
     const { password } = req.body;
     if (password === MOT_DE_PASSE_MATIN) {
@@ -107,10 +114,8 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// 2. Validation d'un défi par l'animateur
 app.post('/api/validate', async (req, res) => {
     const { userId, gameId, token } = req.body;
-    
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "🚨 FRAUDE !" });
 
     let player = await Player.findOne({ userId: userId });
@@ -119,13 +124,8 @@ app.post('/api/validate', async (req, res) => {
         await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } });
     }
 
-    if (player.games.includes(gameId)) {
-        return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi !" });
-    }
-
-    if (player.games.length >= 8) {
-        return res.json({ success: false, message: "🛑 TRICHE : Cadeau déjà récupéré !" });
-    }
+    if (player.games.includes(gameId)) return res.json({ success: false, message: "⚠️ Ce joueur a DÉJÀ validé ce défi !" });
+    if (player.games.length >= 8) return res.json({ success: false, message: "🛑 TRICHE : Cadeau déjà récupéré !" });
 
     player.games.push(gameId);
     await player.save();
@@ -138,7 +138,6 @@ app.post('/api/validate', async (req, res) => {
     res.json({ success: true });
 });
 
-// 3. Sauvegarder le questionnaire
 app.post('/api/survey', async (req, res) => {
     const { q1, q2, q3, comment } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false, message: "Questions obligatoires." });
@@ -156,24 +155,21 @@ app.post('/api/survey', async (req, res) => {
         stats.surveyComments.set(groupedComment, currentCount + 1);
     }
 
-    // Informe MongoDB que des données imbriquées ont changé
     stats.markModified('surveyScores');
     await stats.save();
-
     res.json({ success: true });
 });
 
-// 4. Récupérer les statistiques
 app.post('/api/stats_data', async (req, res) => {
     if (req.body.token === STATS_TOKEN) {
         const stats = await GlobalStat.findOne({ idName: "main" });
-        // Transformation de la Map des commentaires en objet simple pour le frontend
         const commentsObj = Object.fromEntries(stats.surveyComments);
         
         res.json({ 
             success: true, 
             stats: { 
                 totalVisiteurs: stats.totalVisiteurs,
+                maxConcurrentUsers: stats.maxConcurrentUsers, // 🚀 NOUVEAU
                 totalGagnants: stats.totalGagnants,
                 totalAdmins: stats.totalAdmins,
                 surveyRespondents: stats.surveyRespondents,
