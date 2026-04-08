@@ -208,12 +208,17 @@
         // --- GESTION DU TEMPS RÉEL (CONNEXION SCAN) ---
         const socket = io();
         
-        // 🚨 CORRECTION : Utilisation de FingerprintJS pour être sûr de l'empreinte vis-à-vis du serveur
-        const fpPromise = FingerprintJS.load();
-        fpPromise.then(fp => fp.get()).then(result => {
-            const visitorId = result.visitorId;
-            socket.emit('register_user', visitorId); // On réinscrit le joueur avec son empreinte unique !
-        });
+        // 🚨 FIX : On force le PC à envoyer son "vrai" identifiant caché au serveur
+        function resynchroniserJoueur() {
+            let myRealUserId = localStorage.getItem('centurioUserId');
+            if (myRealUserId) {
+                socket.emit('register_user', myRealUserId);
+            }
+        }
+        
+        // On le lance de suite, et on sécurise en le rappelant toutes les 2 secondes
+        setTimeout(resynchroniserJoueur, 500);
+        setInterval(resynchroniserJoueur, 2000);
 
         // Écoute de l'événement quand l'animateur flashe le QR Code
         socket.on('challenge_validated', (gameId) => {
@@ -234,10 +239,10 @@
                 document.getElementById('success-modal').style.display = 'flex';
             }
 
-            // 4. Recharger la page après 2.5 secondes pour que le camembert (script.js) se mette à jour
+            // 4. Recharger la page après 2 secondes pour que le camembert se mette à jour
             setTimeout(() => {
                 window.location.reload();
-            }, 2500);
+            }, 2000);
         });
     </script>
 </body>
