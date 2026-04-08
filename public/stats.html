@@ -17,7 +17,7 @@
         .dist-val { width: 35px; font-size: 13px; font-weight: bold; text-align: right; color: #333; }
         .avg-box { margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ddd; text-align: right; font-size: 14px; color: #555; }
         .avg-number { font-weight: 800; font-size: 18px; color: var(--brand, #f8aa37); }
-        .vote-count { font-size: 12px; font-weight: normal; color: #888; margin-left: 5px; } /* 🚀 Nouveau style pour le nombre d'avis */
+        .vote-count { font-size: 12px; font-weight: normal; color: #888; margin-left: 5px; }
         
         .filter-box { text-align: center; margin-bottom: 20px; }
         .filter-box select { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; border: 2px solid var(--brand); outline: none; cursor: pointer; background: white; font-family: 'Poppins', sans-serif;}
@@ -27,6 +27,7 @@
         .tab-btn.active { background: var(--brand); color: white; }
 
         .btn-pdf { background: #2196F3; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); }
+        .btn-csv { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
         .btn-reset { background: #ff4d4d; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3); }
     </style>
 </head>
@@ -62,9 +63,14 @@
                     <div class="number" id="val-simultanes" style="color: #4CAF50;">0</div>
                 </div>
                 <div class="stat-box">
-                    <h4 id="label-repondants">Avis Visiteurs</h4>
+                    <h4 id="label-repondants">Formulaires (Total)</h4>
                     <div class="number" id="val-repondants" style="color: var(--brand);">0</div>
                 </div>
+            </div>
+
+            <div class="stat-section" id="games-results" style="page-break-inside: avoid; break-inside: avoid; margin-bottom: 25px;">
+                <h3 style="margin-bottom: 15px; color: #222;">🎮 Popularité des Stands</h3>
+                <div id="games-list"></div>
             </div>
 
             <div class="tabs" data-html2canvas-ignore>
@@ -98,7 +104,9 @@
             </div>
         </div>
 
-        <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger ce rapport en PDF</button>
+        <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger le visuel (PDF)</button>
+        <button class="btn-csv" onclick="downloadCSV()">📊 Exporter les données brutes (Excel)</button>
+        
         <button class="btn-reset" onclick="resetStats()">🚨 Remettre TOUTES les stats à zéro</button>
         <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
     </div>
@@ -112,22 +120,15 @@
 
         function logout() { sessionStorage.removeItem('centurioStatsToken'); window.location.href = "index.html"; }
 
-        // 🚀 FONCTION MODIFIÉE : Compte le vrai nombre de votes par question
         function renderDistribution(containerId, dataObj, avgId, countId) {
             const container = document.getElementById(containerId); 
             container.innerHTML = ""; 
             
             let totalPoints = 0;
-            let actualVotes = 0; // Le VRAI nombre de personnes ayant répondu à CETTE question
+            let actualVotes = 0; 
 
-            // Étape 1 : On compte combien de personnes ont voté
-            if (dataObj) {
-                for(let i = 1; i <= 5; i++) {
-                    actualVotes += (dataObj[i] || 0);
-                }
-            }
+            if (dataObj) { for(let i = 1; i <= 5; i++) { actualVotes += (dataObj[i] || 0); } }
 
-            // Étape 2 : On dessine les barres avec les vrais pourcentages
             for(let i = 5; i >= 1; i--) {
                 let votes = dataObj ? (dataObj[i] || 0) : 0;
                 totalPoints += (votes * i);
@@ -135,9 +136,16 @@
                 container.innerHTML += `<div class="dist-row"><div class="dist-label">${i} ⭐</div><div class="dist-bar-bg"><div class="dist-bar-fill" style="width: ${percentage}%;"></div></div><div class="dist-val">${votes}</div></div>`;
             }
 
-            // Étape 3 : On met à jour la moyenne ET le texte (X avis)
             document.getElementById(avgId).innerText = actualVotes > 0 ? (totalPoints / actualVotes).toFixed(1) : "0.0";
             document.getElementById(countId).innerText = `(${actualVotes} avis)`;
+        }
+
+        // 🧮 Fonction utilitaire pour calculer une moyenne rapidement (pour le CSV)
+        function calcAvg(scores) {
+            if (!scores) return 0;
+            let total = 0, count = 0;
+            for(let i=1; i<=5; i++) { total += (scores[i]||0)*i; count += (scores[i]||0); }
+            return count > 0 ? (total/count).toFixed(2) : 0;
         }
 
         function setSurveyTarget(target) {
@@ -168,13 +176,26 @@
             document.getElementById('pdf-title').innerText = "Statistiques - " + selectedText.replace('📊 ', '');
 
             const s = allStatsData[dayKey] || {
-                totalVisiteurs: 0, maxConcurrentUsers: 0, 
+                totalVisiteurs: 0, maxConcurrentUsers: 0, gameStats: {},
                 surveyRespondents: 0, surveyScores: { q1: {}, q2: {}, q3: {} }, surveyComments: {},
                 adminSurveyRespondents: 0, adminSurveyScores: { q1: {}, q2: {}, q3: {} }, adminSurveyComments: {}
             };
             
             document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
             document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers;
+
+            // 🚀 AFFICHAGE DE LA POPULARITÉ DES STANDS
+            const gamesObj = s.gameStats || {};
+            const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
+            const gamesListDiv = document.getElementById('games-list');
+            if (gamesArray.length > 0) {
+                gamesListDiv.innerHTML = "";
+                gamesArray.forEach(g => {
+                    gamesListDiv.innerHTML += `<div class="comment-item" style="page-break-inside: avoid;"><span class="comment-text" style="font-weight: 800; color: var(--brand);">DÉFI : ${g.id.toUpperCase()}</span><span class="comment-count">${g.count} validations</span></div>`;
+                });
+            } else {
+                gamesListDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucun défi n'a encore été validé.</p>";
+            }
 
             let respondents, scores, comments;
             if (currentTarget === "visiteurs") {
@@ -185,7 +206,6 @@
 
             document.getElementById('val-repondants').innerText = respondents;
             
-            // 🚀 Appel mis à jour avec les ID des compteurs
             renderDistribution('dist-q1', scores.q1, 'avg-q1', 'count-q1');
             renderDistribution('dist-q2', scores.q2, 'avg-q2', 'count-q2');
             renderDistribution('dist-q3', scores.q3, 'avg-q3', 'count-q3'); 
@@ -218,9 +238,59 @@
             const btn = document.querySelector('.btn-pdf'); btn.innerText = "⏳ Génération en cours...";
             setTimeout(() => {
                 html2pdf().set(opt).from(element).save().then(() => {
-                    btn.innerText = "✅ Téléchargement terminé !"; setTimeout(() => btn.innerText = "📥 Télécharger ce rapport en PDF", 3000);
+                    btn.innerText = "✅ Téléchargement terminé !"; setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
                 });
             }, 500);
+        }
+
+        // 🚀 OPTION 4 : GÉNÉRATEUR EXCEL (CSV)
+        function downloadCSV() {
+            const selector = document.getElementById('day-selector');
+            const dayKey = selector.value;
+            const selectedText = selector.options[selector.selectedIndex].text.replace('📊 ', '');
+            
+            const s = allStatsData[dayKey];
+            if (!s) return alert("Aucune donnée à exporter.");
+
+            // Le \uFEFF force Excel à lire correctement les accents (encodage UTF-8)
+            let csvContent = "\uFEFF"; 
+            csvContent += `Rapport Brut Centurio - ${selectedText}\n\n`;
+
+            csvContent += "--- DONNÉES GLOBALES ---\n";
+            csvContent += `Visiteurs Uniques,${s.totalVisiteurs}\n`;
+            csvContent += `Pic de Connexions Simultanées,${s.maxConcurrentUsers}\n\n`;
+
+            csvContent += "--- POPULARITÉ DES STANDS ---\n";
+            const gamesObj = s.gameStats || {};
+            const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
+            if (gamesArray.length === 0) {
+                csvContent += "Aucun stand validé,0\n";
+            } else {
+                gamesArray.forEach(g => {
+                    csvContent += `Défi ${g.id.toUpperCase()},${g.count}\n`;
+                });
+            }
+            csvContent += "\n";
+
+            csvContent += `--- AVIS VISITEURS (${s.surveyRespondents} formulaires) ---\n`;
+            csvContent += `Note Ambiance (Moyenne),${calcAvg(s.surveyScores.q1)}\n`;
+            csvContent += `Note Application (Moyenne),${calcAvg(s.surveyScores.q2)}\n`;
+            csvContent += `Note Satisfaction (Moyenne),${calcAvg(s.surveyScores.q3)}\n\n`;
+
+            csvContent += `--- AVIS STAFF ANIMATEURS (${s.adminSurveyRespondents} formulaires) ---\n`;
+            csvContent += `Note Scanner (Moyenne),${calcAvg(s.adminSurveyScores.q1)}\n`;
+            csvContent += `Note Stabilité (Moyenne),${calcAvg(s.adminSurveyScores.q2)}\n`;
+            csvContent += `Avantage par rapport au papier (Moyenne),${calcAvg(s.adminSurveyScores.q3)}\n`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Centurio_Data_${selectedText.replace(/ /g, '_')}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         function resetStats() {
