@@ -6,69 +6,24 @@
     <title>Dashboard Stats - Centurio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* Styles spécifiques pour les graphiques de distribution */
-        .question-block {
-            background: #ffffff;
-            border: 1px solid #eee;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-        }
-        .question-title {
-            font-size: 15px;
-            font-weight: 800;
-            margin-bottom: 15px;
-            color: #222;
-        }
-        .dist-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
-        }
-        .dist-label {
-            width: 35px;
-            font-size: 13px;
-            font-weight: bold;
-            color: #555;
-            text-align: right;
-        }
-        .dist-bar-bg {
-            flex: 1;
-            background: #f0f0f0;
-            height: 14px;
-            border-radius: 7px;
-            overflow: hidden;
-        }
-        .dist-bar-fill {
-            background: var(--brand, #f8aa37);
-            height: 100%;
-            width: 0%;
-            transition: width 0.8s ease-out;
-            border-radius: 7px;
-        }
-        .dist-val {
-            width: 35px;
-            font-size: 13px;
-            font-weight: bold;
-            text-align: right;
-            color: #333;
-        }
-        .avg-box {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px dashed #ddd;
-            text-align: right;
-            font-size: 14px;
-            color: #555;
-        }
-        .avg-number {
-            font-weight: 800;
-            font-size: 18px;
-            color: var(--brand, #f8aa37);
-        }
+        .question-block { background: #ffffff; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+        .question-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: #222; }
+        .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+        .dist-label { width: 35px; font-size: 13px; font-weight: bold; color: #555; text-align: right; }
+        .dist-bar-bg { flex: 1; background: #f0f0f0; height: 14px; border-radius: 7px; overflow: hidden; }
+        .dist-bar-fill { background: var(--brand, #f8aa37); height: 100%; width: 0%; transition: width 0.8s ease-out; border-radius: 7px; }
+        .dist-val { width: 35px; font-size: 13px; font-weight: bold; text-align: right; color: #333; }
+        .avg-box { margin-top: 15px; padding-top: 10px; border-top: 1px dashed #ddd; text-align: right; font-size: 14px; color: #555; }
+        .avg-number { font-weight: 800; font-size: 18px; color: var(--brand, #f8aa37); }
+        
+        /* Design du filtre par jour */
+        .filter-box { text-align: center; margin-bottom: 20px; }
+        .filter-box select { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; border: 2px solid var(--brand); outline: none; cursor: pointer; background: white; font-family: 'Poppins', sans-serif;}
+        
+        /* Bouton PDF */
+        .btn-pdf { background: #2196F3; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); }
     </style>
 </head>
 <body>
@@ -77,54 +32,63 @@
     </div>
 
     <div class="page-content" style="max-width: 700px; padding-bottom: 50px;">
-        <h2 style="text-align: center; margin-bottom: 25px;">Tableau de Bord</h2>
         
-        <div class="stats-grid">
-            <div class="stat-box">
-                <h4>Visiteurs (Total)</h4>
-                <div class="number" id="val-visiteurs">0</div>
-            </div>
-            <div class="stat-box">
-                <h4>Pic Simultané</h4>
-                <div class="number" id="val-simultanes" style="color: #4CAF50;">0</div>
-            </div>
-            <div class="stat-box">
-                <h4>Répondants (Avis)</h4>
-                <div class="number" id="val-repondants" style="color: var(--brand);">0</div>
-            </div>
+        <div class="filter-box">
+            <select id="day-selector" onchange="changeDayView()">
+                <option value="main" selected>📊 Vue Générale (Total)</option>
+                <option value="09/06/2026">Mardi 9 Juin</option>
+                <option value="10/06/2026">Mercredi 10 Juin</option>
+                <option value="11/06/2026">Jeudi 11 Juin</option>
+                <option value="12/06/2026">Vendredi 12 Juin</option>
+                <option value="13/06/2026">Samedi 13 Juin</option>
+                <option value="14/06/2026">Dimanche 14 Juin</option>
+            </select>
         </div>
 
-        <h3 style="margin-top: 30px; margin-bottom: 15px;">📊 Résultats du questionnaire</h3>
-
-        <div class="question-block">
-            <div class="question-title">Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?</div>
-            <div id="dist-q1">
+        <div id="pdf-content" style="background: white; padding: 10px;">
+            <h2 id="pdf-title" style="text-align: center; margin-bottom: 25px;">Statistiques - Vue Générale</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h4>Visiteurs</h4>
+                    <div class="number" id="val-visiteurs">0</div>
                 </div>
-            <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q1">0.0</span> / 5</div>
-        </div>
-
-        <div class="question-block">
-            <div class="question-title">Q2. L'application mobile était-elle facile à utiliser ?</div>
-            <div id="dist-q2">
+                <div class="stat-box">
+                    <h4>Pic Simultané</h4>
+                    <div class="number" id="val-simultanes" style="color: #4CAF50;">0</div>
                 </div>
-            <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q2">0.0</span> / 5</div>
-        </div>
-
-        <div class="question-block">
-            <div class="question-title">Q3. Globalement, quelle est votre satisfaction ?</div>
-            <div id="dist-q3">
+                <div class="stat-box">
+                    <h4>Répondants (Avis)</h4>
+                    <div class="number" id="val-repondants" style="color: var(--brand);">0</div>
                 </div>
-            <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5</div>
-        </div>
+            </div>
 
-        <div class="stat-section" id="comments-results">
-            <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
-            <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Les suggestions similaires (mots clés) sont automatiquement regroupées par l'IA.</p>
-            <div id="comments-list">
-                <p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>
+            <h3 style="margin-top: 30px; margin-bottom: 15px;">📊 Résultats du questionnaire</h3>
+
+            <div class="question-block">
+                <div class="question-title">Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?</div>
+                <div id="dist-q1"></div>
+                <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q1">0.0</span> / 5</div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-title">Q2. L'application mobile était-elle facile à utiliser ?</div>
+                <div id="dist-q2"></div>
+                <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q2">0.0</span> / 5</div>
+            </div>
+
+            <div class="question-block">
+                <div class="question-title">Q3. Globalement, quelle est votre satisfaction ?</div>
+                <div id="dist-q3"></div>
+                <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5</div>
+            </div>
+
+            <div class="stat-section" id="comments-results" style="page-break-before: auto;">
+                <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
+                <div id="comments-list"></div>
             </div>
         </div>
-
+        <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger ce rapport en PDF</button>
         <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
     </div>
 
@@ -132,21 +96,20 @@
         const token = sessionStorage.getItem('centurioStatsToken');
         if (!token) window.location.href = "index.html"; 
 
+        let allStatsData = {}; // Va stocker toutes les données du serveur
+
         function logout() {
             sessionStorage.removeItem('centurioStatsToken');
             window.location.href = "index.html";
         }
 
-        // Fonction pour générer les 5 barres d'une question
         function renderDistribution(containerId, dataObj, totalRespondents, avgId) {
             const container = document.getElementById(containerId);
-            container.innerHTML = ""; // On vide avant de remplir
-            
+            container.innerHTML = ""; 
             let totalPoints = 0;
 
-            // On boucle de 5 étoiles à 1 étoile (pour afficher le meilleur en haut)
             for(let i = 5; i >= 1; i--) {
-                let votes = dataObj[i] || 0;
+                let votes = dataObj ? (dataObj[i] || 0) : 0;
                 totalPoints += (votes * i);
                 let percentage = totalRespondents > 0 ? (votes / totalRespondents) * 100 : 0;
 
@@ -160,12 +123,75 @@
                     </div>
                 `;
             }
-
-            // Calcul de la moyenne
             let avg = totalRespondents > 0 ? (totalPoints / totalRespondents).toFixed(1) : "0.0";
             document.getElementById(avgId).innerText = avg;
         }
 
+        function updateDisplay(dayKey) {
+            // S'il n'y a pas de données pour ce jour précis, on crée un objet vide à 0
+            const s = allStatsData[dayKey] || {
+                totalVisiteurs: 0, maxConcurrentUsers: 0, surveyRespondents: 0,
+                surveyScores: { q1: {}, q2: {}, q3: {} }, surveyComments: {}
+            };
+            
+            document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
+            document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers;
+            document.getElementById('val-repondants').innerText = s.surveyRespondents;
+
+            renderDistribution('dist-q1', s.surveyScores.q1, s.surveyRespondents, 'avg-q1');
+            renderDistribution('dist-q2', s.surveyScores.q2, s.surveyRespondents, 'avg-q2');
+            renderDistribution('dist-q3', s.surveyScores.q3, s.surveyRespondents, 'avg-q3');
+
+            const commentsObj = s.surveyComments || {};
+            const commentsArray = Object.keys(commentsObj).map(key => ({ text: key, count: commentsObj[key] })).sort((a, b) => b.count - a.count);
+            
+            const listDiv = document.getElementById('comments-list');
+            if (commentsArray.length > 0) {
+                listDiv.innerHTML = ""; 
+                commentsArray.forEach(c => {
+                    listDiv.innerHTML += `<div class="comment-item"><span class="comment-text">${c.text}</span><span class="comment-count">${c.count}x</span></div>`;
+                });
+            } else {
+                listDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>";
+            }
+        }
+
+        // Action quand on change le menu déroulant
+        function changeDayView() {
+            const selector = document.getElementById('day-selector');
+            const selectedKey = selector.value;
+            const selectedText = selector.options[selector.selectedIndex].text;
+            
+            // Mise à jour du titre pour le PDF
+            document.getElementById('pdf-title').innerText = "Statistiques - " + selectedText.replace('📊 ', '');
+            
+            updateDisplay(selectedKey);
+        }
+
+        // Action pour générer le PDF
+        function downloadPDF() {
+            const element = document.getElementById('pdf-content');
+            const currentDay = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
+            
+            const opt = {
+                margin:       10,
+                filename:     `Centurio_Stats_${currentDay.replace(/ /g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            
+            // Le bouton change de texte pendant la création
+            const btn = document.querySelector('.btn-pdf');
+            btn.innerText = "⏳ Génération en cours...";
+            
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerText = "✅ Téléchargement terminé ! (Télécharger à nouveau)";
+                setTimeout(() => btn.innerText = "📥 Télécharger ce rapport en PDF", 3000);
+            });
+        }
+
+        // Chargement initial des données
         fetch('/api/stats_data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -174,39 +200,8 @@
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                const s = data.stats;
-                
-                // 1. Mise à jour des compteurs
-                document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
-                document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers;
-                document.getElementById('val-repondants').innerText = s.surveyRespondents;
-
-                // 2. Génération des graphiques en bâtons
-                // On passe les données au générateur (même s'il y a 0 répondant)
-                renderDistribution('dist-q1', s.surveyScores.q1, s.surveyRespondents, 'avg-q1');
-                renderDistribution('dist-q2', s.surveyScores.q2, s.surveyRespondents, 'avg-q2');
-                renderDistribution('dist-q3', s.surveyScores.q3, s.surveyRespondents, 'avg-q3');
-
-                // 3. Affichage des commentaires regroupés
-                const commentsObj = s.surveyComments;
-                const commentsArray = Object.keys(commentsObj).map(key => {
-                    return { text: key, count: commentsObj[key] };
-                });
-                
-                commentsArray.sort((a, b) => b.count - a.count);
-
-                const listDiv = document.getElementById('comments-list');
-                if (commentsArray.length > 0) {
-                    listDiv.innerHTML = ""; // On vide le texte par défaut
-                    commentsArray.forEach(c => {
-                        listDiv.innerHTML += `
-                            <div class="comment-item">
-                                <span class="comment-text">${c.text}</span>
-                                <span class="comment-count">${c.count}x</span>
-                            </div>
-                        `;
-                    });
-                }
+                allStatsData = data.allData; 
+                changeDayView(); // Affiche la vue "Générale" par défaut
             } else {
                 alert("Session expirée.");
                 logout();
