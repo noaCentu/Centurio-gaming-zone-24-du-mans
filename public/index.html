@@ -75,9 +75,10 @@
 
     <script>
         function checkAdmin() {
-            if (localStorage.getItem('centurioAdminToken')) {
+            // Utilisation de sessionStorage pour forcer la reconnexion si la page est fermée
+            if (sessionStorage.getItem('centurioAdminToken')) {
                 window.location.href = "scan.html";
-            } else if (localStorage.getItem('centurioStatsToken')) {
+            } else if (sessionStorage.getItem('centurioStatsToken')) {
                 window.location.href = "stats.html";
             } else {
                 document.getElementById('login-modal').style.display = 'flex';
@@ -91,10 +92,10 @@
             .then(data => {
                 if(data.success) { 
                     if(data.role === 'admin') {
-                        localStorage.setItem('centurioAdminToken', data.token); 
+                        sessionStorage.setItem('centurioAdminToken', data.token); 
                         window.location.href = "scan.html"; 
                     } else if (data.role === 'stats') {
-                        localStorage.setItem('centurioStatsToken', data.token); 
+                        sessionStorage.setItem('centurioStatsToken', data.token); 
                         window.location.href = "stats.html"; 
                     }
                 } 
@@ -112,7 +113,7 @@
         function changeLang(langCode, flag) {
             document.querySelector('.lang-btn').innerText = flag;
             document.getElementById('lang-list').style.display = 'none';
-            localStorage.setItem('centurioFlag', flag);
+            localStorage.setItem('centurioFlag', flag); // Langue gardée en mémoire longue
             const select = document.querySelector('.goog-te-combo');
             if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } 
             else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); }
