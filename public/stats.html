@@ -8,10 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        /* 🚀 L'ajout est ici : page-break-inside: avoid; empêche la coupure au milieu */
         .question-block { 
             background: #ffffff; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-            page-break-inside: avoid; 
+            page-break-inside: avoid; /* Empêche la coupure à l'intérieur */
             break-inside: avoid;
         }
         .question-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: #222; }
@@ -86,7 +85,7 @@
                 <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5</div>
             </div>
 
-            <div class="stat-section" id="comments-results" style="page-break-before: auto; page-break-inside: avoid; break-inside: avoid;">
+            <div class="stat-section" id="comments-results" style="page-break-inside: avoid; break-inside: avoid;">
                 <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
                 <div id="comments-list"></div>
             </div>
@@ -169,26 +168,32 @@
         }
 
         function downloadPDF() {
+            // Remonte l'écran tout en haut avant de prendre la photo pour éviter les coupures
+            window.scrollTo(0, 0);
+
             const element = document.getElementById('pdf-content');
             const currentDay = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
             
-            // 🚀 L'ajout est ici : pagebreak évite de couper les éléments marqués
+            // 🚀 AJOUTS : scrollY: 0 (le fix principal) + format amélioré pour les coupures (mode legacy)
             const opt = {
-                margin:       10,
+                margin:       15,
                 filename:     `Centurio_Stats_${currentDay.replace(/ /g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2, useCORS: true },
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 }, 
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: 'css', avoid: ['.question-block', '.stat-section'] } 
+                pagebreak:    { mode: ['css', 'legacy'] }
             };
             
             const btn = document.querySelector('.btn-pdf');
             btn.innerText = "⏳ Génération en cours...";
             
-            html2pdf().set(opt).from(element).save().then(() => {
-                btn.innerText = "✅ Téléchargement terminé ! (Télécharger à nouveau)";
-                setTimeout(() => btn.innerText = "📥 Télécharger ce rapport en PDF", 3000);
-            });
+            // On attend 500ms pour être sûr que la page est bien remontée avant la "photo"
+            setTimeout(() => {
+                html2pdf().set(opt).from(element).save().then(() => {
+                    btn.innerText = "✅ Téléchargement terminé ! (Télécharger à nouveau)";
+                    setTimeout(() => btn.innerText = "📥 Télécharger ce rapport en PDF", 3000);
+                });
+            }, 500);
         }
 
         fetch('/api/stats_data', {
