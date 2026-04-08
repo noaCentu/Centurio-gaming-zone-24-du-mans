@@ -6,64 +6,129 @@
     <title>Dashboard Stats - Centurio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Styles spécifiques pour les graphiques de distribution */
+        .question-block {
+            background: #ffffff;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .question-title {
+            font-size: 15px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: #222;
+        }
+        .dist-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .dist-label {
+            width: 35px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #555;
+            text-align: right;
+        }
+        .dist-bar-bg {
+            flex: 1;
+            background: #f0f0f0;
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+        }
+        .dist-bar-fill {
+            background: var(--brand, #f8aa37);
+            height: 100%;
+            width: 0%;
+            transition: width 0.8s ease-out;
+            border-radius: 7px;
+        }
+        .dist-val {
+            width: 35px;
+            font-size: 13px;
+            font-weight: bold;
+            text-align: right;
+            color: #333;
+        }
+        .avg-box {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+            text-align: right;
+            font-size: 14px;
+            color: #555;
+        }
+        .avg-number {
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--brand, #f8aa37);
+        }
+    </style>
 </head>
 <body>
     <div class="header-v2">
         <div class="header-title">Espace <span>Stats</span></div>
     </div>
 
-    <div class="page-content" style="max-width: 700px;">
+    <div class="page-content" style="max-width: 700px; padding-bottom: 50px;">
         <h2 style="text-align: center; margin-bottom: 25px;">Tableau de Bord</h2>
         
         <div class="stats-grid">
             <div class="stat-box">
                 <h4>Visiteurs (Total)</h4>
-                <div class="number" id="val-visiteurs">-</div>
+                <div class="number" id="val-visiteurs">0</div>
             </div>
             <div class="stat-box">
                 <h4>Pic Simultané</h4>
-                <div class="number" id="val-simultanes" style="color: #4CAF50;">-</div>
+                <div class="number" id="val-simultanes" style="color: #4CAF50;">0</div>
             </div>
             <div class="stat-box">
                 <h4>Répondants (Avis)</h4>
-                <div class="number" id="val-repondants" style="color: var(--brand);">-</div>
+                <div class="number" id="val-repondants" style="color: var(--brand);">0</div>
             </div>
         </div>
 
-        <div class="stat-section" id="survey-results" style="display: none;">
-            <h3>📊 Moyennes de Satisfaction (sur 5)</h3>
-            
-            <div class="chart-row">
-                <div class="chart-label">Zone Gaming</div>
-                <div class="chart-bar-bg"><div class="chart-bar-fill" id="bar-q1" style="width: 0%;"></div></div>
-                <div class="chart-value" id="score-q1">-</div>
-            </div>
+        <h3 style="margin-top: 30px; margin-bottom: 15px;">📊 Résultats du questionnaire</h3>
 
-            <div class="chart-row">
-                <div class="chart-label">App Mobile</div>
-                <div class="chart-bar-bg"><div class="chart-bar-fill" id="bar-q2" style="width: 0%;"></div></div>
-                <div class="chart-value" id="score-q2">-</div>
-            </div>
-
-            <div class="chart-row">
-                <div class="chart-label">Facilité App</div>
-                <div class="chart-bar-bg"><div class="chart-bar-fill" id="bar-q3" style="width: 0%;"></div></div>
-                <div class="chart-value" id="score-q3">-</div>
-            </div>
-        </div>
-
-        <div class="stat-section" id="comments-results" style="display: none;">
-            <h3>💡 Idées d'amélioration</h3>
-            <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Trié par récurrence. Les suggestions similaires ont été automatiquement regroupées.</p>
-            <div id="comments-list">
+        <div class="question-block">
+            <div class="question-title">Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?</div>
+            <div id="dist-q1">
                 </div>
+            <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q1">0.0</span> / 5</div>
+        </div>
+
+        <div class="question-block">
+            <div class="question-title">Q2. L'application mobile était-elle facile à utiliser ?</div>
+            <div id="dist-q2">
+                </div>
+            <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q2">0.0</span> / 5</div>
+        </div>
+
+        <div class="question-block">
+            <div class="question-title">Q3. Globalement, quelle est votre satisfaction ?</div>
+            <div id="dist-q3">
+                </div>
+            <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5</div>
+        </div>
+
+        <div class="stat-section" id="comments-results">
+            <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
+            <p style="font-size: 11px; color: #888; margin-bottom: 15px;">Les suggestions similaires (mots clés) sont automatiquement regroupées par l'IA.</p>
+            <div id="comments-list">
+                <p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>
+            </div>
         </div>
 
         <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
     </div>
 
     <script>
-        // Vérification avec sessionStorage
         const token = sessionStorage.getItem('centurioStatsToken');
         if (!token) window.location.href = "index.html"; 
 
@@ -72,15 +137,33 @@
             window.location.href = "index.html";
         }
 
-        function calcAverage(scoresObj) {
+        // Fonction pour générer les 5 barres d'une question
+        function renderDistribution(containerId, dataObj, totalRespondents, avgId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ""; // On vide avant de remplir
+            
             let totalPoints = 0;
-            let totalVotes = 0;
-            for(let i=1; i<=5; i++) {
-                totalPoints += (i * scoresObj[i]);
-                totalVotes += scoresObj[i];
+
+            // On boucle de 5 étoiles à 1 étoile (pour afficher le meilleur en haut)
+            for(let i = 5; i >= 1; i--) {
+                let votes = dataObj[i] || 0;
+                totalPoints += (votes * i);
+                let percentage = totalRespondents > 0 ? (votes / totalRespondents) * 100 : 0;
+
+                container.innerHTML += `
+                    <div class="dist-row">
+                        <div class="dist-label">${i} ⭐</div>
+                        <div class="dist-bar-bg">
+                            <div class="dist-bar-fill" style="width: ${percentage}%;"></div>
+                        </div>
+                        <div class="dist-val">${votes}</div>
+                    </div>
+                `;
             }
-            if(totalVotes === 0) return 0;
-            return (totalPoints / totalVotes).toFixed(1);
+
+            // Calcul de la moyenne
+            let avg = totalRespondents > 0 ? (totalPoints / totalRespondents).toFixed(1) : "0.0";
+            document.getElementById(avgId).innerText = avg;
         }
 
         fetch('/api/stats_data', {
@@ -93,47 +176,36 @@
             if(data.success) {
                 const s = data.stats;
                 
+                // 1. Mise à jour des compteurs
                 document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
                 document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers;
                 document.getElementById('val-repondants').innerText = s.surveyRespondents;
 
-                if (s.surveyRespondents > 0) {
-                    document.getElementById('survey-results').style.display = 'block';
-                    document.getElementById('comments-results').style.display = 'block';
+                // 2. Génération des graphiques en bâtons
+                // On passe les données au générateur (même s'il y a 0 répondant)
+                renderDistribution('dist-q1', s.surveyScores.q1, s.surveyRespondents, 'avg-q1');
+                renderDistribution('dist-q2', s.surveyScores.q2, s.surveyRespondents, 'avg-q2');
+                renderDistribution('dist-q3', s.surveyScores.q3, s.surveyRespondents, 'avg-q3');
 
-                    const avg1 = calcAverage(s.surveyScores.q1);
-                    const avg2 = calcAverage(s.surveyScores.q2);
-                    const avg3 = calcAverage(s.surveyScores.q3);
+                // 3. Affichage des commentaires regroupés
+                const commentsObj = s.surveyComments;
+                const commentsArray = Object.keys(commentsObj).map(key => {
+                    return { text: key, count: commentsObj[key] };
+                });
+                
+                commentsArray.sort((a, b) => b.count - a.count);
 
-                    document.getElementById('score-q1').innerText = avg1;
-                    document.getElementById('bar-q1').style.width = (avg1 / 5 * 100) + "%";
-
-                    document.getElementById('score-q2').innerText = avg2;
-                    document.getElementById('bar-q2').style.width = (avg2 / 5 * 100) + "%";
-
-                    document.getElementById('score-q3').innerText = avg3;
-                    document.getElementById('bar-q3').style.width = (avg3 / 5 * 100) + "%";
-
-                    const commentsObj = s.surveyComments;
-                    const commentsArray = Object.keys(commentsObj).map(key => {
-                        return { text: key, count: commentsObj[key] };
+                const listDiv = document.getElementById('comments-list');
+                if (commentsArray.length > 0) {
+                    listDiv.innerHTML = ""; // On vide le texte par défaut
+                    commentsArray.forEach(c => {
+                        listDiv.innerHTML += `
+                            <div class="comment-item">
+                                <span class="comment-text">${c.text}</span>
+                                <span class="comment-count">${c.count}x</span>
+                            </div>
+                        `;
                     });
-                    
-                    commentsArray.sort((a, b) => b.count - a.count);
-
-                    const listDiv = document.getElementById('comments-list');
-                    if (commentsArray.length === 0) {
-                        listDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>";
-                    } else {
-                        commentsArray.forEach(c => {
-                            listDiv.innerHTML += `
-                                <div class="comment-item">
-                                    <span class="comment-text">${c.text}</span>
-                                    <span class="comment-count">${c.count}x</span>
-                                </div>
-                            `;
-                        });
-                    }
                 }
             } else {
                 alert("Session expirée.");
