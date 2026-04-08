@@ -17,7 +17,7 @@ body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg);
     color: var(--text);
-    padding-bottom: 80px; /* Espace pour la navbar du bas */
+    padding-bottom: 80px; 
     transition: background-color 0.3s, color 0.3s;
 }
 
@@ -139,8 +139,12 @@ body {
     border-radius: 12px; 
     margin-bottom: 20px; 
     box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-    page-break-inside: avoid; /* PDF Sécurité */
-    break-inside: avoid;
+    
+    /* 🚀 LA CORRECTION ANTI-COUPURE PDF EST ICI */
+    display: inline-block; 
+    width: 100%;
+    page-break-inside: avoid !important; 
+    break-inside: avoid !important;
 }
 .question-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: #222; }
 .dist-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -153,7 +157,15 @@ body {
 .vote-count { font-size: 12px; font-weight: normal; color: #888; margin-left: 5px; }
 
 /* --- 💬 COMMENTAIRES & JEUX --- */
-.stat-section { margin-bottom: 25px; page-break-inside: avoid; break-inside: avoid; }
+.stat-section { 
+    margin-bottom: 25px; 
+    
+    /* 🚀 CORRECTION ANTI-COUPURE PDF ICI AUSSI */
+    display: inline-block; 
+    width: 100%;
+    page-break-inside: avoid !important; 
+    break-inside: avoid !important; 
+}
 .comment-item { 
     display: flex; 
     justify-content: space-between; 
