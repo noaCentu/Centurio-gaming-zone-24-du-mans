@@ -10,7 +10,7 @@
     <style>
         .question-block { 
             background: #ffffff; border: 1px solid #eee; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
-            page-break-inside: avoid; /* Empêche la coupure à l'intérieur */
+            page-break-inside: avoid; 
             break-inside: avoid;
         }
         .question-title { font-size: 15px; font-weight: 800; margin-bottom: 15px; color: #222; }
@@ -26,6 +26,7 @@
         .filter-box select { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 10px; border: 2px solid var(--brand); outline: none; cursor: pointer; background: white; font-family: 'Poppins', sans-serif;}
         
         .btn-pdf { background: #2196F3; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(33, 150, 243, 0.3); }
+        .btn-reset { background: #ff4d4d; color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(255, 77, 77, 0.3); }
     </style>
 </head>
 <body>
@@ -92,6 +93,9 @@
         </div>
 
         <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger ce rapport en PDF</button>
+        
+        <button class="btn-reset" onclick="resetStats()">🚨 Remettre TOUTES les stats à zéro</button>
+
         <button class="btn-cancel" onclick="logout()" style="width: 100%; margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Stats</button>
     </div>
 
@@ -168,13 +172,11 @@
         }
 
         function downloadPDF() {
-            // Remonte l'écran tout en haut avant de prendre la photo pour éviter les coupures
             window.scrollTo(0, 0);
 
             const element = document.getElementById('pdf-content');
             const currentDay = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
             
-            // 🚀 AJOUTS : scrollY: 0 (le fix principal) + format amélioré pour les coupures (mode legacy)
             const opt = {
                 margin:       15,
                 filename:     `Centurio_Stats_${currentDay.replace(/ /g, '_')}.pdf`,
@@ -187,13 +189,36 @@
             const btn = document.querySelector('.btn-pdf');
             btn.innerText = "⏳ Génération en cours...";
             
-            // On attend 500ms pour être sûr que la page est bien remontée avant la "photo"
             setTimeout(() => {
                 html2pdf().set(opt).from(element).save().then(() => {
                     btn.innerText = "✅ Téléchargement terminé ! (Télécharger à nouveau)";
                     setTimeout(() => btn.innerText = "📥 Télécharger ce rapport en PDF", 3000);
                 });
             }, 500);
+        }
+
+        // 🚀 NOUVELLE FONCTION : Réinitialisation
+        function resetStats() {
+            const confirmation = prompt("⚠️ ATTENTION DANGER ⚠️\n\nCela va effacer TOUTES les statistiques et TOUS les joueurs pour remettre l'application à zéro.\n\nPour confirmer, tapez exactement le mot RESET (en majuscules) :");
+            
+            if (confirmation === "RESET") {
+                fetch('/api/reset_stats', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.success) {
+                        alert("✅ La base de données a été entièrement remise à zéro !");
+                        window.location.reload(); // On recharge la page pour voir les 0
+                    } else {
+                        alert("❌ Erreur lors de la réinitialisation.");
+                    }
+                });
+            } else if (confirmation !== null) {
+                alert("Annulation : Le mot de sécurité est incorrect.");
+            }
         }
 
         fetch('/api/stats_data', {
