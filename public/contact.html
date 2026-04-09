@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Gaming Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=5">
+    <style>
+        .lang-dropdown { position: relative; z-index: 1000; }
+        .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
+        .lang-btn:active { transform: scale(0.9); }
+        .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
+        .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
+        .lang-menu div:hover { background: #f0f0f0; }
+        
+        body > .skiptranslate { display: none !important; }
+        body { top: 0px !important; }
+        .goog-te-banner-frame { display: none !important; }
+        .goog-tooltip { display: none !important; }
+        .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
 
+        /* MODE NUIT LANG MENU */
+        body.dark-mode .lang-menu { background: #1e1e1e; border: 1px solid #333; }
+        body.dark-mode .lang-menu div { color: #f1f1f1; }
+        body.dark-mode .lang-menu div:hover { background: #333; }
+    </style>
+</head>
+<body>
+    <div class="header-v2" style="display: flex; align-items: center; justify-content: space-between; padding: 0 15px;">
+        <div class="lang-dropdown">
+            <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
+            <div class="lang-menu" id="lang-list">
+                <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
+                <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
+                <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
+            </div>
+        </div>
+        <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div style="width: 24px;"></div>
+    </div>
+
+    <div class="page-content" style="padding-bottom: 100px; text-align: center;">
+        <h2 style="margin-bottom: 5px;">Assistance</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 25px;">Une question ou un problème avec l'application ?</p>
+
+        <div class="game-card" style="flex-direction: column; text-align: center; gap: 10px; padding: 25px;">
+            <div style="font-size: 40px; margin-bottom: 5px;">📍</div>
+            <h3 style="color: var(--brand);">Où nous trouver ?</h3>
+            <p style="font-size: 13px; color: #555; line-height: 1.5;">Notre équipe est présente sur le stand <strong>Centurio Gaming Zone</strong>, situé au cœur du village des 24h du Mans.</p>
+        </div>
+
+        <div class="game-card" style="flex-direction: column; text-align: center; gap: 10px; padding: 25px;">
+            <div style="font-size: 40px; margin-bottom: 5px;">👕</div>
+            <h3 style="color: var(--brand);">L'équipe Staff</h3>
+            <p style="font-size: 13px; color: #555; line-height: 1.5;">Cherchez les animateurs habillés avec le t-shirt ou le badge <strong>Centurio</strong>. Ils sont là pour vous guider et régler vos éventuels soucis techniques !</p>
+        </div>
+
+        <div class="game-card" style="flex-direction: column; text-align: center; gap: 10px; padding: 25px;">
+            <div style="font-size: 40px; margin-bottom: 5px;">✉️</div>
+            <h3 style="color: var(--brand);">Par Email</h3>
+            <p style="font-size: 13px; color: #555; line-height: 1.5;">Pour toute question d'ordre professionnel, commerciale ou après l'événement :</p>
+            <a href="mailto:contact@centurio.com" style="display: inline-block; background-color: var(--secondary); color: white; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 10px; transition: 0.2s;">Envoyer un message</a>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <a href="index.html" class="nav-btn">Accueil</a>
+        <a href="defis.html" class="nav-btn">Défis</a>
+        <a href="contact.html" class="nav-btn active">Contact</a>
+        <a href="reglement.html" class="nav-btn">Règles</a>
+    </nav>
+
+    <button class="btn-night-mode" onclick="toggleNightMode()" id="night-btn">🌙</button>
+
+    <div id="google_translate_element" style="display:none;"></div>
+    <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <script>
+        function toggleLang() {
+            const menu = document.getElementById('lang-list');
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        }
+        function changeLang(langCode, flag) {
+            document.querySelector('.lang-btn').innerText = flag;
+            document.getElementById('lang-list').style.display = 'none';
+            localStorage.setItem('centurioFlag', flag);
+            const select = document.querySelector('.goog-te-combo');
+            if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } 
+            else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); }
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedFlag = localStorage.getItem('centurioFlag');
+            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
+        });
+
+        // --- GESTION DU MODE NUIT ---
+        function toggleNightMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('centurioNightMode', isDark ? 'on' : 'off');
+            document.getElementById('night-btn').innerText = isDark ? '☀️' : '🌙';
+        }
+
+        function checkNightMode() {
+            const savedMode = localStorage.getItem('centurioNightMode');
+            const hour = new Date().getHours();
+            if (savedMode === 'on') { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; } 
+            else if (savedMode === 'off') { document.body.classList.remove('dark-mode'); document.getElementById('night-btn').innerText = '🌙'; } 
+            else if (hour >= 21 || hour < 6) { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; }
+        }
+        document.addEventListener('DOMContentLoaded', checkNightMode);
+    </script>
+</body>
+</html>
