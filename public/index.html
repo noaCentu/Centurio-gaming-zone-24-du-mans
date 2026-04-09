@@ -19,7 +19,6 @@
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
         .lang-menu div:hover { background: #f0f0f0; }
         
-        /* 🪄 CACHER LE MOTEUR NATIVE DE GOOGLE */
         body > .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         .goog-te-banner-frame { display: none !important; }
@@ -91,98 +90,47 @@
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <script>
-        // --- 👁️ FONCTION POUR VOIR/MASQUER LE MOT DE PASSE ---
         function togglePassword() {
             const pwdInput = document.getElementById('admin-pwd');
             const eyeIcon = document.getElementById('eye-icon');
-            
             if (pwdInput.type === 'password') {
                 pwdInput.type = 'text';
-                // Remplace par l'icône de l'œil barré (masqué)
-                eyeIcon.innerHTML = `
-                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                `;
+                eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
             } else {
                 pwdInput.type = 'password';
-                // Remet l'icône de l'œil normal
-                eyeIcon.innerHTML = `
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                    <circle cx="12" cy="12" r="3"></circle>
-                `;
+                eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
             }
         }
 
-        // 🔥 SÉCURITÉ ÉVÉNEMENT : Nettoyage automatique des vieux restes
         if (localStorage.getItem('centurioAdminToken') || localStorage.getItem('centurioStatsToken')) {
-            localStorage.removeItem('centurioAdminToken');
-            localStorage.removeItem('centurioStatsToken');
-            sessionStorage.clear();
-            console.log("🧹 Vieux restes nettoyés avec succès !");
+            localStorage.removeItem('centurioAdminToken'); localStorage.removeItem('centurioStatsToken'); sessionStorage.clear();
         }
 
         function checkAdmin() {
             const admin = sessionStorage.getItem('centurioAdminToken');
             const stats = sessionStorage.getItem('centurioStatsToken');
-
-            if (admin) {
-                window.location.href = "scan.html";
-            } else if (stats) {
-                window.location.href = "stats.html";
-            } else {
-                document.getElementById('login-modal').style.display = 'flex';
-            }
+            if (admin) window.location.href = "scan.html";
+            else if (stats) window.location.href = "stats.html";
+            else document.getElementById('login-modal').style.display = 'flex';
         }
 
         function login() {
             const pwd = document.getElementById('admin-pwd').value;
             const errorMsg = document.getElementById('login-error');
-            
-            fetch('/api/login', { 
-                method: 'POST', 
-                headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ password: pwd }) 
-            })
+            fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd }) })
             .then(res => res.json())
             .then(data => {
                 if(data.success) { 
                     sessionStorage.clear();
-                    
-                    if(data.role === 'admin') {
-                        sessionStorage.setItem('centurioAdminToken', data.token); 
-                        window.location.href = "scan.html"; 
-                    } else if (data.role === 'stats') {
-                        sessionStorage.setItem('centurioStatsToken', data.token); 
-                        window.location.href = "stats.html"; 
-                    }
-                } else { 
-                    errorMsg.style.display = 'block'; 
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert("Erreur de connexion au serveur. Vérifiez votre réseau.");
-            });
+                    if(data.role === 'admin') { sessionStorage.setItem('centurioAdminToken', data.token); window.location.href = "scan.html"; } 
+                    else if (data.role === 'stats') { sessionStorage.setItem('centurioStatsToken', data.token); window.location.href = "stats.html"; }
+                } else errorMsg.style.display = 'block'; 
+            }).catch(err => alert("Erreur de connexion au serveur."));
         }
 
-        function toggleLang() {
-            const menu = document.getElementById('lang-list');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function changeLang(langCode, flag) {
-            document.querySelector('.lang-btn').innerText = flag;
-            document.getElementById('lang-list').style.display = 'none';
-            localStorage.setItem('centurioFlag', flag); 
-            const select = document.querySelector('.goog-te-combo');
-            if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } 
-            else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedFlag = localStorage.getItem('centurioFlag');
-            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
-        });
+        function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
+        function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
+        document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
     </script>
 </body>
 </html>
