@@ -24,7 +24,6 @@ function getTodayDate() {
     return new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 }
 
-// --- 🏗️ STRUCTURE DE LA BASE DE DONNÉES ---
 const PlayerSchema = new mongoose.Schema({
     userId: String,
     games: [String],
@@ -67,9 +66,9 @@ function normalizeComment(text) {
     if (!text) return null;
     let t = text.toLowerCase().trim();
     if (t.length < 2) return null;
-    if (t.includes('design') || t.includes('interface') || t.includes('visuel')) return "Améliorer l'interface";
-    if (t.includes('bug') || t.includes('lent') || t.includes('fluide')) return "Améliorer la fluidité / Bugs";
-    if (t.includes('jeu') || t.includes('défi') || t.includes('stand')) return "Ajouter plus de jeux";
+    if (t.includes('design') || t.includes('interface')) return "Améliorer l'interface";
+    if (t.includes('bug') || t.includes('lent')) return "Améliorer la fluidité";
+    if (t.includes('jeu') || t.includes('défi')) return "Ajouter plus de jeux";
     if (t.includes('cadeau') || t.includes('lot')) return "De meilleurs cadeaux";
     return text.charAt(0).toUpperCase() + text.slice(1);
 }
@@ -108,14 +107,13 @@ app.post('/api/login', async (req, res) => {
     else res.json({ success: false });
 });
 
-// 🚀 LE FIX INDESTRUCTIBLE EST ICI
 app.post('/api/validate', async (req, res) => {
     const { userId, gameId, token } = req.body;
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "🚨 FRAUDE !" });
     
     let player = await Player.findOne({ userId: userId });
     
-    // Si le joueur n'existe pas (suite à un RESET), on le CREE au lieu de le bloquer !
+    // Auto-création si reset
     if (!player) {
         player = new Player({ userId: userId, games: [], visitedDays: [getTodayDate()] });
         await player.save();
@@ -139,13 +137,11 @@ app.post('/api/validate', async (req, res) => {
 
     if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
     
-    // On envoie le signal radio au téléphone du joueur !
     io.to(userId).emit('challenge_validated', gameId);
     res.json({ success: true });
 });
 
 app.post('/api/survey', async (req, res) => {
-    // ... (Reste inchangé)
     const { q1, q2, q3, comment } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false });
     const today = getTodayDate();
@@ -164,7 +160,6 @@ app.post('/api/survey', async (req, res) => {
 });
 
 app.post('/api/admin_survey', async (req, res) => {
-    // ... (Reste inchangé)
     const { q1, q2, q3, comment, token } = req.body;
     if(token !== ADMIN_TOKEN) return res.json({ success: false });
     if(!q1 || !q2) return res.json({ success: false }); 
