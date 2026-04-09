@@ -8,21 +8,21 @@ const games = [
     { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' },
     { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: "Va à l'accueil récupérer ton cadeau<br>⚠️ Plus tu as de défis validés, plus ton cadeau sera gros !" }
 ];
-// 1. Identité du Visiteur : On charge ce qu'on a en mémoire
+
 let userId = localStorage.getItem('centurioUserId');
 const socket = io();
 
-// 🛡️ NOUVEAU : Chargement de l'empreinte matérielle (Anti-Triche)
+// 🛡️ Chargement de l'empreinte matérielle (Anti-Triche)
 FingerprintJS.load().then(fp => {
     fp.get().then(result => {
-        const hardwareId = result.visitorId; // Le code unique et indestructible de ce téléphone
+        const hardwareId = result.visitorId; 
         
-        // Si c'est un nouveau ou qu'il a supprimé son historique, on force son ID matériel
         if (!userId || userId !== hardwareId) {
             userId = hardwareId;
             localStorage.setItem('centurioUserId', userId);
         }
         
+        // On connecte la radio au serveur de façon sécurisée !
         socket.emit('register_user', userId);
     });
 });
@@ -33,13 +33,14 @@ socket.on('challenge_validated', (gameId) => {
     savedProgress[gameId] = true;
     localStorage.setItem('centurioProgress', JSON.stringify(savedProgress));
     
+    // Mise à jour de l'heure
     const now = new Date();
     const formattedDate = now.toLocaleDateString('fr-FR');
     const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
     const timeString = `Dernier défi validé le ${formattedDate} à ${formattedTime}`;
     localStorage.setItem('centurioLastValidationTime', timeString);
 
-    closeModal();
+    closeModal(); // Ferme le QR Code
     
     const successModal = document.getElementById('success-modal');
     if(successModal) {
@@ -47,10 +48,9 @@ socket.on('challenge_validated', (gameId) => {
         setTimeout(() => { successModal.style.display = 'none'; }, 3000);
     }
     
-    renderGames(); 
+    renderGames(); // On redessine le camembert en temps réel !
 });
 
-// Gère l'affichage sur la page "Défis"
 function renderGames() {
     const list = document.getElementById('games-list');
     if (!list) return; 
@@ -91,13 +91,11 @@ function renderGames() {
     }
 
     if (completedCount === games.length) {
-        // 🚨 NOUVEAU : Le joueur a fini ! On envoie son ID matériel à la liste noire du serveur
         fetch('/api/finish', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: userId })
         });
-
         setTimeout(() => { openFinalModal(); }, 3500); 
     }
 }
