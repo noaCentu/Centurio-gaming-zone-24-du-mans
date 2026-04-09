@@ -12,7 +12,6 @@ const games = [
 let userId = localStorage.getItem('centurioUserId');
 const socket = io();
 
-// 🛡️ Chargement de l'empreinte matérielle (Anti-Triche)
 FingerprintJS.load().then(fp => {
     fp.get().then(result => {
         const hardwareId = result.visitorId; 
@@ -24,13 +23,11 @@ FingerprintJS.load().then(fp => {
     });
 });
 
-// 🔄 Polling indestructible : on rappelle au serveur qui on est toutes les 2s
 setInterval(() => {
     let realUserId = localStorage.getItem('centurioUserId');
     if (realUserId) socket.emit('register_user', realUserId);
 }, 2000);
 
-// 🌟 LE SPECTACLE : Quand l'animateur scanne avec succès !
 socket.on('challenge_validated', (gameId) => {
     let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
     savedProgress[gameId] = true;
@@ -53,8 +50,7 @@ socket.on('challenge_validated', (gameId) => {
             setTimeout(() => { successModal.style.display = 'none'; }, 2000);
         }
     }
-    
-    renderGames(); // Redessine l'écran en direct
+    renderGames(); 
 });
 
 function renderGames() {
@@ -68,7 +64,6 @@ function renderGames() {
     const normalGames = games.filter(g => g.id !== 'cadeau');
     const cadeauGame = games.find(g => g.id === 'cadeau');
 
-    // 1. Affichage des 7 jeux normaux
     normalGames.forEach(function(game, index) {
         const isDone = savedProgress[game.id] === true;
         if (isDone) completedCount++;
@@ -91,7 +86,6 @@ function renderGames() {
         list.appendChild(card);
     });
 
-    // 2. Affichage du Questionnaire (S'il n'est pas fait)
     const surveyCard = document.getElementById('survey-card');
     if (surveyCard) {
         if(localStorage.getItem('centurioSurveyDone')) {
@@ -110,7 +104,6 @@ function renderGames() {
         }
     }
 
-    // 3. Affichage du Cadeau à la toute fin
     if (cadeauGame) {
         const isDone = savedProgress['cadeau'] === true;
         const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
@@ -187,21 +180,16 @@ function updateProgressChart(completed, total) {
 }
 
 function openModal(gameId) {
-    if (!userId) {
-        alert("Génération de votre profil sécurisé en cours. Réessayez dans 1 seconde !");
-        return;
-    }
+    if (!userId) return alert("Génération de profil en cours. Réessayez dans 1s !");
     document.getElementById('animator-modal').style.display = 'flex';
-    const myDomain = window.location.origin; 
-    const adminUrl = `${myDomain}/scan.html?user=${userId}&game=${gameId}`;
+    const adminUrl = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=20&data=${encodeURIComponent(adminUrl)}`;
     document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary); max-width: 100%;">`;
 }
 
 function closeModal() { document.getElementById('animator-modal').style.display = 'none'; }
-function closeFinalModal() { document.getElementById('final-modal').style.display = 'none'; }
 
-// --- LOGIQUE DU QUESTIONNAIRE ---
+// --- QUESTIONNAIRE ---
 let answers = { q1: null, q2: null, q3: null };
 
 function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
@@ -209,9 +197,7 @@ function openSurvey() { document.getElementById('survey-modal').style.display = 
 function selectOpt(question, value) {
     answers[question] = value;
     const options = document.getElementById('scale-' + question).children;
-    for(let i=0; i<options.length; i++) {
-        options[i].classList.remove('selected');
-    }
+    for(let i=0; i<options.length; i++) options[i].classList.remove('selected');
     options[value - 1].classList.add('selected');
 }
 
@@ -231,7 +217,7 @@ function submitSurvey() {
         localStorage.setItem('centurioSurveyDone', 'true');
         document.getElementById('survey-modal').style.display = 'none';
         alert("Merci beaucoup ! Votre cadeau est débloqué ! 🎁");
-        renderGames(); // Recharge l'affichage instantanément
+        renderGames();
     });
 }
 
