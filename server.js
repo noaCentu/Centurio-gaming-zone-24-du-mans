@@ -16,10 +16,6 @@ const STATS_TOKEN = "jeton_secret_stats_2026_abc";
 
 const MONGO_URI = "mongodb+srv://CenturioAdmin:CenturioAdmin@cluster0.xdadatq.mongodb.net/centurioDB?retryWrites=true&w=majority";
 
-mongoose.connect(MONGO_URI)
-    .then(() => console.log("🟢 Connecté avec succès au coffre-fort MongoDB !"))
-    .catch(err => console.error("🔴 Erreur de connexion MongoDB :", err));
-
 function getTodayDate() {
     return new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
 }
@@ -61,7 +57,15 @@ async function initStats(key) {
     if (!stats) { stats = new GlobalStat({ idName: key }); await stats.save(); }
     return stats;
 }
-initStats("main");
+
+// 🟢 CORRECTION ICI : On attend la connexion avant de lancer initStats
+mongoose.connect(MONGO_URI)
+    .then(() => {
+        console.log("🟢 Connecté avec succès au coffre-fort MongoDB !");
+        initStats("main"); // On initialise les stats uniquement quand c'est connecté
+    })
+    .catch(err => console.error("🔴 Erreur de connexion MongoDB :", err));
+
 
 function normalizeComment(text) {
     if (!text) return null;
@@ -81,22 +85,27 @@ let currentConnections = 0;
 io.on('connection', async (socket) => {
     currentConnections++; 
     const today = getTodayDate();
-    for (let k of ["main", today]) {
-        let stats = await initStats(k);
-        if (currentConnections > stats.maxConcurrentUsers) {
-            stats.maxConcurrentUsers = currentConnections; await stats.save();
+    try {
+        for (let k of ["main", today]) {
+            let stats = await initStats(k);
+            if (currentConnections > stats.maxConcurrentUsers) {
+                stats.maxConcurrentUsers = currentConnections; await stats.save();
+            }
         }
-    }
+    } catch(e) {}
+    
     socket.on('register_user', async (userId) => {
         socket.join(userId); // 🟢 Le joueur rejoint sa room radio perso !
-        let player = await Player.findOne({ userId: userId });
-        if (!player) player = new Player({ userId: userId, games: [], visitedDays: [] });
-        if (!player.visitedDays.includes(today)) {
-            player.visitedDays.push(today);
-            await player.save();
-            await GlobalStat.updateOne({ idName: today }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
-            if (player.visitedDays.length === 1) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
-        }
+        try {
+            let player = await Player.findOne({ userId: userId });
+            if (!player) player = new Player({ userId: userId, games: [], visitedDays: [] });
+            if (!player.visitedDays.includes(today)) {
+                player.visitedDays.push(today);
+                await player.save();
+                await GlobalStat.updateOne({ idName: today }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+                if (player.visitedDays.length === 1) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+            }
+        } catch(e) {}
     });
     socket.on('disconnect', () => currentConnections-- );
 });
@@ -108,112 +117,123 @@ app.post('/api/login', async (req, res) => {
     else res.json({ success: false });
 });
 
-// 🟢 ROUTE SYNCHRONISATION
 app.get('/api/my-progress/:userId', async (req, res) => {
-    const player = await Player.findOne({ userId: req.params.userId });
-    if (player) {
-        res.json({ success: true, games: player.games, surveyDone: player.surveyDone });
-    } else {
-        res.json({ success: true, games: [], surveyDone: false });
-    }
+    try {
+        const player = await Player.findOne({ userId: req.params.userId });
+        if (player) {
+            res.json({ success: true, games: player.games, surveyDone: player.surveyDone });
+        } else {
+            res.json({ success: true, games: [], surveyDone: false });
+        }
+    } catch(e) { res.json({ success: false }); }
 });
 
 app.post('/api/validate', async (req, res) => {
     const { userId, gameId, token } = req.body;
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "🚨 FRAUDE !" });
     
-    let player = await Player.findOne({ userId: userId });
-    if (!player) {
-        player = new Player({ userId: userId, games: [], visitedDays: [getTodayDate()] });
+    try {
+        let player = await Player.findOne({ userId: userId });
+        if (!player) {
+            player = new Player({ userId: userId, games: [], visitedDays: [getTodayDate()] });
+            await player.save();
+            await GlobalStat.updateOne({ idName: getTodayDate() }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+            await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+        }
+
+        if (player.games.includes(gameId)) return res.json({ success: false, message: "⚠️ DÉJÀ validé !" });
+        if (player.games.length >= 8) return res.json({ success: false, message: "🛑 Cadeau déjà récupéré !" });
+
+        player.games.push(gameId);
         await player.save();
-        await GlobalStat.updateOne({ idName: getTodayDate() }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
-        await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
-    }
+        
+        const today = getTodayDate();
+        for (let k of ["main", today]) {
+            let stats = await initStats(k);
+            let currentCount = stats.gameStats.get(gameId) || 0;
+            stats.gameStats.set(gameId, currentCount + 1);
+            await stats.save();
+        }
 
-    if (player.games.includes(gameId)) return res.json({ success: false, message: "⚠️ DÉJÀ validé !" });
-    if (player.games.length >= 8) return res.json({ success: false, message: "🛑 Cadeau déjà récupéré !" });
-
-    player.games.push(gameId);
-    await player.save();
-    
-    const today = getTodayDate();
-    for (let k of ["main", today]) {
-        let stats = await initStats(k);
-        let currentCount = stats.gameStats.get(gameId) || 0;
-        stats.gameStats.set(gameId, currentCount + 1);
-        await stats.save();
-    }
-
-    if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
-    
-    // 🟢 ENVOI DU SIGNAL RADIO AU JOUEUR !
-    io.to(userId).emit('challenge_validated', gameId);
-    res.json({ success: true });
+        if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
+        
+        // 🟢 ENVOI DU SIGNAL RADIO AU JOUEUR !
+        io.to(userId).emit('challenge_validated', gameId);
+        res.json({ success: true });
+    } catch(e) { res.json({ success: false, message: "Erreur serveur" }); }
 });
 
 app.post('/api/survey', async (req, res) => {
     const { q1, q2, q3, comment, userId } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false });
 
-    // Enregistre que le joueur a fait le survey
-    let player = await Player.findOne({ userId: userId });
-    if (player) { player.surveyDone = true; await player.save(); }
+    try {
+        let player = await Player.findOne({ userId: userId });
+        if (player) { player.surveyDone = true; await player.save(); }
 
-    const today = getTodayDate();
-    for (let k of ["main", today]) {
-        let stats = await initStats(k);
-        stats.surveyRespondents++;
-        stats.surveyScores.q1[q1]++; stats.surveyScores.q2[q2]++; stats.surveyScores.q3[q3]++;
-        const groupedComment = normalizeComment(comment);
-        if (groupedComment) {
-            let currentCount = stats.surveyComments.get(groupedComment) || 0;
-            stats.surveyComments.set(groupedComment, currentCount + 1);
+        const today = getTodayDate();
+        for (let k of ["main", today]) {
+            let stats = await initStats(k);
+            stats.surveyRespondents++;
+            stats.surveyScores.q1[q1]++; stats.surveyScores.q2[q2]++; stats.surveyScores.q3[q3]++;
+            const groupedComment = normalizeComment(comment);
+            if (groupedComment) {
+                let currentCount = stats.surveyComments.get(groupedComment) || 0;
+                stats.surveyComments.set(groupedComment, currentCount + 1);
+            }
+            stats.markModified('surveyScores'); await stats.save();
         }
-        stats.markModified('surveyScores'); await stats.save();
-    }
-    res.json({ success: true });
+        res.json({ success: true });
+    } catch(e) { res.json({ success: false }); }
 });
 
 app.post('/api/admin_survey', async (req, res) => {
     const { q1, q2, q3, comment, token } = req.body;
     if(token !== ADMIN_TOKEN) return res.json({ success: false });
     if(!q1 || !q2) return res.json({ success: false }); 
-    const today = getTodayDate();
-    for (let k of ["main", today]) {
-        let stats = await initStats(k);
-        stats.adminSurveyRespondents++;
-        stats.adminSurveyScores.q1[q1]++; stats.adminSurveyScores.q2[q2]++;
-        if (q3) stats.adminSurveyScores.q3[q3]++; 
-        const groupedComment = normalizeComment(comment);
-        if (groupedComment) {
-            let currentCount = stats.adminSurveyComments.get(groupedComment) || 0;
-            stats.adminSurveyComments.set(groupedComment, currentCount + 1);
+    
+    try {
+        const today = getTodayDate();
+        for (let k of ["main", today]) {
+            let stats = await initStats(k);
+            stats.adminSurveyRespondents++;
+            stats.adminSurveyScores.q1[q1]++; stats.adminSurveyScores.q2[q2]++;
+            if (q3) stats.adminSurveyScores.q3[q3]++; 
+            const groupedComment = normalizeComment(comment);
+            if (groupedComment) {
+                let currentCount = stats.adminSurveyComments.get(groupedComment) || 0;
+                stats.adminSurveyComments.set(groupedComment, currentCount + 1);
+            }
+            stats.markModified('adminSurveyScores'); await stats.save();
         }
-        stats.markModified('adminSurveyScores'); await stats.save();
-    }
-    res.json({ success: true });
+        res.json({ success: true });
+    } catch(e) { res.json({ success: false }); }
 });
 
 app.post('/api/stats_data', async (req, res) => {
     if (req.body.token === STATS_TOKEN) {
-        const allStats = await GlobalStat.find({});
-        let result = {};
-        allStats.forEach(s => {
-            result[s.idName] = { 
-                totalVisiteurs: s.totalVisiteurs, maxConcurrentUsers: s.maxConcurrentUsers,
-                gameStats: Object.fromEntries(s.gameStats || new Map()),
-                surveyRespondents: s.surveyRespondents, surveyScores: s.surveyScores, surveyComments: Object.fromEntries(s.surveyComments),
-                adminSurveyRespondents: s.adminSurveyRespondents, adminSurveyScores: s.adminSurveyScores, adminSurveyComments: Object.fromEntries(s.adminSurveyComments)
-            };
-        });
-        res.json({ success: true, allData: result });
+        try {
+            const allStats = await GlobalStat.find({});
+            let result = {};
+            allStats.forEach(s => {
+                result[s.idName] = { 
+                    totalVisiteurs: s.totalVisiteurs, maxConcurrentUsers: s.maxConcurrentUsers,
+                    gameStats: Object.fromEntries(s.gameStats || new Map()),
+                    surveyRespondents: s.surveyRespondents, surveyScores: s.surveyScores, surveyComments: Object.fromEntries(s.surveyComments),
+                    adminSurveyRespondents: s.adminSurveyRespondents, adminSurveyScores: s.adminSurveyScores, adminSurveyComments: Object.fromEntries(s.adminSurveyComments)
+                };
+            });
+            res.json({ success: true, allData: result });
+        } catch(e) { res.json({ success: false }); }
     } else res.json({ success: false });
 });
 
 app.post('/api/reset_stats', async (req, res) => {
     if (req.body.token === STATS_TOKEN) {
-        await GlobalStat.deleteMany({}); await Player.deleteMany({}); await initStats("main"); 
-        res.json({ success: true });
+        try {
+            await GlobalStat.deleteMany({}); await Player.deleteMany({}); await initStats("main"); 
+            res.json({ success: true });
+        } catch(e) { res.json({ success: false }); }
     } else res.json({ success: false });
 });
 
