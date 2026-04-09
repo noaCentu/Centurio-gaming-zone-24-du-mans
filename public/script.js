@@ -12,7 +12,23 @@ const games = [
 let userId = localStorage.getItem('centurioUserId');
 const socket = io();
 
-// 🛡️ Anti-triche
+// 🟢 Fonction pour synchroniser avec la base de données
+function syncWithServer() {
+    if (!userId) return;
+    fetch(`/api/my-progress/${userId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                let progress = {};
+                data.games.forEach(gId => { progress[gId] = true; });
+                localStorage.setItem('centurioProgress', JSON.stringify(progress));
+                if (data.surveyDone) localStorage.setItem('centurioSurveyDone', 'true');
+                renderGames();
+            }
+        }).catch(err => console.log("Sync error", err));
+}
+
+// 🛡️ Anti-triche et Connexion Radio
 FingerprintJS.load().then(fp => {
     fp.get().then(result => {
         const hardwareId = result.visitorId; 
@@ -21,14 +37,16 @@ FingerprintJS.load().then(fp => {
             localStorage.setItem('centurioUserId', userId);
         }
         socket.emit('register_user', userId);
+        syncWithServer(); // On récupère les points dès l'ouverture
     });
 });
 
 setInterval(() => {
     let realUserId = localStorage.getItem('centurioUserId');
     if (realUserId) socket.emit('register_user', realUserId);
-}, 2000);
+}, 3000);
 
+// 🟢 RECEPTION DU SIGNAL DE L'ANIMATEUR !
 socket.on('challenge_validated', (gameId) => {
     try {
         let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
@@ -39,8 +57,7 @@ socket.on('challenge_validated', (gameId) => {
     const now = new Date();
     const formattedDate = now.toLocaleDateString('fr-FR');
     const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
-    const timeString = `Dernier défi validé le ${formattedDate} à ${formattedTime}`;
-    localStorage.setItem('centurioLastValidationTime', timeString);
+    localStorage.setItem('centurioLastValidationTime', `Dernier défi validé le ${formattedDate} à ${formattedTime}`);
 
     closeModal(); 
     
@@ -50,7 +67,7 @@ socket.on('challenge_validated', (gameId) => {
         const successModal = document.getElementById('success-modal');
         if(successModal) {
             successModal.style.display = 'flex';
-            setTimeout(() => { successModal.style.display = 'none'; }, 2000);
+            setTimeout(() => { successModal.style.display = 'none'; }, 2500);
         }
     }
     renderGames(); 
@@ -66,10 +83,10 @@ function renderGames() {
         try { savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {}; } catch(e) {}
         
         let completedCount = 0;
-
         const normalGames = games.filter(g => g.id !== 'cadeau');
         const cadeauGame = games.find(g => g.id === 'cadeau');
 
+        // 1. Les Jeux
         normalGames.forEach(function(game, index) {
             const isDone = savedProgress[game.id] === true;
             if (isDone) completedCount++;
@@ -85,35 +102,37 @@ function renderGames() {
             card.innerHTML = `
                 <div class="game-info" style="text-align: left;">
                     <h3>${game.name}</h3>
-                    <p>${isDone ? 'Défi brillamment accompli' : game.desc}</p>
+                    <p>${isDone ? 'Défi accompli !' : game.desc}</p>
                 </div>
                 ${buttonHtml}
             `;
             list.appendChild(card);
         });
 
-        const surveyCard = document.getElementById('survey-card');
-        if (surveyCard) {
-            if(localStorage.getItem('centurioSurveyDone')) {
-                surveyCard.style.display = 'none';
-            } else {
-                surveyCard.style.display = 'flex';
-                surveyCard.innerHTML = `
-                    <div class="game-info" style="text-align: left;">
-                        <h3>📝 Votre avis compte !</h3>
-                        <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme pour nous aider à améliorer la prochaine édition.</p>
-                        <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Remplissez-le pour débloquer le cadeau.</p>
-                    </div>
-                    <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
-                `;
-                list.appendChild(surveyCard);
-            }
+        const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
+
+        // 2. Le Questionnaire
+        if (!surveyDone) {
+            const surveyCard = document.createElement('div');
+            surveyCard.className = 'game-card animate-pop-in';
+            surveyCard.style.borderLeftColor = 'var(--secondary)';
+            surveyCard.style.borderStyle = 'dashed';
+            surveyCard.style.borderWidth = '3px';
+            surveyCard.style.marginTop = '25px';
+            surveyCard.innerHTML = `
+                <div class="game-info" style="text-align: left;">
+                    <h3>📝 Votre avis compte !</h3>
+                    <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme pour nous aider à améliorer la prochaine édition.</p>
+                    <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Remplissez-le pour débloquer le cadeau.</p>
+                </div>
+                <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
+            `;
+            list.appendChild(surveyCard);
         }
 
+        // 3. Le Cadeau
         if (cadeauGame) {
             const isDone = savedProgress['cadeau'] === true;
-            const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
-            
             const card = document.createElement('div');
             let buttonHtml = '';
 
@@ -188,7 +207,7 @@ function updateProgressChart(completed, total) {
     }
 }
 
-function openModal(gameId) {
+window.openModal = function(gameId) {
     if (!userId) return alert("Génération de profil en cours. Réessayez dans 1s !");
     document.getElementById('animator-modal').style.display = 'flex';
     const adminUrl = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
@@ -196,22 +215,22 @@ function openModal(gameId) {
     document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary); max-width: 100%;">`;
 }
 
-function closeModal() { document.getElementById('animator-modal').style.display = 'none'; }
+window.closeModal = function() { document.getElementById('animator-modal').style.display = 'none'; }
 
 // --- QUESTIONNAIRE ---
-let answers = { q1: null, q2: null, q3: null };
+window.answers = { q1: null, q2: null, q3: null };
 
-function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
+window.openSurvey = function() { document.getElementById('survey-modal').style.display = 'flex'; }
 
-function selectOpt(question, value) {
-    answers[question] = value;
+window.selectOpt = function(question, value) {
+    window.answers[question] = value;
     const options = document.getElementById('scale-' + question).children;
     for(let i=0; i<options.length; i++) options[i].classList.remove('selected');
     options[value - 1].classList.add('selected');
 }
 
-function submitSurvey() {
-    if(!answers.q1 || !answers.q2 || !answers.q3) {
+window.submitSurvey = function() {
+    if(!window.answers.q1 || !window.answers.q2 || !window.answers.q3) {
         document.getElementById('survey-error').style.display = 'block';
         return;
     }
@@ -221,7 +240,7 @@ function submitSurvey() {
     fetch('/api/survey', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q1: answers.q1, q2: answers.q2, q3: answers.q3, comment: comment })
+        body: JSON.stringify({ q1: window.answers.q1, q2: window.answers.q2, q3: window.answers.q3, comment: comment, userId: userId })
     }).then(() => {
         localStorage.setItem('centurioSurveyDone', 'true');
         document.getElementById('survey-modal').style.display = 'none';
@@ -230,4 +249,4 @@ function submitSurvey() {
     }).catch(e => console.error(e));
 }
 
-window.onload = function() { renderGames(); };
+document.addEventListener('DOMContentLoaded', renderGames);
