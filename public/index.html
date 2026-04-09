@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?v=18">
     <style>
         .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 15px 40px; font-size: 18px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 5px 15px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; }
         .btn-cta:active { transform: scale(0.95); }
@@ -56,6 +56,9 @@
                 <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
                 <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
                 <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
             </div>
         </div>
         <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
@@ -155,7 +158,17 @@
 
         function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
-        document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
+        
+        // LE PETIT DÉTECTEUR POUR L'ESPACE STAFF EST ICI 👇
+        document.addEventListener('DOMContentLoaded', () => { 
+            const savedFlag = localStorage.getItem('centurioFlag'); 
+            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; 
+
+            // Si le lien contient "?admin=open", on ouvre la modale Staff
+            if (window.location.search.includes('admin=open')) {
+                setTimeout(checkAdmin, 300);
+            }
+        });
     </script>
 </body>
 </html>
