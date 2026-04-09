@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=18">
     <link rel="icon" type="image/x-icon" href="/centurio-favicon.ico">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#f8aa37">
     <style>
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; transition: transform 0.2s; }
@@ -100,7 +102,11 @@
                 <div class="rule-content"><p>Une seule participation par appareil. Toute tentative de triche entraînera l'annulation automatique de vos défis.</p></div>
             </details>
             <details class="rule-card">
-                <summary><div class="summary-left"><div class="rule-icon">🤝</div><div class="rule-text"><h4>5. Respect des autres</h4></div></div><div class="arrow-icon">▼</div></summary>
+                <summary><div class="summary-left"><div class="rule-icon">🖥️</div><div class="rule-text"><h4>5. Respect du matériel</h4></div></div><div class="arrow-icon">▼</div></summary>
+                <div class="rule-content"><p>Le matériel mis à votre disposition coûte cher. Il est strictement interdit de le frapper ou de le dégrader.</p></div>
+            </details>
+            <details class="rule-card">
+                <summary><div class="summary-left"><div class="rule-icon">🤝</div><div class="rule-text"><h4>6. Respect des autres</h4></div></div><div class="arrow-icon">▼</div></summary>
                 <div class="rule-content"><p>La zone est un espace de détente. Les insultes, comportements toxiques ou cris abusifs ne sont pas tolérés.</p></div>
             </details>
         </div>
@@ -117,6 +123,7 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
+    <script src="script.js?v=18"></script>
     <script>
         function toggleMenu() {
             document.getElementById('side-menu').classList.toggle('open');
