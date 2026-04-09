@@ -1,4 +1,13 @@
-console.log("🚀 Script Centurio v17 - Confettis & Heure activés !");
+console.log("🚀 Script Centurio v18 - PWA & Hors-Ligne activés !");
+
+// 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('✅ PWA : Service Worker activé !'))
+        .catch(err => console.log('❌ PWA : Erreur', err));
+    });
+}
 
 const games = [
     { id: 'mk', name: 'Mario Kart', desc: 'Finir dans le Top 3' },
@@ -19,7 +28,6 @@ if (!userId) {
 
 let socket = null;
 
-// 🟢 SYNCHRONISATION
 window.syncWithServer = function() {
     if (!userId) return;
     fetch(`/api/my-progress/${userId}`)
@@ -32,10 +40,9 @@ window.syncWithServer = function() {
                 if (data.surveyDone) localStorage.setItem('centurioSurveyDone', 'true');
                 renderGames();
             }
-        }).catch(err => console.log("Sync ignorée (Réseau faible)"));
+        }).catch(err => console.log("Sync ignorée (Réseau faible ou Hors-ligne)"));
 };
 
-// 🛡️ RADIO & IDENTIFICATION
 try {
     if (typeof io !== 'undefined') {
         socket = io();
@@ -46,7 +53,6 @@ try {
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
             
-            // 🕒 ENREGISTREMENT DE L'HEURE EXACTE
             const now = new Date();
             const formattedDate = now.toLocaleDateString('fr-FR');
             const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
@@ -54,13 +60,10 @@ try {
             
             closeModal();
 
-            // 🎉 EXPLOSION DE CONFETTIS !!!
             if (typeof confetti !== 'undefined') {
                 confetti({
-                    particleCount: 150,
-                    spread: 80,
-                    origin: { y: 0.6 },
-                    colors: ['#f8aa37', '#3a2a40', '#4CAF50', '#ffffff'] // Couleurs Centurio
+                    particleCount: 150, spread: 80, origin: { y: 0.6 },
+                    colors: ['#f8aa37', '#3a2a40', '#4CAF50', '#ffffff']
                 });
             }
             
@@ -70,15 +73,14 @@ try {
                 const m = document.getElementById('success-modal');
                 if(m){ 
                     m.style.display = 'flex'; 
-                    // Petit effet de rebond sur la modale
                     m.querySelector('.modal').style.animation = 'pulse 0.5s ease';
-                    setTimeout(() => m.style.display = 'none', 3000); // Reste 3 secondes pour savourer
+                    setTimeout(() => m.style.display = 'none', 3000); 
                 }
             }
             renderGames();
         });
     }
-} catch(e) { console.error("Radio bloquée"); }
+} catch(e) { console.error("Radio bloquée, mode Manuel"); }
 
 try {
     if (typeof FingerprintJS !== 'undefined') {
@@ -97,7 +99,6 @@ try {
 
 setInterval(syncWithServer, 5000);
 
-// 🎨 DESSIN DE LA PAGE
 function renderGames() {
     try {
         const list = document.getElementById('games-list');
@@ -174,13 +175,12 @@ function renderGames() {
             }
         }
 
-        // 🕒 AFFICHAGE DE L'HEURE SOUS LE GRAPHIQUE
         const timeInfo = document.getElementById('last-validation-info');
         const savedTime = localStorage.getItem('centurioLastValidationTime');
         if (savedTime && count > 0 && timeInfo) {
             timeInfo.innerText = savedTime;
             timeInfo.style.display = 'block';
-            timeInfo.style.animation = 'fadeIn 0.5s ease-out'; // Petite animation
+            timeInfo.style.animation = 'fadeIn 0.5s ease-out'; 
         } else if (timeInfo) {
             timeInfo.style.display = 'none';
         }
@@ -188,7 +188,6 @@ function renderGames() {
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
-// 🖱️ ACTIONS
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
     document.getElementById('animator-modal').style.display = 'flex';
@@ -222,7 +221,6 @@ window.submitSurvey = function() {
         localStorage.setItem('centurioSurveyDone', 'true');
         document.getElementById('survey-modal').style.display = 'none';
         
-        // Confettis de victoire pour le questionnaire ! 🎉
         if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         
         setTimeout(() => alert("Merci beaucoup ! Cadeau débloqué ! 🎁"), 500);
