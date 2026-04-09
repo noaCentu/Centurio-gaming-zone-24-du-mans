@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <style>
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
@@ -13,7 +13,6 @@
         .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
         .lang-menu div:hover { background: #f0f0f0; }
-        
         body > .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         .goog-te-banner-frame { display: none !important; }
@@ -29,6 +28,9 @@
                 <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
                 <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
                 <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
             </div>
         </div>
         <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
@@ -50,8 +52,7 @@
         
         <div id="games-list" style="width: 100%; max-width: 500px;"></div>
 
-        <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px; display: none;">
-            </div>
+        <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px; display: none;"></div>
     </div>
 
     <nav class="navbar">
@@ -74,37 +75,28 @@
         <div class="modal">
             <h3>Questionnaire</h3>
             <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Ce formulaire est rapide et 100% anonyme.</p>
-            
             <div class="survey-group">
                 <label class="survey-label">1. Comment évaluez-vous l'expérience de la Gaming Zone ? *</label>
                 <div class="survey-scale" id="scale-q1">
-                    <div class="survey-option" onclick="selectOpt('q1',1)">1</div>
-                    <div class="survey-option" onclick="selectOpt('q1',2)">2</div>
-                    <div class="survey-option" onclick="selectOpt('q1',3)">3</div>
-                    <div class="survey-option" onclick="selectOpt('q1',4)">4</div>
-                    <div class="survey-option" onclick="selectOpt('q1',5)">5</div>
+                    <div class="survey-option" onclick="selectOpt('q1',1)">1</div><div class="survey-option" onclick="selectOpt('q1',2)">2</div><div class="survey-option" onclick="selectOpt('q1',3)">3</div><div class="survey-option" onclick="selectOpt('q1',4)">4</div><div class="survey-option" onclick="selectOpt('q1',5)">5</div>
                 </div>
             </div>
-
             <div class="survey-group">
                 <label class="survey-label">2. Avez-vous apprécié l'application mobile ? *</label>
                 <div class="survey-scale" id="scale-q2">
                     <div class="survey-option" onclick="selectOpt('q2',1)">1</div><div class="survey-option" onclick="selectOpt('q2',2)">2</div><div class="survey-option" onclick="selectOpt('q2',3)">3</div><div class="survey-option" onclick="selectOpt('q2',4)">4</div><div class="survey-option" onclick="selectOpt('q2',5)">5</div>
                 </div>
             </div>
-
             <div class="survey-group">
                 <label class="survey-label">3. L'application était-elle facile d'utilisation ? *</label>
                 <div class="survey-scale" id="scale-q3">
                     <div class="survey-option" onclick="selectOpt('q3',1)">1</div><div class="survey-option" onclick="selectOpt('q3',2)">2</div><div class="survey-option" onclick="selectOpt('q3',3)">3</div><div class="survey-option" onclick="selectOpt('q3',4)">4</div><div class="survey-option" onclick="selectOpt('q3',5)">5</div>
                 </div>
             </div>
-
             <div class="survey-group">
                 <label class="survey-label">4. Comment amélioreriez-vous l'application ?</label>
                 <textarea id="survey-comment" class="survey-textarea" rows="3" placeholder="Vos idées (design, jeux, lots...)"></textarea>
             </div>
-
             <button class="btn-submit" onclick="submitSurvey()">Envoyer et débloquer mon Cadeau</button>
             <button class="btn-cancel" onclick="document.getElementById('survey-modal').style.display='none'">Fermer</button>
             <p id="survey-error" style="color: red; font-size: 12px; font-weight: bold; display: none; margin-top: 5px;">Veuillez noter les 3 premières questions.</p>
@@ -136,48 +128,13 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=6"></script>
 
     <script>
-        // --- LOGIQUE DU QUESTIONNAIRE ---
-        let answers = { q1: null, q2: null, q3: null };
-
-        function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
-
-        function selectOpt(question, value) {
-            answers[question] = value;
-            const options = document.getElementById('scale-' + question).children;
-            for(let i=0; i<options.length; i++) {
-                options[i].classList.remove('selected');
-            }
-            options[value - 1].classList.add('selected');
-        }
-
-        function submitSurvey() {
-            if(!answers.q1 || !answers.q2 || !answers.q3) {
-                document.getElementById('survey-error').style.display = 'block';
-                return;
-            }
-            document.getElementById('survey-error').style.display = 'none';
-            const comment = document.getElementById('survey-comment').value;
-
-            fetch('/api/survey', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ q1: answers.q1, q2: answers.q2, q3: answers.q3, comment: comment })
-            }).then(() => {
-                localStorage.setItem('centurioSurveyDone', 'true');
-                document.getElementById('survey-modal').style.display = 'none';
-                alert("Merci beaucoup ! Votre cadeau est débloqué ! 🎁");
-                window.location.reload(); 
-            });
-        }
-
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
         document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
 
-        // --- GESTION DU MODE NUIT ---
         function toggleNightMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
