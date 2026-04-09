@@ -45,23 +45,18 @@
             <div class="chart-label" style="font-size: 12px; color: #888;">Défis accomplis</div>
         </div>
         <p id="last-validation-info" style="font-size: 12px; color: #888; font-style: italic; margin-top: 10px; margin-bottom: 20px; display: none;"></p>
-        <p style="margin-bottom: 25px;">Relevez les défis sur nos différents stands.<br>Prêt ? Jouez ! 🎮</p>
+        
+        <p style="margin-bottom: 25px;">Relevez les défis et donnez votre avis pour débloquer votre cadeau ! 🎁</p>
         
         <div id="games-list" style="width: 100%; max-width: 500px;"></div>
 
         <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px;">
-            <div class="game-info" style="text-align: left;">
-                <h3>📝 Votre avis compte !</h3>
-                <p>Aidez-nous à nous améliorer pour l'an prochain.</p>
             </div>
-            <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
-        </div>
     </div>
 
     <nav class="navbar">
         <a href="index.html" class="nav-btn">Accueil</a>
         <a href="defis.html" class="nav-btn active">Défis</a>
-        <a href="contact.html" class="nav-btn">Contact</a>
         <a href="reglement.html" class="nav-btn">Règles</a>
     </nav>
 
@@ -77,7 +72,7 @@
     <div class="modal-overlay" id="survey-modal">
         <div class="modal">
             <h3>Questionnaire</h3>
-            <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Ce formulaire est rapide et anonyme.</p>
+            <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Ce formulaire est rapide et 100% anonyme.</p>
             
             <div class="survey-group">
                 <label class="survey-label">1. Comment évaluez-vous l'expérience de la Gaming Zone ? *</label>
@@ -109,7 +104,7 @@
                 <textarea id="survey-comment" class="survey-textarea" rows="3" placeholder="Vos idées (design, jeux, lots...)"></textarea>
             </div>
 
-            <button class="btn-submit" onclick="submitSurvey()">Envoyer mes réponses</button>
+            <button class="btn-submit" onclick="submitSurvey()">Envoyer et débloquer mon Cadeau</button>
             <button class="btn-cancel" onclick="document.getElementById('survey-modal').style.display='none'">Fermer</button>
             <p id="survey-error" style="color: red; font-size: 12px; font-weight: bold; display: none; margin-top: 5px;">Veuillez noter les 3 premières questions.</p>
         </div>
@@ -126,8 +121,8 @@
         <div class="modal">
             <div style="font-size: 50px;">🏆🎉</div>
             <h2 style="color: var(--brand);">BRAVO !</h2>
-            <p style="font-size: 13px;">Rendez-vous à l'accueil pour récupérer votre cadeau !</p>
-            <button class="btn-submit" onclick="document.getElementById('final-modal').style.display='none'">Génial !</button>
+            <p style="font-size: 13px;">Votre cadeau a bien été validé par l'équipe, merci de votre participation !</p>
+            <button class="btn-submit" onclick="document.getElementById('final-modal').style.display='none'">Super !</button>
         </div>
     </div>
 
@@ -145,10 +140,6 @@
     <script>
         // --- LOGIQUE DU QUESTIONNAIRE ---
         let answers = { q1: null, q2: null, q3: null };
-
-        if(localStorage.getItem('centurioSurveyDone')) {
-            document.getElementById('survey-card').style.display = 'none';
-        }
 
         function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
 
@@ -176,8 +167,9 @@
             }).then(() => {
                 localStorage.setItem('centurioSurveyDone', 'true');
                 document.getElementById('survey-modal').style.display = 'none';
-                document.getElementById('survey-card').style.display = 'none';
-                alert("Merci beaucoup pour votre retour !");
+                alert("Merci beaucoup ! Votre cadeau est débloqué ! 🎁");
+                // On recharge la page pour afficher le Cadeau en couleur !
+                window.location.reload(); 
             });
         }
 
@@ -201,6 +193,40 @@
             else if (hour >= 21 || hour < 6) { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; }
         }
         document.addEventListener('DOMContentLoaded', checkNightMode);
+
+        // --- GESTION DU TEMPS RÉEL (CONNEXION SCAN) ---
+        const socket = io();
+        
+        function resynchroniserJoueur() {
+            let myRealUserId = localStorage.getItem('centurioUserId');
+            if (myRealUserId) {
+                socket.emit('register_user', myRealUserId);
+            }
+        }
+        
+        setTimeout(resynchroniserJoueur, 500);
+        setInterval(resynchroniserJoueur, 2000);
+
+        socket.on('challenge_validated', (gameId) => {
+            document.getElementById('animator-modal').style.display = 'none';
+            
+            let games = JSON.parse(localStorage.getItem('centurioGames') || '[]');
+            if (!games.includes(gameId)) {
+                games.push(gameId);
+                localStorage.setItem('centurioGames', JSON.stringify(games));
+            }
+
+            // MODIFICATION ICI : Seul le Cadeau déclenche la grosse modale finale "Trophée" !
+            if (gameId === 'cadeau') {
+                document.getElementById('final-modal').style.display = 'flex';
+            } else {
+                document.getElementById('success-modal').style.display = 'flex';
+            }
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 2500);
+        });
     </script>
 </body>
 </html>
