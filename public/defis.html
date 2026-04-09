@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=13">
     <style>
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
@@ -48,14 +48,6 @@
         <p style="margin-bottom: 25px;">Relevez les défis sur nos différents stands.<br>Prêt ? Jouez ! 🎮</p>
         
         <div id="games-list" style="width: 100%; max-width: 500px;"></div>
-
-        <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px;">
-            <div class="game-info" style="text-align: left;">
-                <h3>📝 Votre avis compte !</h3>
-                <p>Aidez-nous à nous améliorer pour l'an prochain.</p>
-            </div>
-            <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
-        </div>
     </div>
 
     <nav class="navbar">
@@ -140,52 +132,13 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=13"></script>
     
     <script>
-        // --- LOGIQUE DU QUESTIONNAIRE ---
-        let answers = { q1: null, q2: null, q3: null };
-
-        if(localStorage.getItem('centurioSurveyDone')) {
-            document.getElementById('survey-card').style.display = 'none';
-        }
-
-        function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
-
-        function selectOpt(question, value) {
-            answers[question] = value;
-            const options = document.getElementById('scale-' + question).children;
-            for(let i=0; i<options.length; i++) {
-                options[i].classList.remove('selected');
-            }
-            options[value - 1].classList.add('selected');
-        }
-
-        function submitSurvey() {
-            if(!answers.q1 || !answers.q2 || !answers.q3) {
-                document.getElementById('survey-error').style.display = 'block';
-                return;
-            }
-            document.getElementById('survey-error').style.display = 'none';
-            const comment = document.getElementById('survey-comment').value;
-
-            fetch('/api/survey', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ q1: answers.q1, q2: answers.q2, q3: answers.q3, comment: comment })
-            }).then(() => {
-                localStorage.setItem('centurioSurveyDone', 'true');
-                document.getElementById('survey-modal').style.display = 'none';
-                document.getElementById('survey-card').style.display = 'none';
-                alert("Merci beaucoup pour votre retour !");
-            });
-        }
-
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
         document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
 
-        // --- GESTION DU MODE NUIT ---
         function toggleNightMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
