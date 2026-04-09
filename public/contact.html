@@ -5,83 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=10">
     <style>
+        /* 🌍 MENU DES LANGUES AMÉLIORÉ */
         .lang-dropdown { position: relative; z-index: 1000; }
-        .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
-        .lang-btn:active { transform: scale(0.9); }
-        .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
-        .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
-        .lang-menu div:hover { background: #f0f0f0; }
+        .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; transition: transform 0.2s; }
+        .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden; width: 160px; }
+        .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
+        .lang-menu div:hover { background: #f8f8f8; color: var(--brand); }
         
-        body > .skiptranslate { display: none !important; }
-        body { top: 0px !important; }
-        .goog-te-banner-frame { display: none !important; }
-        .goog-tooltip { display: none !important; }
-        .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
-
-        body.dark-mode .lang-menu { background: #1e1e1e; border: 1px solid #333; }
-        body.dark-mode .lang-menu div { color: #f1f1f1; }
-        body.dark-mode .lang-menu div:hover { background: #333; }
-
-        /* 🌳 DESIGN FAÇON LINKTREE */
-        .linktree-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 350px;
-            margin: 0 auto;
-            gap: 15px;
-        }
+        /* 🌳 DESIGN LINKTREE PREMIUM (Inspiration Centurio.fr) */
+        .page-content { padding-top: 40px; }
+        .brand-logo { width: 80px; height: 80px; background: var(--brand); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 40px; box-shadow: 0 10px 20px rgba(248, 170, 55, 0.3); }
+        
+        .linktree-wrapper { display: flex; flex-direction: column; align-items: center; width: 90%; max-width: 400px; margin: 0 auto; gap: 12px; }
 
         .link-btn {
             display: flex;
             align-items: center;
-            justify-content: center;
             width: 100%;
-            padding: 15px 20px;
-            border-radius: 50px;
-            background: white;
-            color: #333;
+            padding: 16px 20px;
+            border-radius: 15px;
+            background: #ffffff;
+            color: #1a1a1a;
             text-decoration: none;
-            font-weight: 700;
-            font-size: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-            border: 2px solid transparent;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .link-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            transform: scale(1.02);
+            border-color: var(--brand);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
-        .link-btn span {
-            margin-right: 10px;
-            font-size: 20px;
-        }
+        .link-btn .icon { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 15px; border-radius: 10px; background: #fdfdfd; }
 
-        /* Couleurs des réseaux */
-        .link-btn.site { border-color: var(--brand); color: var(--brand); }
-        .link-btn.folio { border-color: var(--secondary); color: var(--secondary); }
-        .link-btn.insta { border-color: #E1306C; color: #E1306C; }
-        .link-btn.linkedin { border-color: #0077B5; color: #0077B5; }
-        .link-btn.twitter { border-color: #000000; color: #000000; }
-        .link-btn.fb { border-color: #1877F2; color: #1877F2; }
-        .link-btn.flickr { border-color: #FF0084; color: #FF0084; }
-        
-        .link-btn.mail { 
-            background: var(--brand); 
-            color: white !important; 
-            border-color: var(--brand); 
-            margin-top: 15px; 
-        }
+        /* Style spécifique "Main Action" */
+        .btn-main { background: #1a1a1a; color: white; border: none; margin-top: 10px; }
+        .btn-main:hover { background: var(--brand); color: white; }
 
-        /* Ajustements Mode Nuit */
-        body.dark-mode .link-btn { background: #1e1e1e; }
-        body.dark-mode .link-btn.twitter { border-color: #fff; color: #fff; }
-        body.dark-mode .link-btn.mail { background: var(--brand); color: #fff !important; border-color: var(--brand); }
+        /* Mode Nuit */
+        body.dark-mode .link-btn { background: #1e1e1e; border-color: #333; color: white; }
+        body.dark-mode .link-btn .icon { background: #2a2a2a; }
+        body.dark-mode .lang-menu { background: #1e1e1e; border: 1px solid #333; }
+        body.dark-mode .lang-menu div { color: white; }
     </style>
 </head>
 <body>
@@ -97,50 +69,45 @@
                 <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
             </div>
         </div>
-        <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div class="header-title" style="flex: 1; text-align: center; font-weight: 800; letter-spacing: -0.5px;">CENTURIO</div>
         <div style="width: 24px;"></div>
     </div>
 
-    <div class="page-content" style="padding-bottom: 100px; text-align: center;">
+    <div class="page-content" style="padding-bottom: 120px; text-align: center;">
         
-        <div style="font-size: 50px; margin-bottom: 10px;">🎮</div>
-        <h2 style="margin-bottom: 5px;">Centurio</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 30px;">Retrouvez-nous sur nos différents réseaux !</p>
+        <div class="brand-logo">🎮</div>
+        <h2 style="margin-bottom: 5px; font-weight: 800;">AGENCE CENTURIO</h2>
+        <p style="font-size: 12px; color: #888; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px;">Gaming & Esport Event</p>
 
         <div class="linktree-wrapper">
-            <a href="https://centurio.fr/" target="_blank" class="link-btn site">
-                <span>🌐</span> Site Web Officiel
+            <a href="https://centurio.fr/" target="_blank" class="link-btn">
+                <div class="icon">🌐</div> Site Officiel
             </a>
             
-            <a href="https://centurio.fr/nos-realisations/" target="_blank" class="link-btn folio">
-                <span>🎬</span> Nos Réalisations
+            <a href="https://centurio.fr/nos-realisations/" target="_blank" class="link-btn">
+                <div class="icon">🎬</div> Nos Réalisations
             </a>
 
-            <a href="https://www.instagram.com/centurio.esport/" target="_blank" class="link-btn insta">
-                <span>📸</span> Instagram
+            <a href="https://www.instagram.com/centurio.esport/" target="_blank" class="link-btn">
+                <div class="icon" style="color:#E1306C;">📸</div> Instagram
             </a>
 
-            <a href="https://x.com/Centurio_agence" target="_blank" class="link-btn twitter">
-                <span>✖️</span> X (Twitter)
+            <a href="https://x.com/Centurio_agence" target="_blank" class="link-btn">
+                <div class="icon">✖️</div> X (Twitter)
             </a>
 
-            <a href="https://www.linkedin.com/company/agence-centurio/" target="_blank" class="link-btn linkedin">
-                <span>💼</span> LinkedIn
+            <a href="https://www.linkedin.com/company/agence-centurio/" target="_blank" class="link-btn">
+                <div class="icon" style="color:#0077B5;">💼</div> LinkedIn
             </a>
 
-            <a href="https://www.facebook.com/Centurio.agence/" target="_blank" class="link-btn fb">
-                <span>📘</span> Facebook
+            <a href="https://www.flickr.com/photos/centurio-esport/" target="_blank" class="link-btn">
+                <div class="icon" style="color:#FF0084;">🖼️</div> Galerie Flickr
             </a>
 
-            <a href="https://www.flickr.com/photos/centurio-esport/" target="_blank" class="link-btn flickr">
-                <span>🖼️</span> Galerie Flickr
-            </a>
-
-            <a href="https://centurio.fr/contactez-nous/" target="_blank" class="link-btn mail">
-                <span>✉️</span> Nous Contacter
+            <a href="https://centurio.fr/contactez-nous/" target="_blank" class="link-btn btn-main">
+                <div class="icon">✉️</div> NOUS CONTACTER
             </a>
         </div>
-
     </div>
 
     <nav class="navbar">
