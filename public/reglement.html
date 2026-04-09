@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Règles - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=5">
     <style>
         /* 🌍 MENU DES LANGUES */
         .lang-dropdown { position: relative; z-index: 1000; }
@@ -22,7 +22,7 @@
         .goog-tooltip { display: none !important; }
         .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
 
-        /* ✨ NOUVEAU DESIGN DES RÈGLES (ACCORDÉON) */
+        /* ✨ DESIGN DES RÈGLES (ACCORDÉON) */
         .rules-container { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
         
         details.rule-card { 
@@ -36,46 +36,29 @@
         }
         details.rule-card:hover { background: #fafafa; }
         
-        /* Style du titre cliquable */
-        summary {
-            list-style: none; /* Enlève la flèche par défaut */
-            outline: none;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        summary::-webkit-details-marker { display: none; } /* Enlève la flèche sur Chrome/Safari */
+        summary { list-style: none; outline: none; display: flex; align-items: center; justify-content: space-between; }
+        summary::-webkit-details-marker { display: none; }
         
-        .summary-left {
-            display: flex;
-            align-items: center;
-        }
-
+        .summary-left { display: flex; align-items: center; }
         .rule-icon { font-size: 24px; margin-right: 15px; background: #fff3e0; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
         .rule-text h4 { margin: 0; color: var(--brand, #f8aa37); font-weight: 800; font-size: 15px; text-transform: uppercase; }
         
-        /* Flèche personnalisée animée */
-        .arrow-icon {
-            font-size: 14px;
-            color: #d0d0d0;
-            transition: transform 0.3s ease;
-        }
-        details[open] .arrow-icon {
-            transform: rotate(180deg);
-        }
+        .arrow-icon { font-size: 14px; color: #d0d0d0; transition: transform 0.3s ease; }
+        details[open] .arrow-icon { transform: rotate(180deg); }
 
-        /* Contenu du texte déroulant */
-        .rule-content { 
-            margin-top: 15px; 
-            padding-left: 60px; /* Aligné avec le texte, sans compter l'icône */
-            font-size: 13px; 
-            color: #555; 
-            line-height: 1.5; 
-        }
+        .rule-content { margin-top: 15px; padding-left: 60px; font-size: 13px; color: #555; line-height: 1.5; }
         .rule-content p { margin: 0; }
         
-        /* 🏆 CRÉDITS DISCRETS */
         .credits { margin-top: 40px; font-size: 11px; color: #a0a0a0; text-align: center; padding: 0 20px; line-height: 1.6; }
+
+        /* 🌙 OVERRIDE MODE NUIT POUR LES RÈGLES */
+        body.dark-mode details.rule-card { background: #1e1e1e; border: 1px solid #333; color: #f1f1f1; }
+        body.dark-mode details.rule-card:hover { background: #2a2a2a; }
+        body.dark-mode .rule-content { color: #ccc; }
+        body.dark-mode .rule-icon { background: #333; }
+        body.dark-mode .lang-menu { background: #1e1e1e; border: 1px solid #333; }
+        body.dark-mode .lang-menu div { color: #f1f1f1; }
+        body.dark-mode .lang-menu div:hover { background: #333; }
     </style>
 </head>
 <body>
@@ -100,7 +83,6 @@
         <p style="font-size: 13px; color: #666;">Cliquez sur les règles pour lire les détails.</p>
 
         <div class="rules-container">
-            
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -191,23 +173,22 @@
                     <p>Pour la sécurité de tous et la protection des machines, fumer (y compris les puffs/cigarettes électroniques) et consommer de l'alcool est formellement interdit dans la Gaming Zone.</p>
                 </div>
             </details>
-
         </div>
 
-        
         <div class="credits">
             Application conçue et développée par <strong> Noa Belaid </strong><br>
             Propulsée par <strong> Virtual Studio Code, Github & Render </strong>
         </div>
-
     </div>
 
     <nav class="navbar">
         <a href="index.html" class="nav-btn">Accueil</a>
         <a href="defis.html" class="nav-btn">Défis</a>
-        <a href="contact.html" class="nav-btn active">Contact</a>
-        <a href="reglement.html" class="nav-btn">Règles</a>
+        <a href="contact.html" class="nav-btn">Contact</a>
+        <a href="reglement.html" class="nav-btn active">Règles</a>
     </nav>
+
+    <button class="btn-night-mode" onclick="toggleNightMode()" id="night-btn">🌙</button>
 
     <div id="google_translate_element" style="display:none;"></div>
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
@@ -230,6 +211,23 @@
             const savedFlag = localStorage.getItem('centurioFlag');
             if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
         });
+
+        // --- GESTION DU MODE NUIT ---
+        function toggleNightMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('centurioNightMode', isDark ? 'on' : 'off');
+            document.getElementById('night-btn').innerText = isDark ? '☀️' : '🌙';
+        }
+
+        function checkNightMode() {
+            const savedMode = localStorage.getItem('centurioNightMode');
+            const hour = new Date().getHours();
+            if (savedMode === 'on') { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; } 
+            else if (savedMode === 'off') { document.body.classList.remove('dark-mode'); document.getElementById('night-btn').innerText = '🌙'; } 
+            else if (hour >= 21 || hour < 6) { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; }
+        }
+        document.addEventListener('DOMContentLoaded', checkNightMode);
     </script>
 </body>
 </html>
