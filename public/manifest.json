@@ -1,0 +1,20 @@
+{
+  "name": "Centurio Gaming Zone",
+  "short_name": "Centurio",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#3a2a40",
+  "theme_color": "#f8aa37",
+  "icons": [
+    {
+      "src": "/centurio-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/centurio-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
