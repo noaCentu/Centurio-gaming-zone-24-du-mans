@@ -12,6 +12,7 @@ const games = [
 let userId = localStorage.getItem('centurioUserId');
 const socket = io();
 
+// 🛡️ Anti-triche
 FingerprintJS.load().then(fp => {
     fp.get().then(result => {
         const hardwareId = result.visitorId; 
@@ -29,9 +30,11 @@ setInterval(() => {
 }, 2000);
 
 socket.on('challenge_validated', (gameId) => {
-    let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
-    savedProgress[gameId] = true;
-    localStorage.setItem('centurioProgress', JSON.stringify(savedProgress));
+    try {
+        let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
+        savedProgress[gameId] = true;
+        localStorage.setItem('centurioProgress', JSON.stringify(savedProgress));
+    } catch(e) { console.error("Erreur sauvegarde", e); }
     
     const now = new Date();
     const formattedDate = now.toLocaleDateString('fr-FR');
@@ -54,96 +57,102 @@ socket.on('challenge_validated', (gameId) => {
 });
 
 function renderGames() {
-    const list = document.getElementById('games-list');
-    if (!list) return; 
-    
-    list.innerHTML = '';
-    const savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
-    let completedCount = 0;
-
-    const normalGames = games.filter(g => g.id !== 'cadeau');
-    const cadeauGame = games.find(g => g.id === 'cadeau');
-
-    normalGames.forEach(function(game, index) {
-        const isDone = savedProgress[game.id] === true;
-        if (isDone) completedCount++;
-
-        const card = document.createElement('div');
-        card.className = `game-card animate-pop-in ${isDone ? 'done' : ''}`;
-        card.style.animationDelay = `${index * 80}ms`;
+    try {
+        const list = document.getElementById('games-list');
+        if (!list) return; 
         
-        let buttonHtml = isDone 
-            ? '<button class="btn-valider" style="opacity: 0.8; cursor: default;">Validé ✅</button>' 
-            : `<button class="btn-valider" onclick="openModal('${game.id}')">QR Code</button>`;
+        list.innerHTML = '';
+        let savedProgress = {};
+        try { savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {}; } catch(e) {}
+        
+        let completedCount = 0;
 
-        card.innerHTML = `
-            <div class="game-info" style="text-align: left;">
-                <h3>${game.name}</h3>
-                <p>${isDone ? 'Défi brillamment accompli' : game.desc}</p>
-            </div>
-            ${buttonHtml}
-        `;
-        list.appendChild(card);
-    });
+        const normalGames = games.filter(g => g.id !== 'cadeau');
+        const cadeauGame = games.find(g => g.id === 'cadeau');
 
-    const surveyCard = document.getElementById('survey-card');
-    if (surveyCard) {
-        if(localStorage.getItem('centurioSurveyDone')) {
-            surveyCard.style.display = 'none';
-        } else {
-            surveyCard.style.display = 'flex';
-            surveyCard.innerHTML = `
+        normalGames.forEach(function(game, index) {
+            const isDone = savedProgress[game.id] === true;
+            if (isDone) completedCount++;
+
+            const card = document.createElement('div');
+            card.className = `game-card animate-pop-in ${isDone ? 'done' : ''}`;
+            card.style.animationDelay = `${index * 80}ms`;
+            
+            let buttonHtml = isDone 
+                ? '<button class="btn-valider" style="opacity: 0.8; cursor: default;">Validé ✅</button>' 
+                : `<button class="btn-valider" onclick="openModal('${game.id}')">QR Code</button>`;
+
+            card.innerHTML = `
                 <div class="game-info" style="text-align: left;">
-                    <h3>📝 Votre avis compte !</h3>
-                    <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme pour nous aider à améliorer la prochaine édition.</p>
-                    <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Remplissez-le pour débloquer le cadeau.</p>
+                    <h3>${game.name}</h3>
+                    <p>${isDone ? 'Défi brillamment accompli' : game.desc}</p>
                 </div>
-                <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
+                ${buttonHtml}
             `;
-            list.appendChild(surveyCard);
-        }
-    }
+            list.appendChild(card);
+        });
 
-    if (cadeauGame) {
-        const isDone = savedProgress['cadeau'] === true;
-        const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
-        
-        const card = document.createElement('div');
-        let buttonHtml = '';
-
-        if (isDone) {
-            card.className = `game-card animate-pop-in done`;
-            card.style.borderLeftColor = 'var(--brand)';
-            buttonHtml = '<button class="btn-valider" style="background-color: var(--brand); opacity: 0.8; cursor: default;">Récupéré 🎁</button>';
-        } else if (!surveyDone) {
-            card.className = `game-card animate-pop-in`;
-            card.style.opacity = '0.5';
-            card.style.borderLeftColor = '#888';
-            card.style.filter = 'grayscale(100%)';
-            buttonHtml = `<button class="btn-valider" style="background-color: #888; cursor: not-allowed;" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒 Bloqué</button>`;
-        } else {
-            card.className = `game-card animate-pop-in`;
-            card.style.borderLeftColor = 'var(--brand)';
-            buttonHtml = `<button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">QR Code 🎁</button>`;
+        const surveyCard = document.getElementById('survey-card');
+        if (surveyCard) {
+            if(localStorage.getItem('centurioSurveyDone')) {
+                surveyCard.style.display = 'none';
+            } else {
+                surveyCard.style.display = 'flex';
+                surveyCard.innerHTML = `
+                    <div class="game-info" style="text-align: left;">
+                        <h3>📝 Votre avis compte !</h3>
+                        <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme pour nous aider à améliorer la prochaine édition.</p>
+                        <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Remplissez-le pour débloquer le cadeau.</p>
+                    </div>
+                    <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
+                `;
+                list.appendChild(surveyCard);
+            }
         }
 
-        card.innerHTML = `
-            <div class="game-info" style="text-align: left;">
-                <h3 style="color: ${isDone || surveyDone ? 'var(--brand)' : '#888'};">${cadeauGame.name}</h3>
-                <p style="font-size: 12px;">${isDone ? 'Cadeau récupéré à l\\'accueil, merci d\\'avoir participé !' : cadeauGame.desc}</p>
-            </div>
-            ${buttonHtml}
-        `;
-        list.appendChild(card);
-    }
+        if (cadeauGame) {
+            const isDone = savedProgress['cadeau'] === true;
+            const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
+            
+            const card = document.createElement('div');
+            let buttonHtml = '';
 
-    updateProgressChart(completedCount, normalGames.length);
+            if (isDone) {
+                card.className = `game-card animate-pop-in done`;
+                card.style.borderLeftColor = 'var(--brand)';
+                buttonHtml = '<button class="btn-valider" style="background-color: var(--brand); opacity: 0.8; cursor: default;">Récupéré 🎁</button>';
+            } else if (!surveyDone) {
+                card.className = `game-card animate-pop-in`;
+                card.style.opacity = '0.5';
+                card.style.borderLeftColor = '#888';
+                card.style.filter = 'grayscale(100%)';
+                buttonHtml = `<button class="btn-valider" style="background-color: #888; cursor: not-allowed;" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒 Bloqué</button>`;
+            } else {
+                card.className = `game-card animate-pop-in`;
+                card.style.borderLeftColor = 'var(--brand)';
+                buttonHtml = `<button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">QR Code 🎁</button>`;
+            }
 
-    const timeInfo = document.getElementById('last-validation-info');
-    const savedTime = localStorage.getItem('centurioLastValidationTime');
-    if (savedTime && completedCount > 0 && timeInfo) {
-        timeInfo.innerText = savedTime;
-        timeInfo.style.display = 'block';
+            card.innerHTML = `
+                <div class="game-info" style="text-align: left;">
+                    <h3 style="color: ${isDone || surveyDone ? 'var(--brand)' : '#888'};">${cadeauGame.name}</h3>
+                    <p style="font-size: 12px;">${isDone ? 'Cadeau récupéré à l\\'accueil, merci d\\'avoir participé !' : cadeauGame.desc}</p>
+                </div>
+                ${buttonHtml}
+            `;
+            list.appendChild(card);
+        }
+
+        updateProgressChart(completedCount, normalGames.length);
+
+        const timeInfo = document.getElementById('last-validation-info');
+        const savedTime = localStorage.getItem('centurioLastValidationTime');
+        if (savedTime && completedCount > 0 && timeInfo) {
+            timeInfo.innerText = savedTime;
+            timeInfo.style.display = 'block';
+        }
+    } catch(err) {
+        console.error("Erreur critique dans renderGames :", err);
     }
 }
 
@@ -218,7 +227,7 @@ function submitSurvey() {
         document.getElementById('survey-modal').style.display = 'none';
         alert("Merci beaucoup ! Votre cadeau est débloqué ! 🎁");
         renderGames();
-    });
+    }).catch(e => console.error(e));
 }
 
 window.onload = function() { renderGames(); };
