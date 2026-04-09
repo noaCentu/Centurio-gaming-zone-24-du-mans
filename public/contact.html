@@ -112,4 +112,23 @@
         }
 
         function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
-        function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').
+        function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
+        document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
+
+        function toggleNightMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('centurioNightMode', isDark ? 'on' : 'off');
+            document.getElementById('night-btn').innerText = isDark ? '☀️' : '🌙';
+        }
+        function checkNightMode() {
+            const savedMode = localStorage.getItem('centurioNightMode');
+            const hour = new Date().getHours();
+            if (savedMode === 'on') { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; } 
+            else if (savedMode === 'off') { document.body.classList.remove('dark-mode'); document.getElementById('night-btn').innerText = '🌙'; } 
+            else if (hour >= 21 || hour < 6) { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; }
+        }
+        document.addEventListener('DOMContentLoaded', checkNightMode);
+    </script>
+</body>
+</html>
