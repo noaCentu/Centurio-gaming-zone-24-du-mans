@@ -1,17 +1,16 @@
-console.log("🚀 Script Centurio v14 - Version Blindée");
+console.log("🚀 Script Centurio v15 - Avec Date et Heure !");
 
 const games = [
     { id: 'mk', name: 'Mario Kart', desc: 'Finir dans le Top 3' },
     { id: 'mp', name: 'Mario Party', desc: 'Gagner un mini-jeu' },
     { id: 'ss', name: 'Switch Sports', desc: 'Faire un strike au Bowling' },
     { id: 'tk', name: 'Tekken', desc: 'Gagner un combat' },
-    { id: 'jd', name: 'Just Dance', desc: 'Obtenir 4 etoiles minimum' },
-    { id: 'tm', name: 'Trackmania', desc: 'Battre le temps fantome' },
-    { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier a la 1ere manche' },
-    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: 'Presentez ce QR Code a l accueil pour votre lot !' }
+    { id: 'jd', name: 'Just Dance', desc: 'Obtenir 4 étoiles minimum' },
+    { id: 'tm', name: 'Trackmania', desc: 'Battre le temps fantôme' },
+    { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' },
+    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: 'Présentez ce QR Code à l accueil pour votre lot !' }
 ];
 
-// Création d'un ID de secours si Fingerprint est bloqué
 let userId = localStorage.getItem('centurioUserId');
 if (!userId) {
     userId = 'user_' + Math.random().toString(36).substr(2, 9);
@@ -20,7 +19,7 @@ if (!userId) {
 
 let socket = null;
 
-// 🟢 1. SYNCHRONISATION (La bouée de sauvetage)
+// 🟢 SYNCHRONISATION
 window.syncWithServer = function() {
     if (!userId) return;
     fetch(`/api/my-progress/${userId}`)
@@ -36,7 +35,7 @@ window.syncWithServer = function() {
         }).catch(err => console.log("Sync ignorée (Réseau faible)"));
 };
 
-// 🛡️ 2. FINGERPRINT & SOCKET (Avec protection Anti-Crash)
+// 🛡️ RADIO & IDENTIFICATION
 try {
     if (typeof io !== 'undefined') {
         socket = io();
@@ -46,6 +45,12 @@ try {
             let progress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
+            
+            // 🕒 SAUVEGARDE DE L'HEURE DU DÉFI
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('fr-FR');
+            const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
+            localStorage.setItem('centurioLastValidationTime', `Dernier défi validé le ${formattedDate} à ${formattedTime}`);
             
             if (gameId === 'cadeau') {
                 document.getElementById('final-modal').style.display = 'flex';
@@ -73,10 +78,9 @@ try {
     }
 } catch(e) { syncWithServer(); }
 
-// 🔄 Polling automatique (Force l'actualisation des points toutes les 5s)
 setInterval(syncWithServer, 5000);
 
-// 🎨 3. DESSIN DE LA PAGE (Sécurisé)
+// 🎨 DESSIN DE LA PAGE
 function renderGames() {
     try {
         const list = document.getElementById('games-list');
@@ -87,7 +91,6 @@ function renderGames() {
         let count = 0;
         const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
 
-        // A. Les 7 jeux
         games.filter(g => g.id !== 'cadeau').forEach(function(game) {
             const isDone = progress[game.id] === true;
             if (isDone) count++;
@@ -97,14 +100,13 @@ function renderGames() {
             card.innerHTML = `
                 <div class="game-info" style="text-align: left;">
                     <h3>${game.name}</h3>
-                    <p>${isDone ? 'Defi valide ✅' : game.desc}</p>
+                    <p>${isDone ? 'Défi validé ✅' : game.desc}</p>
                 </div>
-                ${isDone ? '<button class="btn-valider" style="opacity: 0.5;">OK</button>' : `<button class="btn-valider" onclick="openModal('${game.id}')">Scan</button>`}
+                ${isDone ? '<button class="btn-valider" style="opacity: 0.5; cursor: default;">OK</button>' : `<button class="btn-valider" onclick="openModal('${game.id}')">Scan</button>`}
             `;
             list.appendChild(card);
         });
 
-        // B. Le Questionnaire
         if (!surveyDone) {
             const surveyCard = document.createElement('div');
             surveyCard.className = 'game-card animate-pop-in';
@@ -115,12 +117,11 @@ function renderGames() {
                     <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme.</p>
                     <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Obligatoire pour le cadeau.</p>
                 </div>
-                <button class="btn-valider" style="background-color: #55acee;" onclick="openSurvey()">Repondre</button>
+                <button class="btn-valider" style="background-color: #55acee;" onclick="openSurvey()">Répondre</button>
             `;
             list.appendChild(surveyCard);
         }
 
-        // C. Le Cadeau
         const cadeauGame = games.find(g => g.id === 'cadeau');
         if (cadeauGame) {
             const isDone = progress['cadeau'] === true;
@@ -129,19 +130,18 @@ function renderGames() {
 
             if (isDone) {
                 card.style.borderLeftColor = 'var(--brand)';
-                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:var(--brand);">${cadeauGame.name}</h3><p>Cadeau recupere !</p></div><button class="btn-valider" style="background-color: var(--brand); opacity: 0.8;">🎁</button>`;
+                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:var(--brand);">${cadeauGame.name}</h3><p>Cadeau récupéré !</p></div><button class="btn-valider" style="background-color: var(--brand); opacity: 0.8;">🎁</button>`;
             } else if (!surveyDone) {
                 card.style.opacity = '0.5';
                 card.style.filter = 'grayscale(100%)';
-                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:#888;">${cadeauGame.name}</h3><p>Bloque (Faites le questionnaire)</p></div><button class="btn-valider" style="background-color: #888;" onclick="alert('Remplissez le questionnaire !')">🔒</button>`;
+                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:#888;">${cadeauGame.name}</h3><p>Bloqué (Faites le questionnaire)</p></div><button class="btn-valider" style="background-color: #888;" onclick="alert('Remplissez le questionnaire !')">🔒</button>`;
             } else {
                 card.style.borderLeftColor = 'var(--brand)';
-                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:var(--brand);">${cadeauGame.name}</h3><p>Allez a l accueil !</p></div><button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">Scan</button>`;
+                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:var(--brand);">${cadeauGame.name}</h3><p>Allez à l accueil !</p></div><button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">Scan</button>`;
             }
             list.appendChild(card);
         }
 
-        // Mise à jour Graphique
         const percentage = Math.round((count / 7) * 100);
         const chartText = document.getElementById('chart-text');
         if(chartText) chartText.innerText = `${percentage}%`;
@@ -156,10 +156,21 @@ function renderGames() {
                 ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 18; ctx.lineCap = 'round'; ctx.stroke();
             }
         }
+
+        // 🕒 AFFICHAGE DE L'HEURE (La magie opère ici)
+        const timeInfo = document.getElementById('last-validation-info');
+        const savedTime = localStorage.getItem('centurioLastValidationTime');
+        if (savedTime && count > 0 && timeInfo) {
+            timeInfo.innerText = savedTime;
+            timeInfo.style.display = 'block';
+        } else if (timeInfo) {
+            timeInfo.style.display = 'none';
+        }
+
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
-// 🖱️ 4. ACTIONS DES BOUTONS
+// 🖱️ ACTIONS
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
     document.getElementById('animator-modal').style.display = 'flex';
