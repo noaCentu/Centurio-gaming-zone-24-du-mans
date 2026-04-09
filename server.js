@@ -27,7 +27,8 @@ function getTodayDate() {
 const PlayerSchema = new mongoose.Schema({
     userId: String,
     games: [String],
-    visitedDays: { type: [String], default: [] }
+    visitedDays: { type: [String], default: [] },
+    surveyDone: { type: Boolean, default: false }
 });
 const Player = mongoose.model('Player', PlayerSchema);
 
@@ -87,7 +88,7 @@ io.on('connection', async (socket) => {
         }
     }
     socket.on('register_user', async (userId) => {
-        socket.join(userId); 
+        socket.join(userId); // 🟢 Le joueur rejoint sa room radio perso !
         let player = await Player.findOne({ userId: userId });
         if (!player) player = new Player({ userId: userId, games: [], visitedDays: [] });
         if (!player.visitedDays.includes(today)) {
@@ -107,13 +108,21 @@ app.post('/api/login', async (req, res) => {
     else res.json({ success: false });
 });
 
+// 🟢 ROUTE SYNCHRONISATION
+app.get('/api/my-progress/:userId', async (req, res) => {
+    const player = await Player.findOne({ userId: req.params.userId });
+    if (player) {
+        res.json({ success: true, games: player.games, surveyDone: player.surveyDone });
+    } else {
+        res.json({ success: true, games: [], surveyDone: false });
+    }
+});
+
 app.post('/api/validate', async (req, res) => {
     const { userId, gameId, token } = req.body;
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "🚨 FRAUDE !" });
     
     let player = await Player.findOne({ userId: userId });
-    
-    // Auto-création si reset
     if (!player) {
         player = new Player({ userId: userId, games: [], visitedDays: [getTodayDate()] });
         await player.save();
@@ -137,13 +146,19 @@ app.post('/api/validate', async (req, res) => {
 
     if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
     
+    // 🟢 ENVOI DU SIGNAL RADIO AU JOUEUR !
     io.to(userId).emit('challenge_validated', gameId);
     res.json({ success: true });
 });
 
 app.post('/api/survey', async (req, res) => {
-    const { q1, q2, q3, comment } = req.body;
+    const { q1, q2, q3, comment, userId } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false });
+
+    // Enregistre que le joueur a fait le survey
+    let player = await Player.findOne({ userId: userId });
+    if (player) { player.surveyDone = true; await player.save(); }
+
     const today = getTodayDate();
     for (let k of ["main", today]) {
         let stats = await initStats(k);
