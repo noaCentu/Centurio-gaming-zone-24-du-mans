@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=8">
     <style>
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
@@ -13,6 +13,7 @@
         .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
         .lang-menu div:hover { background: #f0f0f0; }
+        
         body > .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         .goog-te-banner-frame { display: none !important; }
@@ -22,6 +23,65 @@
         body.dark-mode .lang-menu { background: #1e1e1e; border: 1px solid #333; }
         body.dark-mode .lang-menu div { color: #f1f1f1; }
         body.dark-mode .lang-menu div:hover { background: #333; }
+
+        /* 🌳 DESIGN FAÇON LINKTREE */
+        .linktree-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            gap: 15px;
+        }
+
+        .link-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 50px;
+            background: white;
+            color: #333;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .link-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .link-btn span {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        /* Couleurs des réseaux */
+        .link-btn.site { border-color: var(--brand); color: var(--brand); }
+        .link-btn.folio { border-color: var(--secondary); color: var(--secondary); }
+        .link-btn.insta { border-color: #E1306C; color: #E1306C; }
+        .link-btn.linkedin { border-color: #0077B5; color: #0077B5; }
+        .link-btn.twitter { border-color: #000000; color: #000000; }
+        .link-btn.fb { border-color: #1877F2; color: #1877F2; }
+        .link-btn.flickr { border-color: #FF0084; color: #FF0084; }
+        
+        .link-btn.mail { 
+            background: var(--brand); 
+            color: white !important; 
+            border-color: var(--brand); 
+            margin-top: 15px; 
+        }
+
+        /* Ajustements Mode Nuit */
+        body.dark-mode .link-btn { background: #1e1e1e; }
+        body.dark-mode .link-btn.twitter { border-color: #fff; color: #fff; }
+        body.dark-mode .link-btn.mail { background: var(--brand); color: #fff !important; border-color: var(--brand); }
     </style>
 </head>
 <body>
@@ -42,27 +102,45 @@
     </div>
 
     <div class="page-content" style="padding-bottom: 100px; text-align: center;">
-        <h2 style="margin-bottom: 5px;">Assistance</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 25px;">Une question ou un problème avec l'application ?</p>
+        
+        <div style="font-size: 50px; margin-bottom: 10px;">🎮</div>
+        <h2 style="margin-bottom: 5px;">Centurio</h2>
+        <p style="font-size: 13px; color: #666; margin-bottom: 30px;">Retrouvez-nous sur nos différents réseaux !</p>
 
-        <div class="game-card" style="flex-direction: column; text-align: center; gap: 10px; padding: 25px;">
-            <div style="font-size: 40px; margin-bottom: 5px;">📍</div>
-            <h3 style="color: var(--brand);">Où nous trouver ?</h3>
-            <p style="font-size: 13px; color: #555; line-height: 1.5;">Notre équipe est présente sur le stand <strong>Centurio Gaming Zone</strong>, situé au cœur du village des 24h du Mans.</p>
+        <div class="linktree-wrapper">
+            <a href="https://centurio.fr/" target="_blank" class="link-btn site">
+                <span>🌐</span> Site Web Officiel
+            </a>
+            
+            <a href="https://centurio.fr/nos-realisations/" target="_blank" class="link-btn folio">
+                <span>🎬</span> Nos Réalisations
+            </a>
+
+            <a href="https://www.instagram.com/centurio.esport/" target="_blank" class="link-btn insta">
+                <span>📸</span> Instagram
+            </a>
+
+            <a href="https://x.com/Centurio_agence" target="_blank" class="link-btn twitter">
+                <span>✖️</span> X (Twitter)
+            </a>
+
+            <a href="https://www.linkedin.com/company/agence-centurio/" target="_blank" class="link-btn linkedin">
+                <span>💼</span> LinkedIn
+            </a>
+
+            <a href="https://www.facebook.com/Centurio.agence/" target="_blank" class="link-btn fb">
+                <span>📘</span> Facebook
+            </a>
+
+            <a href="https://www.flickr.com/photos/centurio-esport/" target="_blank" class="link-btn flickr">
+                <span>🖼️</span> Galerie Flickr
+            </a>
+
+            <a href="mailto:contact@centurio.com" class="link-btn mail">
+                <span>✉️</span> Nous Contacter
+            </a>
         </div>
 
-        <div class="game-card" style="flex-direction: column; text-align: center; gap: 10px; padding: 25px;">
-            <div style="font-size: 40px; margin-bottom: 5px;">👕</div>
-            <h3 style="color: var(--brand);">L'équipe Staff</h3>
-            <p style="font-size: 13px; color: #555; line-height: 1.5;">Cherchez les animateurs habillés avec le t-shirt ou le badge <strong>Centurio</strong>. Ils sont là pour vous guider et régler vos éventuels soucis techniques !</p>
-        </div>
-
-        <div class="game-card" style="flex-direction: column; text-align: center; gap: 10px; padding: 25px;">
-            <div style="font-size: 40px; margin-bottom: 5px;">✉️</div>
-            <h3 style="color: var(--brand);">Par Email</h3>
-            <p style="font-size: 13px; color: #555; line-height: 1.5;">Pour toute question d'ordre professionnel, commerciale ou après l'événement :</p>
-            <a href="mailto:contact@centurio.com" style="display: inline-block; background-color: var(--secondary); color: white; padding: 12px 25px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 10px; transition: 0.2s;">Envoyer un message</a>
-        </div>
     </div>
 
     <nav class="navbar">
