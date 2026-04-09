@@ -24,6 +24,12 @@ FingerprintJS.load().then(fp => {
     });
 });
 
+// 🔄 Polling indestructible : on rappelle au serveur qui on est toutes les 2s
+setInterval(() => {
+    let realUserId = localStorage.getItem('centurioUserId');
+    if (realUserId) socket.emit('register_user', realUserId);
+}, 2000);
+
 // 🌟 LE SPECTACLE : Quand l'animateur scanne avec succès !
 socket.on('challenge_validated', (gameId) => {
     let savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
@@ -38,8 +44,17 @@ socket.on('challenge_validated', (gameId) => {
 
     closeModal(); 
     
-    // Le déclenchement des modales "Succès" et "Final" se fait maintenant dans defis.html
-    renderGames(); 
+    if (gameId === 'cadeau') {
+        document.getElementById('final-modal').style.display = 'flex';
+    } else {
+        const successModal = document.getElementById('success-modal');
+        if(successModal) {
+            successModal.style.display = 'flex';
+            setTimeout(() => { successModal.style.display = 'none'; }, 2000);
+        }
+    }
+    
+    renderGames(); // Redessine l'écran en direct
 });
 
 function renderGames() {
@@ -50,11 +65,10 @@ function renderGames() {
     const savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
     let completedCount = 0;
 
-    // On sépare les vrais jeux du Cadeau final
     const normalGames = games.filter(g => g.id !== 'cadeau');
     const cadeauGame = games.find(g => g.id === 'cadeau');
 
-    // 1. Affichage des jeux normaux
+    // 1. Affichage des 7 jeux normaux
     normalGames.forEach(function(game, index) {
         const isDone = savedProgress[game.id] === true;
         if (isDone) completedCount++;
@@ -84,7 +98,6 @@ function renderGames() {
             surveyCard.style.display = 'none';
         } else {
             surveyCard.style.display = 'flex';
-            // On le place visuellement AVANT le cadeau
             surveyCard.innerHTML = `
                 <div class="game-info" style="text-align: left;">
                     <h3>📝 Votre avis compte !</h3>
@@ -106,19 +119,16 @@ function renderGames() {
         let buttonHtml = '';
 
         if (isDone) {
-            // Cadeau déjà récupéré à l'accueil
             card.className = `game-card animate-pop-in done`;
             card.style.borderLeftColor = 'var(--brand)';
             buttonHtml = '<button class="btn-valider" style="background-color: var(--brand); opacity: 0.8; cursor: default;">Récupéré 🎁</button>';
         } else if (!surveyDone) {
-            // Bloqué tant que le questionnaire n'est pas fait
             card.className = `game-card animate-pop-in`;
             card.style.opacity = '0.5';
             card.style.borderLeftColor = '#888';
             card.style.filter = 'grayscale(100%)';
             buttonHtml = `<button class="btn-valider" style="background-color: #888; cursor: not-allowed;" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒 Bloqué</button>`;
         } else {
-            // Débloqué !
             card.className = `game-card animate-pop-in`;
             card.style.borderLeftColor = 'var(--brand)';
             buttonHtml = `<button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">QR Code 🎁</button>`;
@@ -134,7 +144,6 @@ function renderGames() {
         list.appendChild(card);
     }
 
-    // Camembert basé uniquement sur les 7 vrais jeux
     updateProgressChart(completedCount, normalGames.length);
 
     const timeInfo = document.getElementById('last-validation-info');
@@ -190,7 +199,40 @@ function openModal(gameId) {
 }
 
 function closeModal() { document.getElementById('animator-modal').style.display = 'none'; }
-function openFinalModal() { document.getElementById('final-modal').style.display = 'flex'; }
 function closeFinalModal() { document.getElementById('final-modal').style.display = 'none'; }
+
+// --- LOGIQUE DU QUESTIONNAIRE ---
+let answers = { q1: null, q2: null, q3: null };
+
+function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
+
+function selectOpt(question, value) {
+    answers[question] = value;
+    const options = document.getElementById('scale-' + question).children;
+    for(let i=0; i<options.length; i++) {
+        options[i].classList.remove('selected');
+    }
+    options[value - 1].classList.add('selected');
+}
+
+function submitSurvey() {
+    if(!answers.q1 || !answers.q2 || !answers.q3) {
+        document.getElementById('survey-error').style.display = 'block';
+        return;
+    }
+    document.getElementById('survey-error').style.display = 'none';
+    const comment = document.getElementById('survey-comment').value;
+
+    fetch('/api/survey', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q1: answers.q1, q2: answers.q2, q3: answers.q3, comment: comment })
+    }).then(() => {
+        localStorage.setItem('centurioSurveyDone', 'true');
+        document.getElementById('survey-modal').style.display = 'none';
+        alert("Merci beaucoup ! Votre cadeau est débloqué ! 🎁");
+        renderGames(); // Recharge l'affichage instantanément
+    });
+}
 
 window.onload = function() { renderGames(); };
