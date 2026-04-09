@@ -50,7 +50,7 @@
         
         <div id="games-list" style="width: 100%; max-width: 500px;"></div>
 
-        <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px;">
+        <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px; display: none;">
             </div>
     </div>
 
@@ -130,54 +130,16 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
-    
-    <div id="google_translate_element" style="display:none;"></div>
+    <script src="script.js?v=5"></script> <div id="google_translate_element" style="display:none;"></div>
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js"></script>
-    
     <script>
-        // --- LOGIQUE DU QUESTIONNAIRE ---
-        let answers = { q1: null, q2: null, q3: null };
-
-        function openSurvey() { document.getElementById('survey-modal').style.display = 'flex'; }
-
-        function selectOpt(question, value) {
-            answers[question] = value;
-            const options = document.getElementById('scale-' + question).children;
-            for(let i=0; i<options.length; i++) {
-                options[i].classList.remove('selected');
-            }
-            options[value - 1].classList.add('selected');
-        }
-
-        function submitSurvey() {
-            if(!answers.q1 || !answers.q2 || !answers.q3) {
-                document.getElementById('survey-error').style.display = 'block';
-                return;
-            }
-            document.getElementById('survey-error').style.display = 'none';
-            const comment = document.getElementById('survey-comment').value;
-
-            fetch('/api/survey', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ q1: answers.q1, q2: answers.q2, q3: answers.q3, comment: comment })
-            }).then(() => {
-                localStorage.setItem('centurioSurveyDone', 'true');
-                document.getElementById('survey-modal').style.display = 'none';
-                alert("Merci beaucoup ! Votre cadeau est débloqué ! 🎁");
-                // On recharge la page pour afficher le Cadeau en couleur !
-                window.location.reload(); 
-            });
-        }
-
+        // --- GESTION LANGUES & NUIT (Uniquement le visuel) ---
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
         document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
 
-        // --- GESTION DU MODE NUIT ---
         function toggleNightMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
@@ -193,40 +155,6 @@
             else if (hour >= 21 || hour < 6) { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; }
         }
         document.addEventListener('DOMContentLoaded', checkNightMode);
-
-        // --- GESTION DU TEMPS RÉEL (CONNEXION SCAN) ---
-        const socket = io();
-        
-        function resynchroniserJoueur() {
-            let myRealUserId = localStorage.getItem('centurioUserId');
-            if (myRealUserId) {
-                socket.emit('register_user', myRealUserId);
-            }
-        }
-        
-        setTimeout(resynchroniserJoueur, 500);
-        setInterval(resynchroniserJoueur, 2000);
-
-        socket.on('challenge_validated', (gameId) => {
-            document.getElementById('animator-modal').style.display = 'none';
-            
-            let games = JSON.parse(localStorage.getItem('centurioGames') || '[]');
-            if (!games.includes(gameId)) {
-                games.push(gameId);
-                localStorage.setItem('centurioGames', JSON.stringify(games));
-            }
-
-            // MODIFICATION ICI : Seul le Cadeau déclenche la grosse modale finale "Trophée" !
-            if (gameId === 'cadeau') {
-                document.getElementById('final-modal').style.display = 'flex';
-            } else {
-                document.getElementById('success-modal').style.display = 'flex';
-            }
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 2500);
-        });
     </script>
 </body>
 </html>
