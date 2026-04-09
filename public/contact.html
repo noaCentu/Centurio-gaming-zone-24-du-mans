@@ -5,58 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=16">
     <style>
-        /* 🌍 MENU DES LANGUES AMÉLIORÉ */
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; transition: transform 0.2s; }
         .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); overflow: hidden; width: 160px; }
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 10px; transition: background 0.2s; }
         .lang-menu div:hover { background: #f8f8f8; color: var(--brand); }
         
-        /* 🌳 DESIGN LINKTREE PREMIUM (Inspiration Centurio.fr) */
         .page-content { padding-top: 40px; }
         .brand-logo { width: 80px; height: 80px; background: var(--brand); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 40px; box-shadow: 0 10px 20px rgba(248, 170, 55, 0.3); }
-        
         .linktree-wrapper { display: flex; flex-direction: column; align-items: center; width: 90%; max-width: 400px; margin: 0 auto; gap: 12px; }
-
-        .link-btn {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            padding: 16px 20px;
-            border-radius: 15px;
-            background: #ffffff;
-            color: #1a1a1a;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            border: 1px solid #eee;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .link-btn:hover {
-            transform: scale(1.02);
-            border-color: var(--brand);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        }
-
+        .link-btn { display: flex; align-items: center; width: 100%; padding: 16px 20px; border-radius: 15px; background: #ffffff; color: #1a1a1a; text-decoration: none; font-weight: 600; font-size: 14px; border: 1px solid #eee; transition: all 0.3s ease; }
+        .link-btn:hover { transform: scale(1.02); border-color: var(--brand); box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         .link-btn .icon { width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-right: 15px; border-radius: 10px; background: #fdfdfd; }
-
-        /* Style spécifique "Main Action" */
         .btn-main { background: #1a1a1a; color: white; border: none; margin-top: 10px; }
         .btn-main:hover { background: var(--brand); color: white; }
+
+        /* 🍔 MENU HAMBURGER & ANIMATIONS */
+        .hamburger-btn { font-size: 26px; cursor: pointer; color: var(--primary); transition: transform 0.2s; }
+        .hamburger-btn:active { transform: scale(0.9); }
+        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 3000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 20px; }
+        .side-menu.open { right: 0; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
+        .menu-overlay.open { opacity: 1; pointer-events: auto; }
+        .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: #333; margin-bottom: 20px; border: none; background: transparent; }
+        .side-menu a { text-decoration: none; color: var(--secondary); font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .side-menu a:hover { color: var(--brand); padding-left: 15px; }
+        
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
         /* Mode Nuit */
         body.dark-mode .link-btn { background: #1e1e1e; border-color: #333; color: white; }
         body.dark-mode .link-btn .icon { background: #2a2a2a; }
-        body.dark-mode .lang-menu { background: #1e1e1e; border: 1px solid #333; }
-        body.dark-mode .lang-menu div { color: white; }
+        body.dark-mode .side-menu { background: #1a1a1a; border-left: 1px solid #333; }
+        body.dark-mode .side-menu a { color: #f1f1f1; border-bottom: 1px solid #333; }
+        body.dark-mode .close-menu { color: #f1f1f1; }
     </style>
 </head>
-<body>
+<body style="padding-bottom: 20px;">
     <div class="header-v2" style="display: flex; align-items: center; justify-content: space-between; padding: 0 15px;">
         <div class="lang-dropdown">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
@@ -64,17 +52,27 @@
                 <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
                 <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
                 <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
-                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
-                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
-                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
             </div>
         </div>
         <div class="header-title" style="flex: 1; text-align: center; font-weight: 800; letter-spacing: -0.5px;">CENTURIO</div>
-        <div style="width: 24px;"></div>
+        <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
     </div>
 
-    <div class="page-content" style="padding-bottom: 120px; text-align: center;">
-        
+    <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="side-menu" id="side-menu">
+        <button class="close-menu" onclick="toggleMenu()">×</button>
+        <a href="index.html">🏠 Accueil</a>
+        <a href="defis.html">🎮 Défis</a>
+        <a href="contact.html" style="color: var(--brand);">✉️ Contact</a>
+        <a href="reglement.html">📜 Règles</a>
+        <div style="margin-top: auto; margin-bottom: 20px;">
+            <a href="index.html" style="border-top: 2px solid #eee; border-bottom: none; color: #888; font-size: 14px; margin-top: 20px;">
+                🔒 Espace Staff
+            </a>
+        </div>
+    </div>
+
+    <div class="page-content fade-in" style="text-align: center;">
         <div class="brand-logo">🎮</div>
         <h2 style="margin-bottom: 5px; font-weight: 800;">AGENCE CENTURIO</h2>
         <p style="font-size: 12px; color: #888; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 1px;">Gaming & Esport Event</p>
@@ -83,39 +81,23 @@
             <a href="https://centurio.fr/" target="_blank" class="link-btn">
                 <div class="icon">🌐</div> Site Officiel
             </a>
-            
             <a href="https://centurio.fr/nos-realisations/" target="_blank" class="link-btn">
                 <div class="icon">🎬</div> Nos Réalisations
             </a>
-
             <a href="https://www.instagram.com/centurio.esport/" target="_blank" class="link-btn">
                 <div class="icon" style="color:#E1306C;">📸</div> Instagram
             </a>
-
             <a href="https://x.com/Centurio_agence" target="_blank" class="link-btn">
                 <div class="icon">✖️</div> X (Twitter)
             </a>
-
             <a href="https://www.linkedin.com/company/agence-centurio/" target="_blank" class="link-btn">
                 <div class="icon" style="color:#0077B5;">💼</div> LinkedIn
             </a>
-
-            <a href="https://www.flickr.com/photos/centurio-esport/" target="_blank" class="link-btn">
-                <div class="icon" style="color:#FF0084;">🖼️</div> Galerie Flickr
-            </a>
-
             <a href="https://centurio.fr/contactez-nous/" target="_blank" class="link-btn btn-main">
                 <div class="icon">✉️</div> NOUS CONTACTER
             </a>
         </div>
     </div>
-
-    <nav class="navbar">
-        <a href="index.html" class="nav-btn">Accueil</a>
-        <a href="defis.html" class="nav-btn">Défis</a>
-        <a href="contact.html" class="nav-btn active">Contact</a>
-        <a href="reglement.html" class="nav-btn">Règles</a>
-    </nav>
 
     <button class="btn-night-mode" onclick="toggleNightMode()" id="night-btn">🌙</button>
 
@@ -124,24 +106,10 @@
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <script>
-        function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
-        function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
-        document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
+        function toggleMenu() {
+            document.getElementById('side-menu').classList.toggle('open');
+            document.getElementById('menu-overlay').classList.toggle('open');
+        }
 
-        function toggleNightMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            localStorage.setItem('centurioNightMode', isDark ? 'on' : 'off');
-            document.getElementById('night-btn').innerText = isDark ? '☀️' : '🌙';
-        }
-        function checkNightMode() {
-            const savedMode = localStorage.getItem('centurioNightMode');
-            const hour = new Date().getHours();
-            if (savedMode === 'on') { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; } 
-            else if (savedMode === 'off') { document.body.classList.remove('dark-mode'); document.getElementById('night-btn').innerText = '🌙'; } 
-            else if (hour >= 21 || hour < 6) { document.body.classList.add('dark-mode'); document.getElementById('night-btn').innerText = '☀️'; }
-        }
-        document.addEventListener('DOMContentLoaded', checkNightMode);
-    </script>
-</body>
-</html>
+        function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
+        function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').
