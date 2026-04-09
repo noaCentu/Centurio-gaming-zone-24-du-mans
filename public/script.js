@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v15 - Avec Date et Heure !");
+console.log("🚀 Script Centurio v17 - Confettis & Heure activés !");
 
 const games = [
     { id: 'mk', name: 'Mario Kart', desc: 'Finir dans le Top 3' },
@@ -46,22 +46,39 @@ try {
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
             
-            // 🕒 SAUVEGARDE DE L'HEURE DU DÉFI
+            // 🕒 ENREGISTREMENT DE L'HEURE EXACTE
             const now = new Date();
             const formattedDate = now.toLocaleDateString('fr-FR');
             const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
             localStorage.setItem('centurioLastValidationTime', `Dernier défi validé le ${formattedDate} à ${formattedTime}`);
             
+            closeModal();
+
+            // 🎉 EXPLOSION DE CONFETTIS !!!
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 150,
+                    spread: 80,
+                    origin: { y: 0.6 },
+                    colors: ['#f8aa37', '#3a2a40', '#4CAF50', '#ffffff'] // Couleurs Centurio
+                });
+            }
+            
             if (gameId === 'cadeau') {
                 document.getElementById('final-modal').style.display = 'flex';
             } else {
                 const m = document.getElementById('success-modal');
-                if(m){ m.style.display = 'flex'; setTimeout(() => m.style.display = 'none', 2500); }
+                if(m){ 
+                    m.style.display = 'flex'; 
+                    // Petit effet de rebond sur la modale
+                    m.querySelector('.modal').style.animation = 'pulse 0.5s ease';
+                    setTimeout(() => m.style.display = 'none', 3000); // Reste 3 secondes pour savourer
+                }
             }
             renderGames();
         });
     }
-} catch(e) { console.error("Radio bloquée, passage en mode Manuel"); }
+} catch(e) { console.error("Radio bloquée"); }
 
 try {
     if (typeof FingerprintJS !== 'undefined') {
@@ -157,12 +174,13 @@ function renderGames() {
             }
         }
 
-        // 🕒 AFFICHAGE DE L'HEURE (La magie opère ici)
+        // 🕒 AFFICHAGE DE L'HEURE SOUS LE GRAPHIQUE
         const timeInfo = document.getElementById('last-validation-info');
         const savedTime = localStorage.getItem('centurioLastValidationTime');
         if (savedTime && count > 0 && timeInfo) {
             timeInfo.innerText = savedTime;
             timeInfo.style.display = 'block';
+            timeInfo.style.animation = 'fadeIn 0.5s ease-out'; // Petite animation
         } else if (timeInfo) {
             timeInfo.style.display = 'none';
         }
@@ -203,7 +221,11 @@ window.submitSurvey = function() {
     }).then(() => {
         localStorage.setItem('centurioSurveyDone', 'true');
         document.getElementById('survey-modal').style.display = 'none';
-        alert("Merci beaucoup ! Cadeau débloqué ! 🎁");
+        
+        // Confettis de victoire pour le questionnaire ! 🎉
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        
+        setTimeout(() => alert("Merci beaucoup ! Cadeau débloqué ! 🎁"), 500);
         renderGames();
     }).catch(e => console.error(e));
 };
