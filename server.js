@@ -38,11 +38,7 @@ const StatsSchema = new mongoose.Schema({
     maxConcurrentUsers: { type: Number, default: 0 }, 
     totalGagnants: { type: Number, default: 0 },
     totalAdmins: { type: Number, default: 0 },
-    
-    // 🚀 OPTION 1 : STATS PAR STAND
     gameStats: { type: Map, of: Number, default: {} },
-    
-    // STATS VISITEURS
     surveyRespondents: { type: Number, default: 0 },
     surveyScores: {
         q1: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} },
@@ -50,8 +46,6 @@ const StatsSchema = new mongoose.Schema({
         q3: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} }
     },
     surveyComments: { type: Map, of: Number, default: {} },
-    
-    // STATS ADMINS
     adminSurveyRespondents: { type: Number, default: 0 },
     adminSurveyScores: {
         q1: { 1:{type:Number, default:0}, 2:{type:Number, default:0}, 3:{type:Number, default:0}, 4:{type:Number, default:0}, 5:{type:Number, default:0} },
@@ -64,10 +58,7 @@ const GlobalStat = mongoose.model('GlobalStat', StatsSchema);
 
 async function initStats(key) {
     let stats = await GlobalStat.findOne({ idName: key });
-    if (!stats) {
-        stats = new GlobalStat({ idName: key });
-        await stats.save();
-    }
+    if (!stats) { stats = new GlobalStat({ idName: key }); await stats.save(); }
     return stats;
 }
 initStats("main");
@@ -93,16 +84,13 @@ io.on('connection', async (socket) => {
     for (let k of ["main", today]) {
         let stats = await initStats(k);
         if (currentConnections > stats.maxConcurrentUsers) {
-            stats.maxConcurrentUsers = currentConnections;
-            await stats.save();
+            stats.maxConcurrentUsers = currentConnections; await stats.save();
         }
     }
     socket.on('register_user', async (userId) => {
         socket.join(userId); 
-        const today = getTodayDate();
         let player = await Player.findOne({ userId: userId });
         if (!player) player = new Player({ userId: userId, games: [], visitedDays: [] });
-
         if (!player.visitedDays.includes(today)) {
             player.visitedDays.push(today);
             await player.save();
@@ -120,18 +108,27 @@ app.post('/api/login', async (req, res) => {
     else res.json({ success: false });
 });
 
+// 🚀 LE FIX INDESTRUCTIBLE EST ICI
 app.post('/api/validate', async (req, res) => {
     const { userId, gameId, token } = req.body;
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "🚨 FRAUDE !" });
+    
     let player = await Player.findOne({ userId: userId });
-    if (!player) return res.json({ success: false, message: "⚠️ Joueur introuvable" });
+    
+    // Si le joueur n'existe pas (suite à un RESET), on le CREE au lieu de le bloquer !
+    if (!player) {
+        player = new Player({ userId: userId, games: [], visitedDays: [getTodayDate()] });
+        await player.save();
+        await GlobalStat.updateOne({ idName: getTodayDate() }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+        await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalVisiteurs: 1 } }, { upsert: true });
+    }
+
     if (player.games.includes(gameId)) return res.json({ success: false, message: "⚠️ DÉJÀ validé !" });
     if (player.games.length >= 8) return res.json({ success: false, message: "🛑 Cadeau déjà récupéré !" });
 
     player.games.push(gameId);
     await player.save();
     
-    // 🚀 OPTION 1 : ENREGISTREMENT DU SCAN POUR LE STAND
     const today = getTodayDate();
     for (let k of ["main", today]) {
         let stats = await initStats(k);
@@ -141,11 +138,14 @@ app.post('/api/validate', async (req, res) => {
     }
 
     if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
+    
+    // On envoie le signal radio au téléphone du joueur !
     io.to(userId).emit('challenge_validated', gameId);
     res.json({ success: true });
 });
 
 app.post('/api/survey', async (req, res) => {
+    // ... (Reste inchangé)
     const { q1, q2, q3, comment } = req.body;
     if(!q1 || !q2 || !q3) return res.json({ success: false });
     const today = getTodayDate();
@@ -158,32 +158,28 @@ app.post('/api/survey', async (req, res) => {
             let currentCount = stats.surveyComments.get(groupedComment) || 0;
             stats.surveyComments.set(groupedComment, currentCount + 1);
         }
-        stats.markModified('surveyScores');
-        await stats.save();
+        stats.markModified('surveyScores'); await stats.save();
     }
     res.json({ success: true });
 });
 
 app.post('/api/admin_survey', async (req, res) => {
+    // ... (Reste inchangé)
     const { q1, q2, q3, comment, token } = req.body;
     if(token !== ADMIN_TOKEN) return res.json({ success: false });
     if(!q1 || !q2) return res.json({ success: false }); 
-    
     const today = getTodayDate();
     for (let k of ["main", today]) {
         let stats = await initStats(k);
         stats.adminSurveyRespondents++;
-        stats.adminSurveyScores.q1[q1]++; 
-        stats.adminSurveyScores.q2[q2]++;
+        stats.adminSurveyScores.q1[q1]++; stats.adminSurveyScores.q2[q2]++;
         if (q3) stats.adminSurveyScores.q3[q3]++; 
-        
         const groupedComment = normalizeComment(comment);
         if (groupedComment) {
             let currentCount = stats.adminSurveyComments.get(groupedComment) || 0;
             stats.adminSurveyComments.set(groupedComment, currentCount + 1);
         }
-        stats.markModified('adminSurveyScores');
-        await stats.save();
+        stats.markModified('adminSurveyScores'); await stats.save();
     }
     res.json({ success: true });
 });
@@ -195,29 +191,23 @@ app.post('/api/stats_data', async (req, res) => {
         allStats.forEach(s => {
             result[s.idName] = { 
                 totalVisiteurs: s.totalVisiteurs, maxConcurrentUsers: s.maxConcurrentUsers,
-                gameStats: Object.fromEntries(s.gameStats || new Map()), // 🚀 NOUVEAU
+                gameStats: Object.fromEntries(s.gameStats || new Map()),
                 surveyRespondents: s.surveyRespondents, surveyScores: s.surveyScores, surveyComments: Object.fromEntries(s.surveyComments),
                 adminSurveyRespondents: s.adminSurveyRespondents, adminSurveyScores: s.adminSurveyScores, adminSurveyComments: Object.fromEntries(s.adminSurveyComments)
             };
         });
         res.json({ success: true, allData: result });
-    } else {
-        res.json({ success: false });
-    }
+    } else res.json({ success: false });
 });
 
 app.post('/api/reset_stats', async (req, res) => {
     if (req.body.token === STATS_TOKEN) {
-        await GlobalStat.deleteMany({}); 
-        await Player.deleteMany({}); 
-        await initStats("main"); 
+        await GlobalStat.deleteMany({}); await Player.deleteMany({}); await initStats("main"); 
         res.json({ success: true });
-    } else {
-        res.json({ success: false });
-    }
+    } else res.json({ success: false });
 });
 
+app.post('/api/finish', (req, res) => { res.json({ success: true }); });
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log("🚀 Serveur Centurio démarré sur le port " + PORT);
-});
+server.listen(PORT, () => { console.log("🚀 Serveur Centurio démarré sur le port " + PORT); });
