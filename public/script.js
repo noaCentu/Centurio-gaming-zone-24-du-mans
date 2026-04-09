@@ -6,7 +6,7 @@ const games = [
     { id: 'jd', name: 'Just Dance', desc: 'Obtenir 4 étoiles minimum' },
     { id: 'tm', name: 'Trackmania', desc: 'Battre le temps fantôme' },
     { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' },
-    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: "Va à l'accueil récupérer ton cadeau<br>⚠️ Plus tu as de défis validés, plus ton cadeau sera gros !" }
+    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: "Présente ce QR Code à l'accueil pour récupérer ton lot !" }
 ];
 
 let userId = localStorage.getItem('centurioUserId');
@@ -16,13 +16,10 @@ const socket = io();
 FingerprintJS.load().then(fp => {
     fp.get().then(result => {
         const hardwareId = result.visitorId; 
-        
         if (!userId || userId !== hardwareId) {
             userId = hardwareId;
             localStorage.setItem('centurioUserId', userId);
         }
-        
-        // On connecte la radio au serveur de façon sécurisée !
         socket.emit('register_user', userId);
     });
 });
@@ -33,22 +30,16 @@ socket.on('challenge_validated', (gameId) => {
     savedProgress[gameId] = true;
     localStorage.setItem('centurioProgress', JSON.stringify(savedProgress));
     
-    // Mise à jour de l'heure
     const now = new Date();
     const formattedDate = now.toLocaleDateString('fr-FR');
     const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
     const timeString = `Dernier défi validé le ${formattedDate} à ${formattedTime}`;
     localStorage.setItem('centurioLastValidationTime', timeString);
 
-    closeModal(); // Ferme le QR Code
+    closeModal(); 
     
-    const successModal = document.getElementById('success-modal');
-    if(successModal) {
-        successModal.style.display = 'flex';
-        setTimeout(() => { successModal.style.display = 'none'; }, 3000);
-    }
-    
-    renderGames(); // On redessine le camembert en temps réel !
+    // Le déclenchement des modales "Succès" et "Final" se fait maintenant dans defis.html
+    renderGames(); 
 });
 
 function renderGames() {
@@ -59,7 +50,12 @@ function renderGames() {
     const savedProgress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
     let completedCount = 0;
 
-    games.forEach(function(game, index) {
+    // On sépare les vrais jeux du Cadeau final
+    const normalGames = games.filter(g => g.id !== 'cadeau');
+    const cadeauGame = games.find(g => g.id === 'cadeau');
+
+    // 1. Affichage des jeux normaux
+    normalGames.forEach(function(game, index) {
         const isDone = savedProgress[game.id] === true;
         if (isDone) completedCount++;
 
@@ -81,7 +77,65 @@ function renderGames() {
         list.appendChild(card);
     });
 
-    updateProgressChart(completedCount, games.length);
+    // 2. Affichage du Questionnaire (S'il n'est pas fait)
+    const surveyCard = document.getElementById('survey-card');
+    if (surveyCard) {
+        if(localStorage.getItem('centurioSurveyDone')) {
+            surveyCard.style.display = 'none';
+        } else {
+            surveyCard.style.display = 'flex';
+            // On le place visuellement AVANT le cadeau
+            surveyCard.innerHTML = `
+                <div class="game-info" style="text-align: left;">
+                    <h3>📝 Votre avis compte !</h3>
+                    <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme pour nous aider à améliorer la prochaine édition.</p>
+                    <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Remplissez-le pour débloquer le cadeau.</p>
+                </div>
+                <button class="btn-valider" style="background-color: var(--secondary);" onclick="openSurvey()">Répondre</button>
+            `;
+            list.appendChild(surveyCard);
+        }
+    }
+
+    // 3. Affichage du Cadeau à la toute fin
+    if (cadeauGame) {
+        const isDone = savedProgress['cadeau'] === true;
+        const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
+        
+        const card = document.createElement('div');
+        let buttonHtml = '';
+
+        if (isDone) {
+            // Cadeau déjà récupéré à l'accueil
+            card.className = `game-card animate-pop-in done`;
+            card.style.borderLeftColor = 'var(--brand)';
+            buttonHtml = '<button class="btn-valider" style="background-color: var(--brand); opacity: 0.8; cursor: default;">Récupéré 🎁</button>';
+        } else if (!surveyDone) {
+            // Bloqué tant que le questionnaire n'est pas fait
+            card.className = `game-card animate-pop-in`;
+            card.style.opacity = '0.5';
+            card.style.borderLeftColor = '#888';
+            card.style.filter = 'grayscale(100%)';
+            buttonHtml = `<button class="btn-valider" style="background-color: #888; cursor: not-allowed;" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒 Bloqué</button>`;
+        } else {
+            // Débloqué !
+            card.className = `game-card animate-pop-in`;
+            card.style.borderLeftColor = 'var(--brand)';
+            buttonHtml = `<button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">QR Code 🎁</button>`;
+        }
+
+        card.innerHTML = `
+            <div class="game-info" style="text-align: left;">
+                <h3 style="color: ${isDone || surveyDone ? 'var(--brand)' : '#888'};">${cadeauGame.name}</h3>
+                <p style="font-size: 12px;">${isDone ? 'Cadeau récupéré à l\\'accueil, merci d\\'avoir participé !' : cadeauGame.desc}</p>
+            </div>
+            ${buttonHtml}
+        `;
+        list.appendChild(card);
+    }
+
+    // Camembert basé uniquement sur les 7 vrais jeux
+    updateProgressChart(completedCount, normalGames.length);
 
     const timeInfo = document.getElementById('last-validation-info');
     const savedTime = localStorage.getItem('centurioLastValidationTime');
@@ -89,18 +143,8 @@ function renderGames() {
         timeInfo.innerText = savedTime;
         timeInfo.style.display = 'block';
     }
-
-    if (completedCount === games.length) {
-        fetch('/api/finish', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: userId })
-        });
-        setTimeout(() => { openFinalModal(); }, 3500); 
-    }
 }
 
-// Graphique Camembert
 function updateProgressChart(completed, total) {
     const canvas = document.getElementById('progress-chart');
     if (!canvas) return;
@@ -138,12 +182,9 @@ function openModal(gameId) {
         alert("Génération de votre profil sécurisé en cours. Réessayez dans 1 seconde !");
         return;
     }
-
     document.getElementById('animator-modal').style.display = 'flex';
-    
     const myDomain = window.location.origin; 
     const adminUrl = `${myDomain}/scan.html?user=${userId}&game=${gameId}`;
-    
     const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=20&data=${encodeURIComponent(adminUrl)}`;
     document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary); max-width: 100%;">`;
 }
