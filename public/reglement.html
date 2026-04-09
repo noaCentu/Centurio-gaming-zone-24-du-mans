@@ -5,53 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Règles - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=6">
     <style>
-        /* 🌍 MENU DES LANGUES */
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
         .lang-btn:active { transform: scale(0.9); }
         .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
         .lang-menu div:hover { background: #f0f0f0; }
-        
-        /* 🪄 MOTEUR DE GOOGLE */
         body > .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         .goog-te-banner-frame { display: none !important; }
         .goog-tooltip { display: none !important; }
         .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
 
-        /* ✨ DESIGN DES RÈGLES (ACCORDÉON) */
         .rules-container { margin-top: 25px; display: flex; flex-direction: column; gap: 15px; }
-        
-        details.rule-card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
-            text-align: left; 
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
+        details.rule-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left; cursor: pointer; transition: background 0.2s ease; }
         details.rule-card:hover { background: #fafafa; }
-        
         summary { list-style: none; outline: none; display: flex; align-items: center; justify-content: space-between; }
         summary::-webkit-details-marker { display: none; }
-        
         .summary-left { display: flex; align-items: center; }
         .rule-icon { font-size: 24px; margin-right: 15px; background: #fff3e0; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0; }
         .rule-text h4 { margin: 0; color: var(--brand, #f8aa37); font-weight: 800; font-size: 15px; text-transform: uppercase; }
-        
         .arrow-icon { font-size: 14px; color: #d0d0d0; transition: transform 0.3s ease; }
         details[open] .arrow-icon { transform: rotate(180deg); }
-
         .rule-content { margin-top: 15px; padding-left: 60px; font-size: 13px; color: #555; line-height: 1.5; }
         .rule-content p { margin: 0; }
-        
         .credits { margin-top: 40px; font-size: 11px; color: #a0a0a0; text-align: center; padding: 0 20px; line-height: 1.6; }
 
-        /* 🌙 OVERRIDE MODE NUIT POUR LES RÈGLES */
         body.dark-mode details.rule-card { background: #1e1e1e; border: 1px solid #333; color: #f1f1f1; }
         body.dark-mode details.rule-card:hover { background: #2a2a2a; }
         body.dark-mode .rule-content { color: #ccc; }
@@ -91,11 +72,8 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>Le jeu est entièrement gratuit et ouvert à tous les visiteurs de l'espace Centurio.</p>
-                </div>
+                <div class="rule-content"><p>Le jeu est entièrement gratuit et ouvert à tous les visiteurs de l'espace Centurio.</p></div>
             </details>
-
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -104,11 +82,8 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>Jouez sur nos stands. En cas de victoire, demandez à l'animateur de scanner votre QR Code de profil.</p>
-                </div>
+                <div class="rule-content"><p>Jouez sur nos stands. En cas de victoire, demandez à l'animateur de scanner votre QR Code de profil.</p></div>
             </details>
-
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -117,11 +92,8 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>Une fois vos défis validés, rendez-vous à l'accueil pour récupérer un cadeau proportionnel à vos exploits !</p>
-                </div>
+                <div class="rule-content"><p>Une fois vos défis validés, rendez-vous à l'accueil pour récupérer un cadeau proportionnel à vos exploits !</p></div>
             </details>
-
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -130,11 +102,8 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>Une seule participation par appareil. Toute tentative de triche entraînera l'annulation automatique de vos défis.</p>
-                </div>
+                <div class="rule-content"><p>Une seule participation par appareil. Toute tentative de triche entraînera l'annulation automatique de vos défis.</p></div>
             </details>
-
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -143,11 +112,8 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>Le matériel mis à votre disposition coûte cher. Il est strictement interdit de le frapper ou de le dégrader. Toute casse volontaire ou due à de la négligence devra être remboursée.</p>
-                </div>
+                <div class="rule-content"><p>Le matériel mis à votre disposition coûte cher. Il est strictement interdit de le frapper ou de le dégrader. Toute casse volontaire ou due à de la négligence devra être remboursée.</p></div>
             </details>
-
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -156,11 +122,8 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>La zone est un espace de détente. Les insultes, comportements toxiques ou cris abusifs ne sont pas tolérés. Gardons une bonne ambiance !</p>
-                </div>
+                <div class="rule-content"><p>La zone est un espace de détente. Les insultes, comportements toxiques ou cris abusifs ne sont pas tolérés. Gardons une bonne ambiance !</p></div>
             </details>
-
             <details class="rule-card">
                 <summary>
                     <div class="summary-left">
@@ -169,9 +132,7 @@
                     </div>
                     <div class="arrow-icon">▼</div>
                 </summary>
-                <div class="rule-content">
-                    <p>Pour la sécurité de tous et la protection des machines, fumer (y compris les puffs/cigarettes électroniques) et consommer de l'alcool est formellement interdit dans la Gaming Zone.</p>
-                </div>
+                <div class="rule-content"><p>Pour la sécurité de tous et la protection des machines, fumer (y compris les puffs/cigarettes électroniques) et consommer de l'alcool est formellement interdit dans la Gaming Zone.</p></div>
             </details>
         </div>
 
@@ -195,31 +156,16 @@
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
     <script>
-        function toggleLang() {
-            const menu = document.getElementById('lang-list');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        }
-        function changeLang(langCode, flag) {
-            document.querySelector('.lang-btn').innerText = flag;
-            document.getElementById('lang-list').style.display = 'none';
-            localStorage.setItem('centurioFlag', flag);
-            const select = document.querySelector('.goog-te-combo');
-            if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } 
-            else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); }
-        }
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedFlag = localStorage.getItem('centurioFlag');
-            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag;
-        });
+        function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
+        function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
+        document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
 
-        // --- GESTION DU MODE NUIT ---
         function toggleNightMode() {
             document.body.classList.toggle('dark-mode');
             const isDark = document.body.classList.contains('dark-mode');
             localStorage.setItem('centurioNightMode', isDark ? 'on' : 'off');
             document.getElementById('night-btn').innerText = isDark ? '☀️' : '🌙';
         }
-
         function checkNightMode() {
             const savedMode = localStorage.getItem('centurioNightMode');
             const hour = new Date().getHours();
