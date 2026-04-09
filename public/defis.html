@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
     <style>
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
@@ -37,7 +37,7 @@
         <div style="width: 24px;"></div> 
     </div>
 
-    <div class="page-content" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+    <div class="page-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding-bottom: 100px;">
         <div class="chart-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
             <h3>Progression</h3>
             <div style="position: relative; width: 200px; height: 200px; margin: 0 auto;">
@@ -52,7 +52,6 @@
         
         <div id="games-list" style="width: 100%; max-width: 500px;"></div>
 
-        <div id="survey-card" class="game-card" style="width: 100%; max-width: 500px; border-left-color: var(--secondary); margin-top: 30px; border-style: dashed; border-width: 3px; display: none;"></div>
     </div>
 
     <nav class="navbar">
@@ -128,10 +127,9 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=8"></script>
 
     <script>
-        // ICI IL N'Y A PLUS QUE LE VISUEL (LANGUES ET NUIT)
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
         document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; });
