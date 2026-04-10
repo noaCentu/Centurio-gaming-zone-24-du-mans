@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20">
-    <link rel="icon" type="image/png" href="/centurio-logo.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="style.css?v=21">
+    
+    <link rel="icon" type="image/png" href="/centurio-logo.png?v=2">
+    <link rel="apple-touch-icon" href="/centurio-logo.png?v=2">
+    <link rel="manifest" href="/manifest.json?v=2">
     <meta name="theme-color" content="#f8aa37">
     <style>
         .lang-dropdown { position: relative; z-index: 1000; }
@@ -73,7 +75,7 @@
                 <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
             </div>
         </div>
-        <div class="header-title" style="flex: 1; text-align: center; font-weight: 800; letter-spacing: -0.5px;">AGENCE CENTURIO</div>
+        <div class="header-title" style="flex: 1; text-align: center; font-weight: 800; letter-spacing: -0.5px; color: var(--primary);">AGENCE CENTURIO</div>
         <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
     </div>
 
@@ -97,7 +99,7 @@
             <h3>Installer l'Application</h3>
             <p>Ajoutez Gaming Zone à votre écran d'accueil pour une meilleure expérience et un accès hors-ligne !</p>
             <div class="ios-tut" id="ios-instructions">
-                <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>.
+                <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="12" y2="12"/></svg>.
             </div>
             <button class="btn-install" id="btn-install-pwa" onclick="window.installPwa()">📱 Installer l'Appli</button>
             <button class="btn-web" onclick="window.closeInstallPwa()">Continuer sur le Web</button>
@@ -139,7 +141,7 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=20"></script>
+    <script src="script.js?v=21"></script>
     <script>
         function toggleMenu() {
             document.getElementById('side-menu').classList.toggle('open');
