@@ -29,7 +29,7 @@
         </div>
 
         <div id="pdf-content" style="background: white; padding: 15px; border-radius: 10px;">
-            <h2 id="pdf-title" style="text-align: center; margin-bottom: 25px;">Statistiques - Vue Générale</h2>
+            <h2 id="pdf-title" style="text-align: center; margin-bottom: 25px; color:#333;">Statistiques - Vue Générale</h2>
             
             <div class="stats-grid">
                 <div class="stat-box">
@@ -47,7 +47,7 @@
             </div>
 
             <div class="stat-section" id="games-results">
-                <h3 style="margin-bottom: 15px;">🎮 Popularité des Stands</h3>
+                <h3 style="margin-bottom: 15px; color:#333;">🎮 Popularité des Stands</h3>
                 <div id="games-list"></div>
             </div>
 
@@ -56,28 +56,28 @@
                 <button class="tab-btn" id="tab-admins" onclick="setSurveyTarget('admins')">🛡️ Avis Staff</button>
             </div>
 
-            <h3 style="margin-top: 15px; margin-bottom: 15px;" id="survey-section-title">📊 Résultats du questionnaire (Visiteurs)</h3>
+            <h3 style="margin-top: 15px; margin-bottom: 15px; color:#333;" id="survey-section-title">📊 Résultats du questionnaire (Visiteurs)</h3>
 
             <div class="question-block">
-                <div class="question-title" id="title-q1">Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?</div>
+                <div class="question-title" id="title-q1" style="color:#333;">Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?</div>
                 <div id="dist-q1"></div>
-                <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q1">0.0</span> / 5 <span class="vote-count" id="count-q1">(0 avis)</span></div>
+                <div class="avg-box" style="color:#666;">Moyenne : <span class="avg-number" id="avg-q1">0.0</span> / 5 <span class="vote-count" id="count-q1">(0 avis)</span></div>
             </div>
 
             <div class="question-block">
-                <div class="question-title" id="title-q2">Q2. L'application mobile était-elle facile à utiliser ?</div>
+                <div class="question-title" id="title-q2" style="color:#333;">Q2. L'application mobile était-elle facile à utiliser ?</div>
                 <div id="dist-q2"></div>
-                <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q2">0.0</span> / 5 <span class="vote-count" id="count-q2">(0 avis)</span></div>
+                <div class="avg-box" style="color:#666;">Moyenne : <span class="avg-number" id="avg-q2">0.0</span> / 5 <span class="vote-count" id="count-q2">(0 avis)</span></div>
             </div>
 
             <div class="question-block">
-                <div class="question-title" id="title-q3">Q3. Globalement, quelle est votre satisfaction ?</div>
+                <div class="question-title" id="title-q3" style="color:#333;">Q3. Globalement, quelle est votre satisfaction ?</div>
                 <div id="dist-q3"></div>
-                <div class="avg-box">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5 <span class="vote-count" id="count-q3">(0 avis)</span></div>
+                <div class="avg-box" style="color:#666;">Moyenne : <span class="avg-number" id="avg-q3">0.0</span> / 5 <span class="vote-count" id="count-q3">(0 avis)</span></div>
             </div>
 
             <div class="stat-section" id="comments-results">
-                <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
+                <h3 style="margin-bottom: 5px; color:#333;">💡 Idées & Suggestions</h3>
                 <div id="comments-list"></div>
             </div>
         </div>
@@ -124,7 +124,7 @@
                 let votes = dataObj ? (dataObj[i] || 0) : 0;
                 totalPoints += (votes * i);
                 let percentage = actualVotes > 0 ? (votes / actualVotes) * 100 : 0;
-                container.innerHTML += `<div class="dist-row"><div class="dist-label">${i} ⭐</div><div class="dist-bar-bg"><div class="dist-bar-fill" style="width: ${percentage}%;"></div></div><div class="dist-val">${votes}</div></div>`;
+                container.innerHTML += `<div class="dist-row"><div class="dist-label" style="color:#333;">${i} ⭐</div><div class="dist-bar-bg" style="background:#eee;"><div class="dist-bar-fill" style="width: ${percentage}%; background:#f8aa37;"></div></div><div class="dist-val" style="color:#333;">${votes}</div></div>`;
             }
             document.getElementById(avgId).innerText = actualVotes > 0 ? (totalPoints / actualVotes).toFixed(1) : "0.0";
             document.getElementById(countId).innerText = `(${actualVotes} avis)`;
@@ -151,7 +151,7 @@
                 document.getElementById('survey-section-title').innerText = "🛡️ Résultats du questionnaire (Staff)";
                 document.getElementById('title-q1').innerText = "Q1. Facilité d'utilisation du scanner QR Code ?";
                 document.getElementById('title-q2').innerText = "Q2. Stabilité et rapidité de l'application ?";
-                document.getElementById('title-q3').innerText = "Q3. (Anciens) Avantage de l'appli par rapport au papier ?";
+                document.getElementById('title-q3').innerText = "Q3. Avantage de l'appli par rapport au papier ?";
             }
             updateDisplay();
         }
@@ -177,7 +177,7 @@
             if (gamesArray.length > 0) {
                 gamesListDiv.innerHTML = "";
                 gamesArray.forEach(g => {
-                    gamesListDiv.innerHTML += `<div class="comment-item"><span class="comment-text" style="color: var(--brand); font-weight: bold;">DÉFI : ${g.id.toUpperCase()}</span><span class="comment-count">${g.count} validations</span></div>`;
+                    gamesListDiv.innerHTML += `<div class="comment-item" style="background:#f9f9f9; border:1px solid #ddd; color:#333;"><span class="comment-text" style="color: var(--brand); font-weight: bold; text-transform: uppercase;">DÉFI : ${g.id}</span><span class="comment-count" style="color:#555;">${g.count} validations</span></div>`;
                 });
             } else {
                 gamesListDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucun défi n'a encore été validé.</p>";
@@ -202,14 +202,14 @@
             const listDiv = document.getElementById('comments-list');
             if (commentsArray.length > 0) {
                 listDiv.innerHTML = ""; 
-                commentsArray.forEach(c => listDiv.innerHTML += `<div class="comment-item"><span class="comment-text">${c.text}</span><span class="comment-count">${c.count}x</span></div>`);
+                commentsArray.forEach(c => listDiv.innerHTML += `<div class="comment-item" style="background:#f9f9f9; border:1px solid #ddd; color:#333;"><span class="comment-text">${c.text}</span><span class="comment-count" style="color:#555; font-weight:bold;">${c.count}x</span></div>`);
             } else {
                 listDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucune suggestion pour le moment.</p>";
             }
         }
 
         // =========================================================
-        // 🚀 LA MAGIE DU PDF : CRÉATION D'UN GABARIT INVISIBLE PROPRE
+        // 🚀 LA MAGIE DU PDF : CRÉATION D'UN GABARIT FIXÉ À L'ÉCRAN
         // =========================================================
         function downloadPDF() {
             const selector = document.getElementById('day-selector');
@@ -227,13 +227,17 @@
             if (currentTarget === "visiteurs") { respondents = s.surveyRespondents; scores = s.surveyScores; comments = s.surveyComments; } 
             else { respondents = s.adminSurveyRespondents; scores = s.adminSurveyScores; comments = s.adminSurveyComments; }
 
-            // 1. On crée un "calque" vierge avec du CSS très basique en ligne (ce que html2pdf adore)
+            // 1. On crée un "calque" physique sur la page (mais caché hors de l'écran)
             const wrapper = document.createElement('div');
+            wrapper.style.position = "absolute";
+            wrapper.style.top = "-9999px"; // Caché tout en haut
+            wrapper.style.left = "0";
+            wrapper.style.width = "700px";
             wrapper.style.padding = "30px";
             wrapper.style.fontFamily = "Arial, sans-serif";
-            wrapper.style.color = "#333";
-            wrapper.style.background = "#fff";
-            wrapper.style.width = "700px";
+            wrapper.style.color = "#000000";
+            wrapper.style.background = "#ffffff";
+            wrapper.style.zIndex = "-999";
 
             // Fonction pour générer les petites barres d'avis proprement
             function genDist(dataObj) {
@@ -242,16 +246,16 @@
                 for(let i=5; i>=1; i--) {
                     let v = dataObj ? (dataObj[i]||0) : 0; tPts += (v*i);
                     let pct = aVotes > 0 ? (v/aVotes)*100 : 0;
-                    h += `<div style="display:flex; align-items:center; margin-bottom:6px; font-size:13px;">
+                    h += `<div style="display:flex; align-items:center; margin-bottom:6px; font-size:13px; color:#000;">
                             <div style="width:40px;">${i} ⭐</div>
-                            <div style="flex:1; background:#eee; height:12px; border-radius:6px; margin:0 10px; overflow:hidden;">
+                            <div style="flex:1; background:#eeeeee; height:12px; border-radius:6px; margin:0 10px; overflow:hidden;">
                                 <div style="width:${pct}%; background:#f8aa37; height:100%;"></div>
                             </div>
                             <div style="width:30px; text-align:right;">${v}</div>
                           </div>`;
                 }
                 let avg = aVotes>0 ? (tPts/aVotes).toFixed(1) : "0.0";
-                h += `<div style="font-size:13px; color:#666; margin-top:8px;">Moyenne : <b>${avg}/5</b> (${aVotes} avis)</div>`;
+                h += `<div style="font-size:13px; color:#555555; margin-top:8px;">Moyenne : <b>${avg}/5</b> (${aVotes} avis)</div>`;
                 return h;
             }
 
@@ -260,16 +264,16 @@
             const gamesObj = s.gameStats || {};
             const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
             if(gamesArray.length > 0) {
-                gamesArray.forEach(g => { gamesHtml += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:14px;"><strong style="color:#f8aa37; text-transform:uppercase;">${g.id}</strong><span>${g.count} validations</span></div>`; });
-            } else { gamesHtml = `<div style="font-size:13px; color:#888;">Aucun défi validé.</div>`; }
+                gamesArray.forEach(g => { gamesHtml += `<div style="padding:10px; border-bottom:1px solid #dddddd; display:flex; justify-content:space-between; font-size:14px; color:#000;"><strong style="color:#f8aa37; text-transform:uppercase;">DÉFI : ${g.id}</strong><span>${g.count} validations</span></div>`; });
+            } else { gamesHtml = `<div style="font-size:13px; color:#888888;">Aucun défi validé.</div>`; }
 
             // Génération de la liste des commentaires
             let commentsHtml = "";
             const commentsObj = comments || {};
             const commentsArray = Object.keys(commentsObj).map(k => ({ text: k, count: commentsObj[k] })).sort((a,b) => b.count - a.count);
             if(commentsArray.length > 0) {
-                commentsArray.forEach(c => { commentsHtml += `<div style="padding:10px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; font-size:13px;"><span>${c.text}</span><span style="color:#888; font-weight:bold;">${c.count}x</span></div>`; });
-            } else { commentsHtml = `<div style="font-size:13px; color:#888;">Aucune suggestion.</div>`; }
+                commentsArray.forEach(c => { commentsHtml += `<div style="padding:10px; border-bottom:1px solid #dddddd; display:flex; justify-content:space-between; font-size:13px; color:#000;"><span>${c.text}</span><span style="color:#555555; font-weight:bold;">${c.count}x</span></div>`; });
+            } else { commentsHtml = `<div style="font-size:13px; color:#888888;">Aucune suggestion.</div>`; }
 
             const qTitles = currentTarget === "visiteurs" 
                 ? ["Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?", "Q2. L'application mobile était-elle facile à utiliser ?", "Q3. Globalement, quelle est votre satisfaction ?"]
@@ -278,55 +282,58 @@
             // 2. On injecte tout ça dans le calque HTML
             wrapper.innerHTML = `
                 <div style="text-align:center; margin-bottom:30px;">
-                    <h1 style="color:#291834; margin-bottom:5px; font-size: 26px;">Rapport d'Activité Centurio</h1>
-                    <h2 style="color:#666; font-weight:normal; font-size:18px; border-bottom: 2px solid #f8aa37; display:inline-block; padding-bottom:5px;">${selectedText} - ${tabName}</h2>
+                    <h1 style="color:#000000; margin-bottom:5px; font-size: 26px;">Rapport d'Activité Centurio</h1>
+                    <h2 style="color:#555555; font-weight:normal; font-size:18px; border-bottom: 2px solid #f8aa37; display:inline-block; padding-bottom:5px;">${selectedText} - ${tabName}</h2>
                 </div>
 
                 <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
-                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #ddd; border-radius:10px; text-align:center;">
-                        <div style="font-size:14px; color:#666; margin-bottom:10px;">Visiteurs</div>
-                        <div style="font-size:28px; font-weight:bold; color:#333;">${s.totalVisiteurs}</div>
+                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #cccccc; border-radius:10px; text-align:center;">
+                        <div style="font-size:14px; color:#555555; margin-bottom:10px;">Visiteurs</div>
+                        <div style="font-size:28px; font-weight:bold; color:#000000;">${s.totalVisiteurs}</div>
                     </div>
-                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #ddd; border-radius:10px; text-align:center;">
-                        <div style="font-size:14px; color:#666; margin-bottom:10px;">Pic Simultané</div>
+                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #cccccc; border-radius:10px; text-align:center;">
+                        <div style="font-size:14px; color:#555555; margin-bottom:10px;">Pic Simultané</div>
                         <div style="font-size:28px; font-weight:bold; color:#4CAF50;">${s.maxConcurrentUsers}</div>
                     </div>
-                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #ddd; border-radius:10px; text-align:center;">
-                        <div style="font-size:14px; color:#666; margin-bottom:10px;">Formulaires</div>
+                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #cccccc; border-radius:10px; text-align:center;">
+                        <div style="font-size:14px; color:#555555; margin-bottom:10px;">Formulaires</div>
                         <div style="font-size:28px; font-weight:bold; color:#f8aa37;">${respondents}</div>
                     </div>
                 </div>
 
                 <div style="margin-bottom:30px;">
-                    <h3 style="color:#291834; font-size:18px; margin-bottom:15px;">🎮 Popularité des Stands</h3>
+                    <h3 style="color:#000000; font-size:18px; margin-bottom:15px;">🎮 Popularité des Stands</h3>
                     ${gamesHtml}
                 </div>
 
                 <div style="margin-bottom:30px; page-break-inside: avoid;">
-                    <h3 style="color:#291834; font-size:18px; margin-bottom:15px;">📊 Résultats du questionnaire</h3>
-                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #eee;">
-                        <strong style="display:block; margin-bottom:15px; color:#333; font-size:14px;">${qTitles[0]}</strong>
+                    <h3 style="color:#000000; font-size:18px; margin-bottom:15px;">📊 Résultats du questionnaire</h3>
+                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #cccccc;">
+                        <strong style="display:block; margin-bottom:15px; color:#000000; font-size:14px;">${qTitles[0]}</strong>
                         ${genDist(scores.q1)}
                     </div>
-                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #eee; page-break-inside: avoid;">
-                        <strong style="display:block; margin-bottom:15px; color:#333; font-size:14px;">${qTitles[1]}</strong>
+                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #cccccc; page-break-inside: avoid;">
+                        <strong style="display:block; margin-bottom:15px; color:#000000; font-size:14px;">${qTitles[1]}</strong>
                         ${genDist(scores.q2)}
                     </div>
-                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #eee; page-break-inside: avoid;">
-                        <strong style="display:block; margin-bottom:15px; color:#333; font-size:14px;">${qTitles[2]}</strong>
+                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #cccccc; page-break-inside: avoid;">
+                        <strong style="display:block; margin-bottom:15px; color:#000000; font-size:14px;">${qTitles[2]}</strong>
                         ${genDist(scores.q3)}
                     </div>
                 </div>
 
                 <div>
-                    <h3 style="color:#291834; font-size:18px; margin-bottom:15px;">💡 Idées & Suggestions</h3>
+                    <h3 style="color:#000000; font-size:18px; margin-bottom:15px;">💡 Idées & Suggestions</h3>
                     ${commentsHtml}
                 </div>
             `;
 
-            // 3. On demande à html2pdf de faire la photo de ce calque virtuel
+            // CRUCIAL : On ATTACHE le calque à la page (sinon html2pdf prend en photo du vide)
+            document.body.appendChild(wrapper);
+
+            // 3. On demande à html2pdf de faire la photo
             const opt = {
-                margin: [15, 10, 15, 10], // Haut, Droite, Bas, Gauche
+                margin: [15, 10, 15, 10],
                 filename: `Centurio_Stats_${tabName}_${selectedText.replace(/ /g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
                 html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, 
@@ -337,6 +344,9 @@
             btn.innerText = "⏳ Génération en cours...";
             
             html2pdf().set(opt).from(wrapper).save().then(() => {
+                // CRUCIAL : Une fois le PDF fini, on supprime le calque caché
+                document.body.removeChild(wrapper);
+
                 btn.innerText = "✅ Téléchargement terminé !"; 
                 setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
             });
