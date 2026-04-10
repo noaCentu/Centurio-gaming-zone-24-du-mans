@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v19 - PWA & Pop-up Installation !");
+console.log("🚀 Script Centurio v21 - PWA & Pop-up Installation !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
