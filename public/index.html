@@ -5,159 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=23">
+    <link rel="stylesheet" href="style.css?v=25">
     
-    <link rel="icon" type="image/png" href="/centurio-logo.png?v=2">
-    <link rel="apple-touch-icon" href="/centurio-logo.png?v=2">
-    <link rel="manifest" href="/manifest.json?v=2">
-    <meta name="theme-color" content="#f8aa37">
+    <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
+    <link rel="apple-touch-icon" href="/centurio-logo.png?v=3">
+    <link rel="manifest" href="/manifest.json?v=3">
+    <meta name="theme-color" content="#291834">
 
     <style>
         /* =========================================================
-           🌄 FOND D'ÉCRAN INCREVABLE 100% GARANTI (MÉTHODE FORCÉE)
+           1. FOND D'ÉCRAN INCREVABLE 
            ========================================================= */
+        html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; width: 100% !important; background-color: #291834 !important; }
+        .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover !important; background-position: center center !important; background-repeat: no-repeat !important; z-index: -10; }
+        body { display: flex; flex-direction: column; min-height: 100vh; }
         
-        /* 1. On force l'intégralité de la page à prendre toute la place */
-        html, body {
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 100% !important;
-            width: 100% !important;
-            overflow: hidden !important; /* Empêche le défilement du fond lui-même */
-            box-sizing: border-box;
-            background-color: #000; /* Fond noir par défaut derrière l'image */
-        }
-
-        /* 2. On transforme le corps en une grille rigide */
-        body.home-page {
-            display: flex;
-            flex-direction: column;
-            
-            /* FORCAGE DE LA HAUTEUR (Blindé pour iPhone et PC) */
-            min-height: 100vh !important;
-            min-height: -webkit-fill-available !important; /* Correctif Safari iPhone historique */
-            min-height: 100dvh !important; /* Hauteur dynamique moderne (iPhone) */
-        }
-
-        /* 3. LE CALQUE MAGIQUE DU FOND (Méthode de la Peau Fixe) */
-        body.home-page::before {
-            content: "";
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            
-            /* On blindé la hauteur avec toutes les unités possibles */
-            height: -webkit-fill-available;
-            height: 100dvh;
-            
-            /* 👇 CHANGE ICI LE NOM DE TON IMAGE DE FOND 👇 */
-            background-image: url('/centurio-gaming-zone-bg.jpg'); 
-            
-            /* 👇 LES RÉGLAGES CLÉS POUR TOUT ÉTIRER/ZOOMER 👇 */
-            background-size: cover !important; /* Zoom/Stretch FORCÉ pour tout remplir */
-            background-position: center center !important; /* Centrage absolu */
-            background-repeat: no-repeat !important; /* Pas de répétition */
-            
-            z-index: -1; /* Reste derrière tout le contenu */
-            transform: translateZ(0); /* Force l'accélération matérielle (plus fluide) */
-        }
-
-        /* =========================================================
-           CONTENU DE LA PAGE (Header, Texte, Boutons)
-           ========================================================= */
-
-        /* Header avec z-index pour rester au-dessus */
+        /* HEADER EN BLANC POUR CONTRASTER SUR L'IMAGE */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
-
-        /* Conteneur principal qui prend tout l'espace central */
-        .page-accueil-full {
-            flex: 1; /* Prend tout l'espace disponible entre le header et le bas */
-            display: flex;
-            align-items: center; /* Centre verticalement le texte */
-            justify-content: center; /* Centre horizontalement le texte */
-            width: 100%;
-            position: relative;
-            z-index: 1; /* Reste au-dessus du fond magique */
-            padding-bottom: 20px;
-            overflow-y: auto; /* Autorise le défilement du contenu si trop grand (iPhone SE) */
-            -webkit-overflow-scrolling: touch; /* Défilement fluide sur iPhone */
+        .header-title { color: white !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .hamburger-btn, .lang-btn { color: white !important; }
+        
+        /* =========================================================
+           2. LE GLASSMORPHISM (EFFET VERRE)
+           ========================================================= */
+        .page-accueil-full { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1; padding-bottom: 20px; }
+        .overlay-welcome { 
+            width: 90%; max-width: 600px; padding: 35px 25px; 
+            background: rgba(41, 24, 52, 0.75) !important; 
+            backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; 
+            border-radius: 20px; text-align: center; color: white !important; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important; 
+            border: 1px solid rgba(255,255,255,0.15) !important; 
         }
-
-        .overlay-welcome { width: 90%; max-width: 600px; padding: 25px; background: rgba(0, 0, 0, 0.45); border-radius: 20px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); text-align: center; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .welcome-title { color: white; margin-bottom: 15px; font-weight: 800; }
-        .welcome-text { color: white; font-size: 14px; line-height: 1.6; }
+        
+        .welcome-title { color: white !important; margin-bottom: 15px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .welcome-text { color: #eaeaea !important; font-size: 14px; line-height: 1.6; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
         .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 16px 45px; font-size: 19px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 8px 20px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; border: none; cursor: pointer; }
         .btn-cta:active { transform: scale(0.95); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0.7); } 70% { box-shadow: 0 0 0 18px rgba(248, 170, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0); } }
 
+        /* =========================================================
+           3. MENUS ET POP-UPS
+           ========================================================= */
         .lang-dropdown { position: relative; z-index: 1000; }
-        .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
-        .lang-btn:active { transform: scale(0.9); }
         .lang-menu { display: none; position: absolute; top: 35px; left: 0; background: white; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); overflow: hidden; width: 140px; text-align: left; }
         .lang-menu div { padding: 12px 15px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 10px; color: #333; transition: background 0.2s; }
         .lang-menu div:hover { background: #f0f0f0; }
 
         .pwd-container { position: relative; display: flex; align-items: center; margin-bottom: 15px; }
         .pwd-container input { width: 100%; padding-right: 45px !important; }
-        .toggle-pwd { position: absolute; right: 15px; cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center; transition: color 0.2s; }
-        .toggle-pwd:hover { color: var(--brand); }
+        .toggle-pwd { position: absolute; right: 15px; cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center; }
 
-        /* 🍔 MENU HAMBURGER & ANIMATIONS */
-        .hamburger-btn { font-size: 26px; cursor: pointer; color: var(--primary); transition: transform 0.2s; }
-        .hamburger-btn:active { transform: scale(0.9); }
-        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 3000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 20px; }
+        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 20px; border-left: 1px solid #333; }
         .side-menu.open { right: 0; }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
         .menu-overlay.open { opacity: 1; pointer-events: auto; }
-        .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: #333; margin-bottom: 20px; border: none; background: transparent; }
-        .side-menu a { text-decoration: none; color: var(--secondary); font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: #fff; margin-bottom: 20px; border: none; background: transparent; }
+        .side-menu a { text-decoration: none; color: #fff; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .side-menu a:hover { color: var(--brand); padding-left: 15px; }
-        
-        /* 📱 PWA POP-UP INSTALLATION */
-        .install-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
-        .install-modal { background: white; width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.4s ease-out; }
+
+        .install-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .install-modal { background: #1e1e1e; width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; animation: slideUp 0.4s ease-out; color: white; }
         .install-modal img { width: 70px; margin-bottom: 15px; border-radius: 15px; }
-        .install-modal h3 { margin-bottom: 10px; font-weight: 800; color: #333; }
-        .install-modal p { font-size: 13px; color: #666; margin-bottom: 20px; }
+        .install-modal h3 { margin-bottom: 10px; font-weight: 800; color: white; }
+        .install-modal p { font-size: 13px; color: #aaa; margin-bottom: 20px; }
         .btn-install { background: var(--brand); color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; margin-bottom: 10px; cursor: pointer; }
         .btn-web { background: transparent; color: #888; border: none; font-size: 14px; cursor: pointer; text-decoration: underline; }
-        .ios-tut { display: none; background: #f0f0f0; padding: 10px; border-radius: 10px; font-size: 12px; color: #333; margin-bottom: 15px; text-align: left; }
+        .ios-tut { display: none; background: #333; padding: 10px; border-radius: 10px; font-size: 12px; color: white; margin-bottom: 15px; text-align: left; }
+        
+        .modal { background: #1e1e1e; color: white; border: 1px solid #333; }
+        .modal h3 { color: white; }
+        
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
+        /* Cacher la traduction Google dégueulasse */
         body > .skiptranslate { display: none !important; }
         body { top: 0px !important; }
         .goog-te-banner-frame { display: none !important; }
-        .goog-tooltip { display: none !important; }
-        .goog-text-highlight { background-color: transparent !important; border: none !important; box-shadow: none !important; }
-
-        body.dark-mode .side-menu { background: #1a1a1a; border-left: 1px solid #333; }
-        body.dark-mode .side-menu a { color: #f1f1f1; border-bottom: 1px solid #333; }
-        body.dark-mode .close-menu { color: #f1f1f1; }
-        body.dark-mode .install-modal { background: #1e1e1e; color: #f1f1f1; }
-        body.dark-mode .install-modal h3 { color: #f1f1f1; }
-        body.dark-mode .install-modal p { color: #aaa; }
-        body.dark-mode .ios-tut { background: #333; color: #f1f1f1; }
     </style>
 </head>
-<body class="home-page"> <div class="header-v2">
+<body>
+    <div class="fullscreen-bg"></div>
+
+    <div class="header-v2">
         <div class="lang-dropdown">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
             <div class="lang-menu" id="lang-list">
                 <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 Français</div>
                 <div onclick="changeLang('en', '🇬🇧')">🇬🇧 English</div>
                 <div onclick="changeLang('es', '🇪🇸')">🇪🇸 Español</div>
-                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 Deutsch</div>
-                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 Italiano</div>
-                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
             </div>
         </div>
-        <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2; color: var(--primary);">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div class="header-title">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
         <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
     </div>
 
@@ -169,7 +111,7 @@
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 2px solid #eee; border-bottom: none; color: #888; font-size: 14px; margin-top: 20px;">
+            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 2px solid #333; border-bottom: none; color: #888; font-size: 14px; margin-top: 20px;">
                 🔒 Espace Staff
             </a>
         </div>
@@ -187,7 +129,7 @@
         <div class="install-modal">
             <img src="/centurio-logo.png" alt="Centurio Logo">
             <h3>Installer l'Application</h3>
-            <p>Ajoutez Gaming Zone à votre écran d'accueil pour une meilleure expérience et un accès hors-ligne !</p>
+            <p>Ajoutez Gaming Zone à votre écran d'accueil pour un accès hors-ligne !</p>
             <div class="ios-tut" id="ios-instructions">
                 <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>.
             </div>
@@ -199,85 +141,47 @@
     <div class="modal-overlay" id="login-modal">
         <div class="modal fade-in">
             <h3>Connexion Sécurisée</h3>
-            <p style="font-size: 12px; margin-bottom: 15px; color: #666;">Accès réservé au staff Centurio.</p>
-            
+            <p style="font-size: 12px; margin-bottom: 15px; color: #888;">Accès réservé au staff Centurio.</p>
             <div class="pwd-container">
-                <input type="password" id="admin-pwd" placeholder="Mot de passe">
+                <input type="password" id="admin-pwd" placeholder="Mot de passe" style="background:#333; color:white; border:1px solid #555;">
                 <div class="toggle-pwd" onclick="togglePassword()">
-                    <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                        <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
+                    <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </div>
             </div>
-
             <button class="btn-submit" onclick="login()">Se connecter</button>
             <button class="btn-cancel" onclick="document.getElementById('login-modal').style.display='none'">Fermer</button>
-            <p id="login-error" style="color: red; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect</p>
+            <p id="login-error" style="color: #ff4d4d; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect</p>
         </div>
     </div>
 
     <div id="google_translate_element" style="display:none;"></div>
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
-
-    <script src="script.js?v=23"></script>
+    <script src="script.js?v=25"></script>
     
     <script>
-        function toggleMenu() {
-            document.getElementById('side-menu').classList.toggle('open');
-            document.getElementById('menu-overlay').classList.toggle('open');
-        }
-
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         function togglePassword() {
-            const pwdInput = document.getElementById('admin-pwd');
-            const eyeIcon = document.getElementById('eye-icon');
-            if (pwdInput.type === 'password') {
-                pwdInput.type = 'text';
-                eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
-            } else {
-                pwdInput.type = 'password';
-                eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
-            }
+            const pwdInput = document.getElementById('admin-pwd'); const eyeIcon = document.getElementById('eye-icon');
+            if (pwdInput.type === 'password') { pwdInput.type = 'text'; eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`; } 
+            else { pwdInput.type = 'password'; eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`; }
         }
-
-        if (localStorage.getItem('centurioAdminToken') || localStorage.getItem('centurioStatsToken')) {
-            localStorage.removeItem('centurioAdminToken'); localStorage.removeItem('centurioStatsToken'); sessionStorage.clear();
-        }
-
+        if (localStorage.getItem('centurioAdminToken') || localStorage.getItem('centurioStatsToken')) { localStorage.removeItem('centurioAdminToken'); localStorage.removeItem('centurioStatsToken'); sessionStorage.clear(); }
         function checkAdmin() {
-            const admin = sessionStorage.getItem('centurioAdminToken');
-            const stats = sessionStorage.getItem('centurioStatsToken');
-            if (admin) window.location.href = "scan.html";
-            else if (stats) window.location.href = "stats.html";
-            else document.getElementById('login-modal').style.display = 'flex';
+            const admin = sessionStorage.getItem('centurioAdminToken'); const stats = sessionStorage.getItem('centurioStatsToken');
+            if (admin) window.location.href = "scan.html"; else if (stats) window.location.href = "stats.html"; else document.getElementById('login-modal').style.display = 'flex';
         }
-
         function login() {
-            const pwd = document.getElementById('admin-pwd').value;
-            const errorMsg = document.getElementById('login-error');
+            const pwd = document.getElementById('admin-pwd').value; const errorMsg = document.getElementById('login-error');
             fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd }) })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) { 
-                    sessionStorage.clear();
-                    if(data.role === 'admin') { sessionStorage.setItem('centurioAdminToken', data.token); window.location.href = "scan.html"; } 
-                    else if (data.role === 'stats') { sessionStorage.setItem('centurioStatsToken', data.token); window.location.href = "stats.html"; }
-                } else errorMsg.style.display = 'block'; 
-            }).catch(err => alert("Erreur de connexion au serveur."));
+            .then(res => res.json()).then(data => {
+                if(data.success) { sessionStorage.clear(); if(data.role === 'admin') { sessionStorage.setItem('centurioAdminToken', data.token); window.location.href = "scan.html"; } else if (data.role === 'stats') { sessionStorage.setItem('centurioStatsToken', data.token); window.location.href = "stats.html"; } } 
+                else errorMsg.style.display = 'block'; 
+            }).catch(err => alert("Erreur de connexion."));
         }
-
         function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
-        
-        document.addEventListener('DOMContentLoaded', () => { 
-            const savedFlag = localStorage.getItem('centurioFlag'); 
-            if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; 
-
-            if (window.location.search.includes('admin=open')) {
-                setTimeout(checkAdmin, 300);
-            }
-        });
+        document.addEventListener('DOMContentLoaded', () => { const savedFlag = localStorage.getItem('centurioFlag'); if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; if (window.location.search.includes('admin=open')) { setTimeout(checkAdmin, 300); } });
     </script>
 </body>
 </html>
