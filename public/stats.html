@@ -168,8 +168,8 @@
                 adminSurveyRespondents: 0, adminSurveyScores: { q1: {}, q2: {}, q3: {} }, adminSurveyComments: {}
             };
             
-            document.getElementById('val-visiteurs').innerText = s.totalVisiteurs;
-            document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers;
+            document.getElementById('val-visiteurs').innerText = s.totalVisiteurs || 0;
+            document.getElementById('val-simultanes').innerText = s.maxConcurrentUsers || 0;
 
             const gamesObj = s.gameStats || {};
             const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
@@ -185,9 +185,9 @@
 
             let respondents, scores, comments;
             if (currentTarget === "visiteurs") {
-                respondents = s.surveyRespondents; scores = s.surveyScores; comments = s.surveyComments;
+                respondents = s.surveyRespondents || 0; scores = s.surveyScores || {q1:{}, q2:{}, q3:{}}; comments = s.surveyComments || {};
             } else {
-                respondents = s.adminSurveyRespondents; scores = s.adminSurveyScores; comments = s.adminSurveyComments;
+                respondents = s.adminSurveyRespondents || 0; scores = s.adminSurveyScores || {q1:{}, q2:{}, q3:{}}; comments = s.adminSurveyComments || {};
             }
 
             document.getElementById('val-repondants').innerText = respondents;
@@ -209,7 +209,7 @@
         }
 
         // =========================================================
-        // 🚀 LA MAGIE DU PDF : CRÉATION D'UN GABARIT FIXÉ À L'ÉCRAN
+        // 🚀 CRÉATION PDF VIRTUELLE (SÉCURISÉE & HORS ÉCRAN)
         // =========================================================
         function downloadPDF() {
             const selector = document.getElementById('day-selector');
@@ -217,137 +217,130 @@
             const selectedText = selector.options[selector.selectedIndex].text.replace('📊 ', '');
             const tabName = currentTarget === "visiteurs" ? "Visiteurs" : "Staff"; 
             
-            const s = allStatsData[dayKey] || {
-                totalVisiteurs: 0, maxConcurrentUsers: 0, gameStats: {},
-                surveyRespondents: 0, surveyScores: { q1: {}, q2: {}, q3: {} }, surveyComments: {},
-                adminSurveyRespondents: 0, adminSurveyScores: { q1: {}, q2: {}, q3: {} }, adminSurveyComments: {}
-            };
+            // Protection anti-crash si les données n'existent pas
+            const s = allStatsData[dayKey] || {};
+            const visitors = s.totalVisiteurs || 0;
+            const peak = s.maxConcurrentUsers || 0;
 
             let respondents, scores, comments;
-            if (currentTarget === "visiteurs") { respondents = s.surveyRespondents; scores = s.surveyScores; comments = s.surveyComments; } 
-            else { respondents = s.adminSurveyRespondents; scores = s.adminSurveyScores; comments = s.adminSurveyComments; }
+            if (currentTarget === "visiteurs") { 
+                respondents = s.surveyRespondents || 0; 
+                scores = s.surveyScores || {q1:{}, q2:{}, q3:{}}; 
+                comments = s.surveyComments || {}; 
+            } else { 
+                respondents = s.adminSurveyRespondents || 0; 
+                scores = s.adminSurveyScores || {q1:{}, q2:{}, q3:{}}; 
+                comments = s.adminSurveyComments || {}; 
+            }
 
-            // 1. On crée un "calque" physique sur la page (mais caché hors de l'écran)
-            const wrapper = document.createElement('div');
-            wrapper.style.position = "absolute";
-            wrapper.style.top = "-9999px"; // Caché tout en haut
-            wrapper.style.left = "0";
-            wrapper.style.width = "700px";
-            wrapper.style.padding = "30px";
-            wrapper.style.fontFamily = "Arial, sans-serif";
-            wrapper.style.color = "#000000";
-            wrapper.style.background = "#ffffff";
-            wrapper.style.zIndex = "-999";
-
-            // Fonction pour générer les petites barres d'avis proprement
+            // Génération de la distribution (petites barres)
             function genDist(dataObj) {
                 let h = ''; let tPts = 0; let aVotes = 0;
                 if(dataObj) { for(let i=1; i<=5; i++) aVotes += (dataObj[i]||0); }
                 for(let i=5; i>=1; i--) {
                     let v = dataObj ? (dataObj[i]||0) : 0; tPts += (v*i);
                     let pct = aVotes > 0 ? (v/aVotes)*100 : 0;
-                    h += `<div style="display:flex; align-items:center; margin-bottom:6px; font-size:13px; color:#000;">
-                            <div style="width:40px;">${i} ⭐</div>
-                            <div style="flex:1; background:#eeeeee; height:12px; border-radius:6px; margin:0 10px; overflow:hidden;">
+                    h += `<div style="display:flex; align-items:center; margin-bottom:8px; font-size:14px; color:#000;">
+                            <div style="width:45px; font-weight:bold;">${i} ⭐</div>
+                            <div style="flex:1; background:#eeeeee; height:16px; border-radius:8px; margin:0 15px; overflow:hidden;">
                                 <div style="width:${pct}%; background:#f8aa37; height:100%;"></div>
                             </div>
-                            <div style="width:30px; text-align:right;">${v}</div>
+                            <div style="width:30px; text-align:right; font-weight:bold;">${v}</div>
                           </div>`;
                 }
                 let avg = aVotes>0 ? (tPts/aVotes).toFixed(1) : "0.0";
-                h += `<div style="font-size:13px; color:#555555; margin-top:8px;">Moyenne : <b>${avg}/5</b> (${aVotes} avis)</div>`;
+                h += `<div style="font-size:14px; color:#555555; margin-top:10px;">Moyenne : <b>${avg}/5</b> (${aVotes} avis)</div>`;
                 return h;
             }
 
-            // Génération de la liste des jeux
+            // Jeux
             let gamesHtml = "";
             const gamesObj = s.gameStats || {};
             const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
             if(gamesArray.length > 0) {
-                gamesArray.forEach(g => { gamesHtml += `<div style="padding:10px; border-bottom:1px solid #dddddd; display:flex; justify-content:space-between; font-size:14px; color:#000;"><strong style="color:#f8aa37; text-transform:uppercase;">DÉFI : ${g.id}</strong><span>${g.count} validations</span></div>`; });
-            } else { gamesHtml = `<div style="font-size:13px; color:#888888;">Aucun défi validé.</div>`; }
+                gamesArray.forEach(g => { gamesHtml += `<div style="padding:12px; border-bottom:1px solid #dddddd; display:flex; justify-content:space-between; font-size:15px; color:#000;"><strong style="color:#f8aa37; text-transform:uppercase;">DÉFI : ${g.id}</strong><span>${g.count} validations</span></div>`; });
+            } else { gamesHtml = `<div style="font-size:14px; color:#888888;">Aucun défi validé.</div>`; }
 
-            // Génération de la liste des commentaires
+            // Commentaires
             let commentsHtml = "";
-            const commentsObj = comments || {};
-            const commentsArray = Object.keys(commentsObj).map(k => ({ text: k, count: commentsObj[k] })).sort((a,b) => b.count - a.count);
+            const commentsArray = Object.keys(comments).map(k => ({ text: k, count: comments[k] })).sort((a,b) => b.count - a.count);
             if(commentsArray.length > 0) {
-                commentsArray.forEach(c => { commentsHtml += `<div style="padding:10px; border-bottom:1px solid #dddddd; display:flex; justify-content:space-between; font-size:13px; color:#000;"><span>${c.text}</span><span style="color:#555555; font-weight:bold;">${c.count}x</span></div>`; });
-            } else { commentsHtml = `<div style="font-size:13px; color:#888888;">Aucune suggestion.</div>`; }
+                commentsArray.forEach(c => { commentsHtml += `<div style="padding:12px; border-bottom:1px solid #dddddd; display:flex; justify-content:space-between; font-size:14px; color:#000;"><span>${c.text}</span><span style="color:#555555; font-weight:bold;">${c.count}x</span></div>`; });
+            } else { commentsHtml = `<div style="font-size:14px; color:#888888;">Aucune suggestion.</div>`; }
 
             const qTitles = currentTarget === "visiteurs" 
                 ? ["Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?", "Q2. L'application mobile était-elle facile à utiliser ?", "Q3. Globalement, quelle est votre satisfaction ?"]
                 : ["Q1. Facilité d'utilisation du scanner QR Code ?", "Q2. Stabilité et rapidité de l'application ?", "Q3. Avantage de l'appli par rapport au papier ?"];
 
-            // 2. On injecte tout ça dans le calque HTML
-            wrapper.innerHTML = `
-                <div style="text-align:center; margin-bottom:30px;">
-                    <h1 style="color:#000000; margin-bottom:5px; font-size: 26px;">Rapport d'Activité Centurio</h1>
-                    <h2 style="color:#555555; font-weight:normal; font-size:18px; border-bottom: 2px solid #f8aa37; display:inline-block; padding-bottom:5px;">${selectedText} - ${tabName}</h2>
-                </div>
+            // CREATION DU TEMPLATE HTML (Directement en mémoire)
+            const htmlString = `
+                <div style="font-family: Arial, sans-serif; padding: 40px; background: #ffffff; color: #000000; width: 800px; box-sizing: border-box;">
+                    <div style="text-align:center; margin-bottom:40px;">
+                        <h1 style="color:#291834; margin-bottom:10px; font-size: 32px;">Rapport d'Activité Centurio</h1>
+                        <h2 style="color:#555555; font-weight:normal; font-size:22px; border-bottom: 3px solid #f8aa37; display:inline-block; padding-bottom:10px;">${selectedText} - ${tabName}</h2>
+                    </div>
 
-                <div style="display:flex; justify-content:space-between; margin-bottom:30px;">
-                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #cccccc; border-radius:10px; text-align:center;">
-                        <div style="font-size:14px; color:#555555; margin-bottom:10px;">Visiteurs</div>
-                        <div style="font-size:28px; font-weight:bold; color:#000000;">${s.totalVisiteurs}</div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:40px;">
+                        <div style="flex:1; margin:0 10px; padding:25px; background:#f9f9f9; border:2px solid #eeeeee; border-radius:12px; text-align:center;">
+                            <div style="font-size:16px; color:#555555; margin-bottom:10px; text-transform:uppercase; font-weight:bold;">Visiteurs</div>
+                            <div style="font-size:36px; font-weight:bold; color:#000000;">${visitors}</div>
+                        </div>
+                        <div style="flex:1; margin:0 10px; padding:25px; background:#f9f9f9; border:2px solid #eeeeee; border-radius:12px; text-align:center;">
+                            <div style="font-size:16px; color:#555555; margin-bottom:10px; text-transform:uppercase; font-weight:bold;">Pic Simultané</div>
+                            <div style="font-size:36px; font-weight:bold; color:#4CAF50;">${peak}</div>
+                        </div>
+                        <div style="flex:1; margin:0 10px; padding:25px; background:#f9f9f9; border:2px solid #eeeeee; border-radius:12px; text-align:center;">
+                            <div style="font-size:16px; color:#555555; margin-bottom:10px; text-transform:uppercase; font-weight:bold;">Formulaires</div>
+                            <div style="font-size:36px; font-weight:bold; color:#f8aa37;">${respondents}</div>
+                        </div>
                     </div>
-                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #cccccc; border-radius:10px; text-align:center;">
-                        <div style="font-size:14px; color:#555555; margin-bottom:10px;">Pic Simultané</div>
-                        <div style="font-size:28px; font-weight:bold; color:#4CAF50;">${s.maxConcurrentUsers}</div>
-                    </div>
-                    <div style="flex:1; margin:0 10px; padding:20px; background:#f9f9f9; border:1px solid #cccccc; border-radius:10px; text-align:center;">
-                        <div style="font-size:14px; color:#555555; margin-bottom:10px;">Formulaires</div>
-                        <div style="font-size:28px; font-weight:bold; color:#f8aa37;">${respondents}</div>
-                    </div>
-                </div>
 
-                <div style="margin-bottom:30px;">
-                    <h3 style="color:#000000; font-size:18px; margin-bottom:15px;">🎮 Popularité des Stands</h3>
-                    ${gamesHtml}
-                </div>
+                    <div style="margin-bottom:40px;">
+                        <h3 style="color:#291834; font-size:22px; margin-bottom:20px; border-bottom: 2px solid #eeeeee; padding-bottom:10px;">🎮 Popularité des Stands</h3>
+                        ${gamesHtml}
+                    </div>
 
-                <div style="margin-bottom:30px; page-break-inside: avoid;">
-                    <h3 style="color:#000000; font-size:18px; margin-bottom:15px;">📊 Résultats du questionnaire</h3>
-                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #cccccc;">
-                        <strong style="display:block; margin-bottom:15px; color:#000000; font-size:14px;">${qTitles[0]}</strong>
-                        ${genDist(scores.q1)}
+                    <div style="margin-bottom:40px; page-break-inside: avoid;">
+                        <h3 style="color:#291834; font-size:22px; margin-bottom:20px; border-bottom: 2px solid #eeeeee; padding-bottom:10px;">📊 Résultats du questionnaire</h3>
+                        <div style="margin-bottom:25px; padding:20px; background:#f9f9f9; border-radius:12px; border:2px solid #eeeeee;">
+                            <strong style="display:block; margin-bottom:20px; color:#000000; font-size:16px;">${qTitles[0]}</strong>
+                            ${genDist(scores.q1)}
+                        </div>
+                        <div style="margin-bottom:25px; padding:20px; background:#f9f9f9; border-radius:12px; border:2px solid #eeeeee; page-break-inside: avoid;">
+                            <strong style="display:block; margin-bottom:20px; color:#000000; font-size:16px;">${qTitles[1]}</strong>
+                            ${genDist(scores.q2)}
+                        </div>
+                        <div style="margin-bottom:25px; padding:20px; background:#f9f9f9; border-radius:12px; border:2px solid #eeeeee; page-break-inside: avoid;">
+                            <strong style="display:block; margin-bottom:20px; color:#000000; font-size:16px;">${qTitles[2]}</strong>
+                            ${genDist(scores.q3)}
+                        </div>
                     </div>
-                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #cccccc; page-break-inside: avoid;">
-                        <strong style="display:block; margin-bottom:15px; color:#000000; font-size:14px;">${qTitles[1]}</strong>
-                        ${genDist(scores.q2)}
-                    </div>
-                    <div style="margin-bottom:20px; padding:15px; background:#f9f9f9; border-radius:10px; border:1px solid #cccccc; page-break-inside: avoid;">
-                        <strong style="display:block; margin-bottom:15px; color:#000000; font-size:14px;">${qTitles[2]}</strong>
-                        ${genDist(scores.q3)}
-                    </div>
-                </div>
 
-                <div>
-                    <h3 style="color:#000000; font-size:18px; margin-bottom:15px;">💡 Idées & Suggestions</h3>
-                    ${commentsHtml}
+                    <div style="page-break-inside: avoid;">
+                        <h3 style="color:#291834; font-size:22px; margin-bottom:20px; border-bottom: 2px solid #eeeeee; padding-bottom:10px;">💡 Idées & Suggestions</h3>
+                        ${commentsHtml}
+                    </div>
                 </div>
             `;
 
-            // CRUCIAL : On ATTACHE le calque à la page (sinon html2pdf prend en photo du vide)
-            document.body.appendChild(wrapper);
-
-            // 3. On demande à html2pdf de faire la photo
             const opt = {
-                margin: [15, 10, 15, 10],
+                margin: [10, 10, 10, 10],
                 filename: `Centurio_Stats_${tabName}_${selectedText.replace(/ /g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 1 },
-                html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff' }, 
+                html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             
             const btn = document.querySelector('.btn-pdf'); 
             btn.innerText = "⏳ Génération en cours...";
             
-            html2pdf().set(opt).from(wrapper).save().then(() => {
-                // CRUCIAL : Une fois le PDF fini, on supprime le calque caché
-                document.body.removeChild(wrapper);
-
+            // On demande à html2pdf de faire le PDF depuis la chaîne de texte (100% sûr)
+            html2pdf().set(opt).from(htmlString).save().then(() => {
                 btn.innerText = "✅ Téléchargement terminé !"; 
+                setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
+            }).catch(err => {
+                console.error(err);
+                btn.innerText = "❌ Erreur PDF";
                 setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
             });
         }
