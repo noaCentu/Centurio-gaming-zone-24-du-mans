@@ -5,12 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=19">
+    <link rel="stylesheet" href="style.css?v=20">
     <link rel="icon" type="image/png" href="/centurio-logo.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f8aa37">
     <style>
-        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 15px 40px; font-size: 18px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 5px 15px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; }
+        /* 🌄 FOND D'ÉCRAN 100% FULLSCREEN */
+        body, html { margin: 0; padding: 0; height: 100%; }
+        .page-accueil-full {
+            min-height: 100vh; /* Hauteur de l'écran */
+            min-height: 100dvh; /* Hauteur dynamique pour mobiles */
+            width: 100%;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-top: -60px; /* Compense la hauteur du header si besoin */
+            padding-top: 60px;
+        }
+        .overlay-welcome { width: 90%; max-width: 600px; padding: 20px; background: rgba(0, 0, 0, 0.4); border-radius: 20px; backdrop-filter: blur(5px); }
+        .welcome-title { color: white; margin-bottom: 15px; }
+        .welcome-text { color: white; }
+
+        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 15px 40px; font-size: 18px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 5px 15px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; border: none; }
         .btn-cta:active { transform: scale(0.95); }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(248, 170, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0); } }
 
@@ -67,7 +87,7 @@
     </style>
 </head>
 <body>
-    <div class="header-v2" style="display: flex; align-items: center; justify-content: space-between; padding: 0 15px;">
+    <div class="header-v2" style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px;">
         <div class="lang-dropdown">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
             <div class="lang-menu" id="lang-list">
@@ -79,7 +99,7 @@
                 <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 中文</div>
             </div>
         </div>
-        <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2;">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div class="header-title" style="flex: 1; text-align: center; line-height: 1.2; color: var(--primary);">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
         <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
     </div>
 
@@ -111,7 +131,7 @@
             <h3>Installer l'Application</h3>
             <p>Ajoutez Gaming Zone à votre écran d'accueil pour une meilleure expérience et un accès hors-ligne !</p>
             <div class="ios-tut" id="ios-instructions">
-                🍏 <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>.
+                <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>.
             </div>
             <button class="btn-install" id="btn-install-pwa" onclick="window.installPwa()">📱 Installer l'Appli</button>
             <button class="btn-web" onclick="window.closeInstallPwa()">Continuer sur le Web</button>
@@ -143,7 +163,7 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=19"></script>
+    <script src="script.js?v=20"></script>
     
     <script>
         function toggleMenu() {
