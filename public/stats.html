@@ -5,67 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Stats - Centurio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=27">
+    <link rel="stylesheet" href="style.css?v=29">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         /* =========================================================
-           🖨️ LA NOUVELLE MÉTHODE : LE MODE IMPRESSION NATIF !
+           🖨️ STYLES SPÉCIAUX POUR LE CLONE PDF (Invisible à l'écran)
            ========================================================= */
-        @media print {
-            /* 1. On masque absolument tout ce qui ne sert à rien sur papier */
-            .header-v2, .side-menu, .menu-overlay, .hamburger-btn, .filter-box, 
-            .tabs, .btn-pdf, .btn-csv, .btn-reset, .btn-cancel, #night-btn, .fullscreen-bg {
-                display: none !important;
-            }
-
-            /* 2. On force la page à devenir une belle feuille blanche */
-            html, body {
-                background: white !important;
-                background-color: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            .page-content {
-                background: transparent !important;
-                box-shadow: none !important;
-                border: none !important;
-                backdrop-filter: none !important;
-                -webkit-backdrop-filter: none !important;
-                max-width: 100% !important;
-                width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-
-            #pdf-content {
-                background: white !important;
-                padding: 0 !important;
-                border-radius: 0 !important;
-            }
-
-            /* 3. On force tout le texte en noir pour être lisible sur papier */
-            * {
-                color: black !important;
-                text-shadow: none !important;
-            }
-
-            /* 4. On dessine des bordures propres pour les statistiques */
-            .stat-box, .question-block, .comment-item {
-                border: 1px solid #ccc !important;
-                background: #fff !important;
-                box-shadow: none !important;
-                page-break-inside: avoid !important; /* Empêche de couper un tableau en deux sur 2 pages */
-                margin-bottom: 15px !important;
-            }
-
-            h2, h3, h4 { color: black !important; }
-            
-            /* 5. On force l'impression des couleurs de fond (les barres de progression oranges) */
-            .dist-bar-fill { background-color: #f8aa37 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .dist-bar-bg { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        #pdf-clone {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -9999; /* Caché tout au fond derrière l'image */
+            width: 800px !important; /* Force la version ordinateur */
+            background: #ffffff !important;
+            padding: 40px !important;
+            font-family: 'Poppins', sans-serif !important;
         }
+        
+        #pdf-clone * { color: #000000 !important; text-shadow: none !important; }
+        
+        #pdf-clone .stat-box, #pdf-clone .question-block, #pdf-clone .comment-item {
+            background: #f9f9f9 !important;
+            border: 1px solid #dddddd !important;
+            box-shadow: none !important;
+            border-radius: 10px !important;
+            padding: 15px !important;
+            margin-bottom: 15px !important;
+        }
+
+        #pdf-clone .stats-grid { display: flex !important; justify-content: space-between !important; gap: 15px !important; margin-bottom: 25px !important; }
+        #pdf-clone .stat-box { flex: 1 !important; text-align: center !important; }
+
+        #pdf-clone h3 { color: #291834 !important; border-bottom: 2px solid #eeeeee; padding-bottom: 5px; margin-top: 25px !important; }
+        #pdf-clone .question-title { color: #291834 !important; font-weight: bold; margin-bottom: 10px; }
+        
+        #pdf-clone .number { font-size: 28px !important; font-weight: 800 !important; }
+        #pdf-clone #val-simultanes { color: #4CAF50 !important; }
+        #pdf-clone #val-repondants { color: #f8aa37 !important; }
+        
+        #pdf-clone .dist-bar-bg { background-color: #eeeeee !important; height: 12px !important; border-radius: 6px !important; overflow: hidden !important; flex: 1; margin: 0 10px; }
+        #pdf-clone .dist-bar-fill { background-color: #f8aa37 !important; height: 100% !important; }
+        #pdf-clone .dist-row { display: flex; align-items: center; margin-bottom: 6px; }
+        #pdf-clone .dist-label { width: 40px; font-weight: bold; }
+        #pdf-clone .dist-val { width: 30px; text-align: right; font-weight: bold; }
+        #pdf-clone .avg-box { margin-top: 10px; color: #555555 !important; font-size: 14px; }
+        
+        #pdf-clone .comment-item { display: flex; justify-content: space-between; }
+        #pdf-clone .comment-count { font-weight: bold; color: #555555 !important; }
     </style>
 </head>
 <body>
@@ -141,8 +131,8 @@
             </div>
         </div>
 
-        <button class="btn-pdf" onclick="downloadPDF()">🖨️ Télécharger / Imprimer en PDF</button>
-        <button class="btn-csv" onclick="downloadCSV()">📊 Exporter les données brutes (Excel)</button>
+        <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger le visuel (PDF)</button>
+        <button class="btn-csv" onclick="downloadExcel()">📊 Exporter les données (Vrai Fichier Excel)</button>
         <button class="btn-reset" onclick="resetStats()">🚨 Remettre TOUTES les stats à zéro</button>
         <button class="btn-cancel" onclick="logout()">Se déconnecter de l'espace Stats</button>
     </div>
@@ -190,10 +180,10 @@
         }
 
         function calcAvg(scores) {
-            if (!scores) return "0";
+            if (!scores) return "0.00";
             let total = 0, count = 0;
             for(let i=1; i<=5; i++) { total += (scores[i]||0)*i; count += (scores[i]||0); }
-            return count > 0 ? (total/count).toFixed(2) : "0";
+            return count > 0 ? (total/count).toFixed(2) : "0.00";
         }
 
         function setSurveyTarget(target) {
@@ -268,17 +258,57 @@
         }
 
         // =========================================================
-        // 🚀 MÉTHODE NATIVE : LE NAVIGATEUR GÈRE TOUT
+        // 🚀 TÉLÉCHARGEMENT DIRECT DU PDF (MÉTHODE DU CLONE)
         // =========================================================
         function downloadPDF() {
-            // Un petit message pour guider l'utilisateur
-            alert("La fenêtre d'impression va s'ouvrir.\n\n👉 Dans le champ 'Destination' ou 'Imprimante', choisissez 'Enregistrer au format PDF'.");
-            
-            // On déclenche l'impression système (qui va utiliser notre CSS @media print !)
-            window.print();
+            const btn = document.querySelector('.btn-pdf');
+            btn.innerText = "⏳ Préparation du PDF...";
+
+            // 1. On récupère le bloc des stats original
+            const originalContent = document.getElementById('pdf-content');
+
+            // 2. On crée un clone exact
+            const clone = originalContent.cloneNode(true);
+            clone.id = "pdf-clone"; // L'ID applique le CSS spécial (fond blanc)
+
+            // 3. On ajoute un bel en-tête au clone
+            const dayText = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
+            const tabText = currentTarget === "visiteurs" ? "Avis Visiteurs" : "Avis Staff";
+
+            const header = document.createElement('div');
+            header.style.textAlign = "center";
+            header.style.marginBottom = "40px";
+            header.innerHTML = `
+                <h1 style="color:#291834; font-size:36px; margin-bottom:5px;">Rapport d'Activité Centurio</h1>
+                <h2 style="color:#f8aa37; font-size:22px; font-weight:600;">${dayText} - ${tabText}</h2>
+            `;
+            clone.insertBefore(header, clone.firstChild);
+            clone.querySelector('#pdf-title').style.display = 'none';
+
+            // 4. On attache le clone caché à la page
+            document.body.appendChild(clone);
+
+            // 5. Configuration de l'outil html2pdf
+            const opt = {
+                margin:       [15, 10, 15, 10],
+                filename:     `Centurio_Stats_${tabText}_${dayText.replace(/ /g, '_')}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // 6. On lance la capture et le téléchargement !
+            html2pdf().set(opt).from(clone).save().then(() => {
+                document.body.removeChild(clone);
+                btn.innerText = "✅ Téléchargement réussi !";
+                setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
+            });
         }
 
-        function downloadCSV() {
+        // =========================================================
+        // 🚀 TÉLÉCHARGEMENT VRAI EXCEL (.XLSX) AVEC SHEETJS
+        // =========================================================
+        function downloadExcel() {
             const selector = document.getElementById('day-selector');
             const dayKey = selector.value;
             const selectedText = selector.options[selector.selectedIndex].text.replace('📊 ', '');
@@ -286,42 +316,66 @@
             const s = allStatsData[dayKey];
             if (!s) return alert("Aucune donnée à exporter.");
 
-            let csvContent = "\uFEFF"; 
-            csvContent += `Rapport Brut Centurio - ${selectedText}\n\n`;
+            const btn = document.querySelector('.btn-csv');
+            btn.innerText = "⏳ Création du fichier Excel...";
 
-            csvContent += "--- DONNÉES GLOBALES ---\n";
-            csvContent += `Visiteurs Uniques;${s.totalVisiteurs}\n`;
-            csvContent += `Pic de Connexions Simultanées;${s.maxConcurrentUsers}\n\n`;
+            // On prépare les données ligne par ligne pour Excel
+            const excelData = [];
 
-            csvContent += "--- POPULARITÉ DES STANDS ---\n";
+            excelData.push(["Rapport Brut Centurio", selectedText]);
+            excelData.push([]); // Ligne vide
+
+            // Bloc Global
+            excelData.push(["--- DONNÉES GLOBALES ---"]);
+            excelData.push(["Visiteurs Uniques", s.totalVisiteurs || 0]);
+            excelData.push(["Pic de Connexions Simultanées", s.maxConcurrentUsers || 0]);
+            excelData.push([]);
+
+            // Bloc Stands
+            excelData.push(["--- POPULARITÉ DES STANDS ---"]);
+            excelData.push(["Stand", "Nombre de validations"]);
             const gamesObj = s.gameStats || {};
             const gamesArray = Object.keys(gamesObj).map(k => ({ id: k, count: gamesObj[k] })).sort((a,b) => b.count - a.count);
             if (gamesArray.length === 0) {
-                csvContent += "Aucun stand validé;0\n";
+                excelData.push(["Aucun stand validé", 0]);
             } else {
-                gamesArray.forEach(g => csvContent += `Défi ${g.id.toUpperCase()};${g.count}\n`);
+                gamesArray.forEach(g => excelData.push([g.id.toUpperCase(), g.count]));
             }
-            csvContent += "\n";
+            excelData.push([]);
 
-            csvContent += `--- AVIS VISITEURS (${s.surveyRespondents} formulaires) ---\n`;
-            csvContent += `Note Ambiance (Moyenne);${calcAvg(s.surveyScores.q1).replace('.', ',')}\n`;
-            csvContent += `Note Application (Moyenne);${calcAvg(s.surveyScores.q2).replace('.', ',')}\n`;
-            csvContent += `Note Satisfaction (Moyenne);${calcAvg(s.surveyScores.q3).replace('.', ',')}\n\n`;
+            // Bloc Avis Visiteurs
+            const respVis = s.surveyRespondents || 0;
+            const scoresVis = s.surveyScores || {q1:{}, q2:{}, q3:{}};
+            excelData.push([`--- AVIS VISITEURS (${respVis} formulaires) ---`]);
+            excelData.push(["Question", "Moyenne sur 5"]);
+            excelData.push(["Ambiance de la Gaming Zone", Number(calcAvg(scoresVis.q1))]);
+            excelData.push(["Facilité de l'application", Number(calcAvg(scoresVis.q2))]);
+            excelData.push(["Satisfaction Globale", Number(calcAvg(scoresVis.q3))]);
+            excelData.push([]);
 
-            csvContent += `--- AVIS STAFF ANIMATEURS (${s.adminSurveyRespondents} formulaires) ---\n`;
-            csvContent += `Note Scanner (Moyenne);${calcAvg(s.adminSurveyScores.q1).replace('.', ',')}\n`;
-            csvContent += `Note Stabilité (Moyenne);${calcAvg(s.adminSurveyScores.q2).replace('.', ',')}\n`;
-            csvContent += `Avantage par rapport au papier (Moyenne);${calcAvg(s.adminSurveyScores.q3).replace('.', ',')}\n`;
+            // Bloc Avis Staff
+            const respAdm = s.adminSurveyRespondents || 0;
+            const scoresAdm = s.adminSurveyScores || {q1:{}, q2:{}, q3:{}};
+            excelData.push([`--- AVIS STAFF ANIMATEURS (${respAdm} formulaires) ---`]);
+            excelData.push(["Question", "Moyenne sur 5"]);
+            excelData.push(["Utilisation du scanner QR Code", Number(calcAvg(scoresAdm.q1))]);
+            excelData.push(["Stabilité de l'application", Number(calcAvg(scoresAdm.q2))]);
+            excelData.push(["Avantage par rapport au papier", Number(calcAvg(scoresAdm.q3))]);
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `Centurio_Data_${selectedText.replace(/ /g, '_')}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            // Fabrication du fichier avec SheetJS
+            const worksheet = XLSX.utils.aoa_to_sheet(excelData);
+            
+            // On élargit automatiquement les colonnes pour que ce soit propre
+            worksheet['!cols'] = [ { wch: 45 }, { wch: 20 } ];
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Statistiques");
+
+            // Déclenchement du téléchargement du vrai fichier .xlsx
+            XLSX.writeFile(workbook, `Centurio_Data_${selectedText.replace(/ /g, '_')}.xlsx`);
+
+            btn.innerText = "✅ Téléchargement réussi !";
+            setTimeout(() => btn.innerText = "📊 Exporter les données (Vrai Fichier Excel)", 3000);
         }
 
         function resetStats() {
