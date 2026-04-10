@@ -215,7 +215,7 @@ function renderGames() {
             
             // L'anneau gris transparent
             ctx.beginPath(); ctx.arc(100, 100, 90, 0, 2 * Math.PI); 
-            ctx.strokeStyle = 'rgba(255,255,255,0.2)'; 
+            ctx.strokeStyle = 'rgba(255,255,255,0.1)'; 
             ctx.lineWidth = 15; ctx.stroke();
             
             // L'anneau orange (progression)
