@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v21 - PWA & Pop-up Installation !");
+console.log("🚀 Script Centurio v25 - Unification Glassmorphism !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -13,7 +13,7 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 window.closeInstallPwa = function() {
     document.getElementById('install-overlay').style.display = 'none';
-    localStorage.setItem('centurioPwaPrompt', 'done'); // Mémorise pour ne plus l'embêter
+    localStorage.setItem('centurioPwaPrompt', 'done'); 
 };
 
 window.installPwa = async function() {
@@ -26,10 +26,8 @@ window.installPwa = async function() {
 };
 
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); // Bloque le bandeau Chrome moche par défaut
+    e.preventDefault(); 
     deferredPrompt = e;
-    
-    // Si pas encore refusé et pas déjà installé
     if (!localStorage.getItem('centurioPwaPrompt') && !window.matchMedia('(display-mode: standalone)').matches) {
         document.getElementById('install-overlay').style.display = 'flex';
     }
@@ -44,9 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
     
     if (isIos() && !isInStandaloneMode() && !localStorage.getItem('centurioPwaPrompt')) {
-        document.getElementById('install-overlay').style.display = 'flex';
-        document.getElementById('btn-install-pwa').style.display = 'none'; // Cache le bouton Android
-        document.getElementById('ios-instructions').style.display = 'block'; // Montre le tuto iOS
+        const overlay = document.getElementById('install-overlay');
+        if (overlay) {
+            overlay.style.display = 'flex';
+            document.getElementById('btn-install-pwa').style.display = 'none'; 
+            document.getElementById('ios-instructions').style.display = 'block'; 
+        }
     }
 });
 
@@ -175,8 +176,8 @@ function renderGames() {
             surveyCard.innerHTML = `
                 <div class="game-info" style="text-align: left;">
                     <h3>📝 Votre avis compte !</h3>
-                    <p style="font-size: 11px; color: #666; margin-top: 5px;">Questionnaire 100% anonyme.</p>
-                    <p style="font-size: 12px; color: #d32f2f; font-weight: bold; margin-top: 5px;">⚠️ Obligatoire pour le cadeau.</p>
+                    <p style="font-size: 11px; color: #aaa; margin-top: 5px;">Questionnaire 100% anonyme.</p>
+                    <p style="font-size: 12px; color: #ff4d4d; font-weight: bold; margin-top: 5px;">⚠️ Obligatoire pour le cadeau.</p>
                 </div>
                 <button class="btn-valider" style="background-color: #55acee;" onclick="openSurvey()">Répondre</button>
             `;
@@ -195,7 +196,7 @@ function renderGames() {
             } else if (!surveyDone) {
                 card.style.opacity = '0.5';
                 card.style.filter = 'grayscale(100%)';
-                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:#888;">${cadeauGame.name}</h3><p>Bloqué (Faites le questionnaire)</p></div><button class="btn-valider" style="background-color: #888;" onclick="alert('Remplissez le questionnaire !')">🔒</button>`;
+                card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:#aaa;">${cadeauGame.name}</h3><p>Bloqué (Faites le questionnaire)</p></div><button class="btn-valider" style="background-color: #888;" onclick="alert('Remplissez le questionnaire !')">🔒</button>`;
             } else {
                 card.style.borderLeftColor = 'var(--brand)';
                 card.innerHTML = `<div class="game-info" style="text-align: left;"><h3 style="color:var(--brand);">${cadeauGame.name}</h3><p>Allez à l accueil !</p></div><button class="btn-valider" style="background-color: var(--brand);" onclick="openModal('cadeau')">Scan</button>`;
@@ -211,7 +212,13 @@ function renderGames() {
         if (canvas) {
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, 200, 200);
-            ctx.beginPath(); ctx.arc(100, 100, 90, 0, 2 * Math.PI); ctx.strokeStyle = '#e0e0e0'; ctx.lineWidth = 15; ctx.stroke();
+            
+            // L'anneau gris transparent
+            ctx.beginPath(); ctx.arc(100, 100, 90, 0, 2 * Math.PI); 
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)'; 
+            ctx.lineWidth = 15; ctx.stroke();
+            
+            // L'anneau orange (progression)
             if (percentage > 0) {
                 ctx.beginPath(); ctx.arc(100, 100, 90, -0.5 * Math.PI, (-0.5 * Math.PI) + (percentage / 100) * 2 * Math.PI);
                 ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 18; ctx.lineCap = 'round'; ctx.stroke();
