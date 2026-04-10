@@ -5,28 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20">
-    <link rel="icon" type="image/png" href="/centurio-logo.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="style.css?v=21">
+    
+    <link rel="icon" type="image/png" href="/centurio-logo.png?v=2">
+    <link rel="apple-touch-icon" href="/centurio-logo.png?v=2">
+    <link rel="manifest" href="/manifest.json?v=2">
     <meta name="theme-color" content="#f8aa37">
+
     <style>
-        /* 🌄 FOND D'ÉCRAN 100% FULLSCREEN */
-        body, html { margin: 0; padding: 0; height: 100%; }
-        .page-accueil-full {
-            min-height: 100vh; /* Hauteur de l'écran */
-            min-height: 100dvh; /* Hauteur dynamique pour mobiles */
-            width: 100%;
+        /* 🌄 FOND D'ÉCRAN VRAIMENT FULLSCREEN POUR TOUS LES ÉCRANS */
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+        
+        body.home-page {
+            min-height: 100vh; /* Hauteur de l'écran par défaut */
+            min-height: 100dvh; /* Hauteur dynamique pour mobiles (blindé) */
+            
+            /* CHANGE ICI LE NOM DE TON IMAGE DE FOND 👇 */
+            background-image: url('/centurio-gaming-zone-bg.jpg'); 
+            
             background-size: cover !important;
             background-position: center !important;
             background-repeat: no-repeat !important;
             display: flex;
+            flex-direction: column;
+        }
+
+        .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
+
+        /* Conteneur pour s'assurer que le contenu est bienFullscreen */
+        .page-accueil-full {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
-            margin-top: -60px; /* Compense la hauteur du header si besoin */
-            padding-top: 60px;
+            width: 100%;
+            height: 100%;
         }
-        .overlay-welcome { width: 90%; max-width: 600px; padding: 20px; background: rgba(0, 0, 0, 0.4); border-radius: 20px; backdrop-filter: blur(5px); }
+
+        .overlay-welcome { width: 90%; max-width: 600px; padding: 20px; background: rgba(0, 0, 0, 0.4); border-radius: 20px; backdrop-filter: blur(5px); text-align: center; color: white; }
         .welcome-title { color: white; margin-bottom: 15px; }
         .welcome-text { color: white; }
 
@@ -86,8 +102,7 @@
         body.dark-mode .ios-tut { background: #333; color: #f1f1f1; }
     </style>
 </head>
-<body>
-    <div class="header-v2" style="position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px;">
+<body class="home-page"> <div class="header-v2">
         <div class="lang-dropdown">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
             <div class="lang-menu" id="lang-list">
@@ -118,7 +133,7 @@
     </div>
 
     <div class="page-accueil-full fade-in">
-        <div class="overlay-welcome" style="text-align: center;">
+        <div class="overlay-welcome">
             <h2 class="welcome-title">Bienvenue à la Gaming Zone</h2>
             <p class="welcome-text">Prêt à faire chauffer les manettes ? 🔥<br><br>Parcourez nos différents stands, relevez les défis et faites-les valider par nos animateurs. Une fois prêt, rendez-vous à l'accueil pour récupérer votre cadeau exclusif Centurio !</p>
             <a href="defis.html" class="btn-cta">C'est parti ! 🎮</a>
@@ -131,7 +146,7 @@
             <h3>Installer l'Application</h3>
             <p>Ajoutez Gaming Zone à votre écran d'accueil pour une meilleure expérience et un accès hors-ligne !</p>
             <div class="ios-tut" id="ios-instructions">
-                <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>.
+                <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="12" y2="12"/></svg>.
             </div>
             <button class="btn-install" id="btn-install-pwa" onclick="window.installPwa()">📱 Installer l'Appli</button>
             <button class="btn-web" onclick="window.closeInstallPwa()">Continuer sur le Web</button>
@@ -163,7 +178,7 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=20"></script>
+    <script src="script.js?v=21"></script>
     
     <script>
         function toggleMenu() {
