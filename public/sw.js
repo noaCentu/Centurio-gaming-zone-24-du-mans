@@ -1,6 +1,6 @@
-const CACHE_NAME = 'centurio-cache-v1';
+// On passe à la version 25 pour forcer les téléphones à tout retélécharger !
+const CACHE_NAME = 'centurio-cache-v25';
 
-// La liste de tous les fichiers à sauvegarder dans le téléphone
 const urlsToCache = [
   '/',
   '/index.html',
@@ -10,35 +10,44 @@ const urlsToCache = [
   '/style.css',
   '/script.js',
   '/centurio-logo.png',
-  '/centurio-favicon.ico'
+  '/centurio-gaming-zone-bg.jpg' // On ajoute l'image de fond pour le hors-ligne !
 ];
 
-// 1. Au premier chargement, on met tout en cache
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Force l'installation immédiate
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('PWA : Fichiers mis en cache avec succès !');
+        console.log('✅ PWA : Nouveaux fichiers v25 mis en cache !');
         return cache.addAll(urlsToCache);
       })
   );
 });
 
-// 2. Quand le visiteur navigue, on sert le cache s'il n'a pas internet
+// ÉTAPE CRUCIALE : On supprime les vieux caches (les anciennes versions du design)
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            console.log('🗑️ PWA : Ancien cache supprimé', cacheName);
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    }).then(() => self.clients.claim()) // Prend le contrôle immédiatement
+  );
+});
+
 self.addEventListener('fetch', event => {
-  // On ne bloque pas les requêtes vers l'API (la base de données)
-  if (event.request.url.includes('/api/')) {
+  if (event.request.url.includes('/api/') || event.request.url.includes('socket.io')) {
       return; 
   }
-
   event.respondWith(
     caches.match(event.request)
       .then(response => {
-        // Si le fichier est en cache, on le donne instantanément (même sans 4G)
-        if (response) {
-          return response;
-        }
-        // Sinon, on va le chercher sur internet normalement
+        if (response) return response;
         return fetch(event.request);
       })
   );
