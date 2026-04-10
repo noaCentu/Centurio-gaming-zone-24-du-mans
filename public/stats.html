@@ -5,17 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Stats - Centurio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=25">
+    <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        /* =========================================================
+           🖨️ LE MODE IMPRESSION (Génère le PDF en parfait état)
+           ========================================================= */
+        body.print-mode, body.print-mode html {
+            background: white !important;
+        }
+        
+        body.print-mode .page-content, 
+        body.print-mode #pdf-content {
+            background: white !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
+        /* On force tout le texte en noir sans ombre */
+        body.print-mode * { text-shadow: none !important; }
+        
+        body.print-mode #pdf-content { color: black !important; padding: 0 !important; }
+        
+        body.print-mode h2, 
+        body.print-mode h3, 
+        body.print-mode h4,
+        body.print-mode .question-title,
+        body.print-mode .avg-box,
+        body.print-mode .dist-label, 
+        body.print-mode .dist-val {
+            color: black !important;
+        }
+
+        body.print-mode .stat-box {
+            background: #f8f9fa !important;
+            border: 1px solid #ddd !important;
+        }
+        
+        body.print-mode .stat-box h4 { color: #555 !important; }
+        body.print-mode .number { color: black !important; }
+        
+        /* Les couleurs de marque conservées */
+        body.print-mode #val-simultanes { color: #4CAF50 !important; }
+        body.print-mode #val-repondants { color: #f8aa37 !important; }
+
+        body.print-mode .comment-item {
+            background: #f8f9fa !important;
+            border: 1px solid #ddd !important;
+        }
+        body.print-mode .comment-text, 
+        body.print-mode .comment-count {
+            color: black !important;
+        }
+        
+        body.print-mode .dist-bar-bg { background: #eee !important; }
+    </style>
 </head>
 <body>
-    <div class="header-v2">
+    <div class="header-v2" data-html2canvas-ignore>
         <div class="header-title">Espace <span>Stats</span></div>
     </div>
 
     <div class="page-content" style="max-width: 700px;">
         
-        <div class="filter-box">
+        <div class="filter-box" data-html2canvas-ignore>
             <select id="day-selector" onchange="updateDisplay()">
                 <option value="main" selected>📊 Vue Générale (Total)</option>
                 <option value="09/06/2026">Mardi 9 Juin</option>
@@ -28,7 +85,7 @@
         </div>
 
         <div id="pdf-content" style="background: white; padding: 15px; border-radius: 10px;">
-            <h2 id="pdf-title" style="text-align: center; margin-bottom: 25px;">Statistiques - Vue Générale</h2>
+            <h2 id="pdf-title" style="text-align: center; margin-bottom: 25px; color: #333;">Statistiques - Vue Générale</h2>
             
             <div class="stats-grid">
                 <div class="stat-box">
@@ -46,7 +103,7 @@
             </div>
 
             <div class="stat-section" id="games-results">
-                <h3 style="margin-bottom: 15px;">🎮 Popularité des Stands</h3>
+                <h3 style="margin-bottom: 15px; color: #333;">🎮 Popularité des Stands</h3>
                 <div id="games-list"></div>
             </div>
 
@@ -55,7 +112,7 @@
                 <button class="tab-btn" id="tab-admins" onclick="setSurveyTarget('admins')">🛡️ Avis Staff</button>
             </div>
 
-            <h3 style="margin-top: 15px; margin-bottom: 15px;" id="survey-section-title">📊 Résultats du questionnaire (Visiteurs)</h3>
+            <h3 style="margin-top: 15px; margin-bottom: 15px; color: #333;" id="survey-section-title">📊 Résultats du questionnaire (Visiteurs)</h3>
 
             <div class="question-block">
                 <div class="question-title" id="title-q1">Q1. Comment évaluez-vous l'ambiance de la Gaming Zone ?</div>
@@ -76,15 +133,15 @@
             </div>
 
             <div class="stat-section" id="comments-results">
-                <h3 style="margin-bottom: 5px;">💡 Idées & Suggestions</h3>
+                <h3 style="margin-bottom: 5px; color: #333;">💡 Idées & Suggestions</h3>
                 <div id="comments-list"></div>
             </div>
         </div>
 
-        <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger le visuel (PDF)</button>
-        <button class="btn-csv" onclick="downloadCSV()">📊 Exporter les données brutes (Excel)</button>
-        <button class="btn-reset" onclick="resetStats()">🚨 Remettre TOUTES les stats à zéro</button>
-        <button class="btn-cancel" onclick="logout()">Se déconnecter de l'espace Stats</button>
+        <button class="btn-pdf" onclick="downloadPDF()" data-html2canvas-ignore>📥 Télécharger le visuel (PDF)</button>
+        <button class="btn-csv" onclick="downloadCSV()" data-html2canvas-ignore>📊 Exporter les données brutes (Excel)</button>
+        <button class="btn-reset" onclick="resetStats()" data-html2canvas-ignore>🚨 Remettre TOUTES les stats à zéro</button>
+        <button class="btn-cancel" onclick="logout()" data-html2canvas-ignore>Se déconnecter de l'espace Stats</button>
     </div>
 
     <button class="btn-night-mode" onclick="toggleNightMode()" id="night-btn" data-html2canvas-ignore>🌙</button>
@@ -181,7 +238,7 @@
             if (gamesArray.length > 0) {
                 gamesListDiv.innerHTML = "";
                 gamesArray.forEach(g => {
-                    gamesListDiv.innerHTML += `<div class="comment-item"><span class="comment-text" style="color: var(--brand);">DÉFI : ${g.id.toUpperCase()}</span><span class="comment-count">${g.count} validations</span></div>`;
+                    gamesListDiv.innerHTML += `<div class="comment-item"><span class="comment-text" style="color: var(--brand); font-weight: bold;">DÉFI : ${g.id.toUpperCase()}</span><span class="comment-count">${g.count} validations</span></div>`;
                 });
             } else {
                 gamesListDiv.innerHTML = "<p style='font-size: 13px; text-align: center; color: #888;'>Aucun défi n'a encore été validé.</p>";
@@ -212,13 +269,15 @@
             }
         }
 
-        // --- 🚀 LA NOUVELLE FONCTION PDF BLINDÉE ---
+        // ==========================================================
+        // 🚀 LA NOUVELLE FONCTION PDF : LE "MODE IMPRESSION"
+        // ==========================================================
         function downloadPDF() {
             window.scrollTo(0, 0);
             const element = document.getElementById('pdf-content');
             
-            const wasDark = document.body.classList.contains('dark-mode');
-            if(wasDark) document.body.classList.remove('dark-mode');
+            // 1. On active le Mode Impression (Fond blanc, texte noir)
+            document.body.classList.add('print-mode');
 
             const currentDay = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
             const tabName = currentTarget === "visiteurs" ? "Visiteurs" : "Staff"; 
@@ -226,7 +285,7 @@
             const opt = {
                 margin: 10, 
                 filename: `Centurio_Stats_${tabName}_${currentDay.replace(/ /g, '_')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 1 }, // Qualité maximale
                 html2canvas: { scale: 2, useCORS: true, scrollY: 0 }, 
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
@@ -235,13 +294,17 @@
             const btn = document.querySelector('.btn-pdf'); 
             btn.innerText = "⏳ Génération en cours...";
             
+            // 2. On attend 500ms pour laisser le navigateur retirer le verre dépoli visuellement
             setTimeout(() => {
                 html2pdf().set(opt).from(element).save().then(() => {
-                    if(wasDark) document.body.classList.add('dark-mode'); 
+                    
+                    // 3. Dès que le PDF est prêt, on retire le mode impression !
+                    document.body.classList.remove('print-mode'); 
+                    
                     btn.innerText = "✅ Téléchargement terminé !"; 
                     setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
                 });
-            }, 500);
+            }, 500); 
         }
 
         function downloadCSV() {
