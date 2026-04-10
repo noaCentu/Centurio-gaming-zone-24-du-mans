@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=18">
-    <link rel="icon" type="image/x-icon" href="/centurio-favicon.ico">
+    <link rel="stylesheet" href="style.css?v=19">
+    <link rel="icon" type="image/png" href="/centurio-logo.png">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#f8aa37">
     <style>
@@ -37,6 +37,17 @@
         .side-menu a { text-decoration: none; color: var(--secondary); font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .side-menu a:hover { color: var(--brand); padding-left: 15px; }
         
+        /* 📱 PWA POP-UP INSTALLATION */
+        .install-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
+        .install-modal { background: white; width: 90%; max-width: 350px; border-radius: 20px; padding: 25px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.4s ease-out; }
+        .install-modal img { width: 70px; margin-bottom: 15px; border-radius: 15px; }
+        .install-modal h3 { margin-bottom: 10px; font-weight: 800; color: #333; }
+        .install-modal p { font-size: 13px; color: #666; margin-bottom: 20px; }
+        .btn-install { background: var(--brand); color: white; border: none; padding: 12px 20px; width: 100%; border-radius: 10px; font-weight: bold; font-size: 16px; margin-bottom: 10px; cursor: pointer; }
+        .btn-web { background: transparent; color: #888; border: none; font-size: 14px; cursor: pointer; text-decoration: underline; }
+        .ios-tut { display: none; background: #f0f0f0; padding: 10px; border-radius: 10px; font-size: 12px; color: #333; margin-bottom: 15px; text-align: left; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
@@ -49,6 +60,10 @@
         body.dark-mode .side-menu { background: #1a1a1a; border-left: 1px solid #333; }
         body.dark-mode .side-menu a { color: #f1f1f1; border-bottom: 1px solid #333; }
         body.dark-mode .close-menu { color: #f1f1f1; }
+        body.dark-mode .install-modal { background: #1e1e1e; color: #f1f1f1; }
+        body.dark-mode .install-modal h3 { color: #f1f1f1; }
+        body.dark-mode .install-modal p { color: #aaa; }
+        body.dark-mode .ios-tut { background: #333; color: #f1f1f1; }
     </style>
 </head>
 <body>
@@ -90,6 +105,19 @@
         </div>
     </div>
 
+    <div class="install-overlay" id="install-overlay">
+        <div class="install-modal">
+            <img src="/centurio-logo.png" alt="Centurio Logo">
+            <h3>Installer l'Application</h3>
+            <p>Ajoutez Gaming Zone à votre écran d'accueil pour une meilleure expérience et un accès hors-ligne !</p>
+            <div class="ios-tut" id="ios-instructions">
+                🍏 <strong>Sur iPhone :</strong> Touchez l'icône <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> en bas de l'écran, puis choisissez <strong>"Sur l'écran d'accueil"</strong> <svg style="vertical-align: middle; margin:0 3px;" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>.
+            </div>
+            <button class="btn-install" id="btn-install-pwa" onclick="window.installPwa()">📱 Installer l'Appli</button>
+            <button class="btn-web" onclick="window.closeInstallPwa()">Continuer sur le Web</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="login-modal">
         <div class="modal fade-in">
             <h3>Connexion Sécurisée</h3>
@@ -115,7 +143,7 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=18"></script>
+    <script src="script.js?v=19"></script>
     
     <script>
         function toggleMenu() {
@@ -164,7 +192,6 @@
         function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
         function changeLang(langCode, flag) { document.querySelector('.lang-btn').innerText = flag; document.getElementById('lang-list').style.display = 'none'; localStorage.setItem('centurioFlag', flag); const select = document.querySelector('.goog-te-combo'); if (select) { select.value = langCode; select.dispatchEvent(new Event('change')); } else { document.cookie = `googtrans=/fr/${langCode}; path=/`; window.location.reload(); } }
         
-        // DÉTECTEUR POUR L'ESPACE STAFF
         document.addEventListener('DOMContentLoaded', () => { 
             const savedFlag = localStorage.getItem('centurioFlag'); 
             if (savedFlag) document.querySelector('.lang-btn').innerText = savedFlag; 
