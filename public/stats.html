@@ -5,57 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Stats - Centurio</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=29">
+    <link rel="stylesheet" href="style.css?v=30">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <style>
         /* =========================================================
-           🖨️ STYLES SPÉCIAUX POUR LE CLONE PDF (Invisible à l'écran)
+           🖨️ LE MODE IMPRESSION NATIF (Pour un PDF Parfait)
            ========================================================= */
-        #pdf-clone {
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: -9999; /* Caché tout au fond derrière l'image */
-            width: 800px !important; /* Force la version ordinateur */
-            background: #ffffff !important;
-            padding: 40px !important;
-            font-family: 'Poppins', sans-serif !important;
-        }
-        
-        #pdf-clone * { color: #000000 !important; text-shadow: none !important; }
-        
-        #pdf-clone .stat-box, #pdf-clone .question-block, #pdf-clone .comment-item {
-            background: #f9f9f9 !important;
-            border: 1px solid #dddddd !important;
-            box-shadow: none !important;
-            border-radius: 10px !important;
-            padding: 15px !important;
-            margin-bottom: 15px !important;
-        }
+        @media print {
+            /* 1. On masque absolument tout ce qui ne sert à rien sur papier */
+            .header-v2, .side-menu, .menu-overlay, .hamburger-btn, .filter-box, 
+            .tabs, .btn-pdf, .btn-csv, .btn-reset, .btn-cancel, #night-btn, .fullscreen-bg {
+                display: none !important;
+            }
 
-        #pdf-clone .stats-grid { display: flex !important; justify-content: space-between !important; gap: 15px !important; margin-bottom: 25px !important; }
-        #pdf-clone .stat-box { flex: 1 !important; text-align: center !important; }
+            /* 2. On force la page à devenir une belle feuille blanche */
+            html, body {
+                background: white !important;
+                background-color: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
 
-        #pdf-clone h3 { color: #291834 !important; border-bottom: 2px solid #eeeeee; padding-bottom: 5px; margin-top: 25px !important; }
-        #pdf-clone .question-title { color: #291834 !important; font-weight: bold; margin-bottom: 10px; }
-        
-        #pdf-clone .number { font-size: 28px !important; font-weight: 800 !important; }
-        #pdf-clone #val-simultanes { color: #4CAF50 !important; }
-        #pdf-clone #val-repondants { color: #f8aa37 !important; }
-        
-        #pdf-clone .dist-bar-bg { background-color: #eeeeee !important; height: 12px !important; border-radius: 6px !important; overflow: hidden !important; flex: 1; margin: 0 10px; }
-        #pdf-clone .dist-bar-fill { background-color: #f8aa37 !important; height: 100% !important; }
-        #pdf-clone .dist-row { display: flex; align-items: center; margin-bottom: 6px; }
-        #pdf-clone .dist-label { width: 40px; font-weight: bold; }
-        #pdf-clone .dist-val { width: 30px; text-align: right; font-weight: bold; }
-        #pdf-clone .avg-box { margin-top: 10px; color: #555555 !important; font-size: 14px; }
-        
-        #pdf-clone .comment-item { display: flex; justify-content: space-between; }
-        #pdf-clone .comment-count { font-weight: bold; color: #555555 !important; }
+            .page-content {
+                background: transparent !important;
+                box-shadow: none !important;
+                border: none !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            #pdf-content {
+                background: white !important;
+                padding: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            /* 3. On force tout le texte en noir pour être lisible sur papier */
+            * {
+                color: black !important;
+                text-shadow: none !important;
+            }
+
+            /* 4. On dessine des bordures propres pour les statistiques */
+            .stat-box, .question-block, .comment-item {
+                border: 1px solid #ccc !important;
+                background: #fff !important;
+                box-shadow: none !important;
+                page-break-inside: avoid !important; /* Empêche de couper un élément en deux sur 2 pages */
+                margin-bottom: 15px !important;
+            }
+
+            h2, h3, h4 { color: black !important; }
+            
+            /* 5. On force l'impression des couleurs de fond (les barres de progression oranges) */
+            .dist-bar-fill { background-color: #f8aa37 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .dist-bar-bg { background-color: #eee !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        }
     </style>
 </head>
 <body>
@@ -131,7 +143,7 @@
             </div>
         </div>
 
-        <button class="btn-pdf" onclick="downloadPDF()">📥 Télécharger le visuel (PDF)</button>
+        <button class="btn-pdf" onclick="downloadPDF()">🖨️ Télécharger / Imprimer en PDF</button>
         <button class="btn-csv" onclick="downloadExcel()">📊 Exporter les données (Vrai Fichier Excel)</button>
         <button class="btn-reset" onclick="resetStats()">🚨 Remettre TOUTES les stats à zéro</button>
         <button class="btn-cancel" onclick="logout()">Se déconnecter de l'espace Stats</button>
@@ -258,51 +270,14 @@
         }
 
         // =========================================================
-        // 🚀 TÉLÉCHARGEMENT DIRECT DU PDF (MÉTHODE DU CLONE)
+        // 🖨️ MÉTHODE NATIVE : LE NAVIGATEUR GÈRE L'IMPRESSION/PDF
         // =========================================================
         function downloadPDF() {
-            const btn = document.querySelector('.btn-pdf');
-            btn.innerText = "⏳ Préparation du PDF...";
-
-            // 1. On récupère le bloc des stats original
-            const originalContent = document.getElementById('pdf-content');
-
-            // 2. On crée un clone exact
-            const clone = originalContent.cloneNode(true);
-            clone.id = "pdf-clone"; // L'ID applique le CSS spécial (fond blanc)
-
-            // 3. On ajoute un bel en-tête au clone
-            const dayText = document.getElementById('day-selector').options[document.getElementById('day-selector').selectedIndex].text.replace('📊 ', '');
-            const tabText = currentTarget === "visiteurs" ? "Avis Visiteurs" : "Avis Staff";
-
-            const header = document.createElement('div');
-            header.style.textAlign = "center";
-            header.style.marginBottom = "40px";
-            header.innerHTML = `
-                <h1 style="color:#291834; font-size:36px; margin-bottom:5px;">Rapport d'Activité Centurio</h1>
-                <h2 style="color:#f8aa37; font-size:22px; font-weight:600;">${dayText} - ${tabText}</h2>
-            `;
-            clone.insertBefore(header, clone.firstChild);
-            clone.querySelector('#pdf-title').style.display = 'none';
-
-            // 4. On attache le clone caché à la page
-            document.body.appendChild(clone);
-
-            // 5. Configuration de l'outil html2pdf
-            const opt = {
-                margin:       [15, 10, 15, 10],
-                filename:     `Centurio_Stats_${tabText}_${dayText.replace(/ /g, '_')}.pdf`,
-                image:        { type: 'jpeg', quality: 1 },
-                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#ffffff' },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            // 6. On lance la capture et le téléchargement !
-            html2pdf().set(opt).from(clone).save().then(() => {
-                document.body.removeChild(clone);
-                btn.innerText = "✅ Téléchargement réussi !";
-                setTimeout(() => btn.innerText = "📥 Télécharger le visuel (PDF)", 3000);
-            });
+            // Petit guide pour l'utilisateur
+            alert("La fenêtre d'impression va s'ouvrir.\n\n👉 Choisissez 'Enregistrer au format PDF' comme destination pour avoir votre fichier.");
+            
+            // Déclenche l'impression (utilise le @media print)
+            window.print();
         }
 
         // =========================================================
