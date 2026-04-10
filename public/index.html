@@ -2,10 +2,10 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=22">
+    <link rel="stylesheet" href="style.css?v=23">
     
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=2">
     <link rel="apple-touch-icon" href="/centurio-logo.png?v=2">
@@ -13,17 +13,33 @@
     <meta name="theme-color" content="#f8aa37">
 
     <style>
-        /* 🌄 FOND D'ÉCRAN VRAIMENT FULLSCREEN (MÉTHODE BLINDÉE) */
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; }
+        /* =========================================================
+           🌄 FOND D'ÉCRAN INCREVABLE 100% GARANTI (MÉTHODE FORCÉE)
+           ========================================================= */
         
+        /* 1. On force l'intégralité de la page à prendre toute la place */
+        html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100% !important;
+            width: 100% !important;
+            overflow: hidden !important; /* Empêche le défilement du fond lui-même */
+            box-sizing: border-box;
+            background-color: #000; /* Fond noir par défaut derrière l'image */
+        }
+
+        /* 2. On transforme le corps en une grille rigide */
         body.home-page {
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            background-color: #1a1a1a; /* Couleur noire par défaut derrière */
+            
+            /* FORCAGE DE LA HAUTEUR (Blindé pour iPhone et PC) */
+            min-height: 100vh !important;
+            min-height: -webkit-fill-available !important; /* Correctif Safari iPhone historique */
+            min-height: 100dvh !important; /* Hauteur dynamique moderne (iPhone) */
         }
 
-        /* Le calque magique qui reste fixé au fond de l'écran */
+        /* 3. LE CALQUE MAGIQUE DU FOND (Méthode de la Peau Fixe) */
         body.home-page::before {
             content: "";
             position: fixed;
@@ -31,37 +47,51 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            height: 100dvh; /* Spécial iPhone Safari */
             
-            /* CHANGE ICI LE NOM DE TON IMAGE DE FOND 👇 */
+            /* On blindé la hauteur avec toutes les unités possibles */
+            height: -webkit-fill-available;
+            height: 100dvh;
+            
+            /* 👇 CHANGE ICI LE NOM DE TON IMAGE DE FOND 👇 */
             background-image: url('/centurio-gaming-zone-bg.jpg'); 
             
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1; /* Reste derrière le texte */
+            /* 👇 LES RÉGLAGES CLÉS POUR TOUT ÉTIRER/ZOOMER 👇 */
+            background-size: cover !important; /* Zoom/Stretch FORCÉ pour tout remplir */
+            background-position: center center !important; /* Centrage absolu */
+            background-repeat: no-repeat !important; /* Pas de répétition */
+            
+            z-index: -1; /* Reste derrière tout le contenu */
+            transform: translateZ(0); /* Force l'accélération matérielle (plus fluide) */
         }
 
+        /* =========================================================
+           CONTENU DE LA PAGE (Header, Texte, Boutons)
+           ========================================================= */
+
+        /* Header avec z-index pour rester au-dessus */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
 
+        /* Conteneur principal qui prend tout l'espace central */
         .page-accueil-full {
-            flex: 1;
+            flex: 1; /* Prend tout l'espace disponible entre le header et le bas */
             display: flex;
-            align-items: center;
-            justify-content: center;
+            align-items: center; /* Centre verticalement le texte */
+            justify-content: center; /* Centre horizontalement le texte */
             width: 100%;
             position: relative;
-            z-index: 1; /* Reste au-dessus du fond */
+            z-index: 1; /* Reste au-dessus du fond magique */
             padding-bottom: 20px;
+            overflow-y: auto; /* Autorise le défilement du contenu si trop grand (iPhone SE) */
+            -webkit-overflow-scrolling: touch; /* Défilement fluide sur iPhone */
         }
 
-        .overlay-welcome { width: 90%; max-width: 600px; padding: 20px; background: rgba(0, 0, 0, 0.4); border-radius: 20px; backdrop-filter: blur(5px); text-align: center; color: white; }
-        .welcome-title { color: white; margin-bottom: 15px; }
-        .welcome-text { color: white; }
+        .overlay-welcome { width: 90%; max-width: 600px; padding: 25px; background: rgba(0, 0, 0, 0.45); border-radius: 20px; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); text-align: center; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .welcome-title { color: white; margin-bottom: 15px; font-weight: 800; }
+        .welcome-text { color: white; font-size: 14px; line-height: 1.6; }
 
-        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 15px 40px; font-size: 18px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 5px 15px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; border: none; }
+        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 16px 45px; font-size: 19px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 8px 20px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; border: none; cursor: pointer; }
         .btn-cta:active { transform: scale(0.95); }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(248, 170, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0.7); } 70% { box-shadow: 0 0 0 18px rgba(248, 170, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0); } }
 
         .lang-dropdown { position: relative; z-index: 1000; }
         .lang-btn { font-size: 22px; cursor: pointer; background: transparent; border: none; display: flex; align-items: center; justify-content: center; user-select: none; transition: transform 0.2s; }
@@ -115,8 +145,7 @@
         body.dark-mode .ios-tut { background: #333; color: #f1f1f1; }
     </style>
 </head>
-<body class="home-page">
-    <div class="header-v2">
+<body class="home-page"> <div class="header-v2">
         <div class="lang-dropdown">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
             <div class="lang-menu" id="lang-list">
@@ -192,7 +221,7 @@
     <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
     <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
 
-    <script src="script.js?v=22"></script>
+    <script src="script.js?v=23"></script>
     
     <script>
         function toggleMenu() {
