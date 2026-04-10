@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v18 - PWA & Hors-Ligne activés !");
+console.log("🚀 Script Centurio v19 - PWA & Pop-up Installation !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -9,6 +9,49 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// 🪄 LOGIQUE DU POP-UP D'INSTALLATION
+let deferredPrompt;
+window.closeInstallPwa = function() {
+    document.getElementById('install-overlay').style.display = 'none';
+    localStorage.setItem('centurioPwaPrompt', 'done'); // Mémorise pour ne plus l'embêter
+};
+
+window.installPwa = async function() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+    }
+    window.closeInstallPwa();
+};
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault(); // Bloque le bandeau Chrome moche par défaut
+    deferredPrompt = e;
+    
+    // Si pas encore refusé et pas déjà installé
+    if (!localStorage.getItem('centurioPwaPrompt') && !window.matchMedia('(display-mode: standalone)').matches) {
+        document.getElementById('install-overlay').style.display = 'flex';
+    }
+});
+
+// Détection spéciale pour Apple (iOS)
+document.addEventListener('DOMContentLoaded', () => {
+    const isIos = () => {
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        return /iphone|ipad|ipod/.test(userAgent);
+    };
+    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+    
+    if (isIos() && !isInStandaloneMode() && !localStorage.getItem('centurioPwaPrompt')) {
+        document.getElementById('install-overlay').style.display = 'flex';
+        document.getElementById('btn-install-pwa').style.display = 'none'; // Cache le bouton Android
+        document.getElementById('ios-instructions').style.display = 'block'; // Montre le tuto iOS
+    }
+});
+
+
+// 🎮 LOGIQUE DE JEU CLASSIQUE
 const games = [
     { id: 'mk', name: 'Mario Kart', desc: 'Finir dans le Top 3' },
     { id: 'mp', name: 'Mario Party', desc: 'Gagner un mini-jeu' },
