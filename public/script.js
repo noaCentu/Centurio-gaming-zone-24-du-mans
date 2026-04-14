@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v27 - QR Code Rapide & 100% Hors-Ligne !");
+console.log("🚀 Script Centurio v28 - QR Code Magnifique & Ultra-Rapide !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -237,7 +237,7 @@ function renderGames() {
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
-// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (VERSION ULTRA-RAPIDE)
+// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (BEAU & ULTRA-RAPIDE)
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
     
@@ -250,27 +250,29 @@ window.openModal = function(gameId) {
     if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, {
             text: adminUrl,
-            width: 250, // Plus grand pour être plus net
+            width: 250, 
             height: 250,
-            colorDark : "#000000", // Noir PUR = Contraste maximum pour le scanner
+            colorDark : "#291834", // Violet Centurio = Magnifique
             colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.L // Niveau Low = Beaucoup moins de petits carrés, flash instantané !
+            correctLevel : QRCode.CorrectLevel.L // Niveau Low = Moins de complexité, scan instantané !
         });
         
-        // Ajout de la "Quiet Zone" (Marge blanche vitale pour le scanner)
+        // Ajout du style de la Quiet Zone (Marge blanche vitale)
         setTimeout(() => {
             const canvasImg = qrContainer.querySelector('canvas') || qrContainer.querySelector('img');
             if (canvasImg) {
-                canvasImg.style.padding = "15px"; // La fameuse zone blanche
+                // Style complet pour le rendre magnifique
+                canvasImg.style.padding = "15px"; // Marge blanche obligatoire pour le scan
                 canvasImg.style.background = "#ffffff";
-                canvasImg.style.borderRadius = "10px";
-                canvasImg.style.border = "4px solid var(--brand, #f8aa37)";
+                canvasImg.style.borderRadius = "15px"; // Coins très arrondis (Glassmorphism style)
+                canvasImg.style.border = "5px solid var(--brand, #f8aa37)"; // Grosse bordure Orange Centurio
+                canvasImg.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; // Ombre portée pour le relief
                 canvasImg.style.margin = "auto";
-                canvasImg.style.display = "block"; // Centre l'image correctement
+                canvasImg.style.display = "block";
             }
         }, 50);
     } else {
-        qrContainer.innerHTML = "<p style='color:red;'>Outil de dessin introuvable. Avez-vous vidé le cache de votre PC ?</p>";
+        qrContainer.innerHTML = "<p style='color:red;'>Outil de dessin introuvable. Videz le cache.</p>";
     }
 };
 
