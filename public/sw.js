@@ -1,4 +1,4 @@
-const CACHE_NAME = 'centurio-cache-v31';
+const CACHE_NAME = 'centurio-cache-v32';
 
 const urlsToCache = [
   '/',
@@ -13,23 +13,20 @@ const urlsToCache = [
   '/manifest.json'
 ];
 
-// 1. INSTALLATION : Mode "Anti-Crash"
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('✅ PWA : Téléchargement du cache en cours...');
-      // Cette méthode force le cache même si un fichier manque !
+      console.log('✅ PWA : Mise en cache v32 en cours...');
       return Promise.all(
         urlsToCache.map(url => {
-          return cache.add(url).catch(err => console.log('⚠️ Fichier introuvable ignoré :', url));
+          return cache.add(url).catch(err => console.log('⚠️ Ignoré :', url));
         })
       );
     })
   );
 });
 
-// 2. ACTIVATION : Nettoyage des vieux caches
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys => {
@@ -40,24 +37,26 @@ self.addEventListener('activate', event => {
   );
 });
 
-// 3. RÉCUPÉRATION : La magie Hors-Ligne
 self.addEventListener('fetch', event => {
-  // On ignore les appels à la base de données
+  // Ignorer les requêtes serveur
   if (event.request.url.includes('/api/') || event.request.url.includes('socket.io')) {
     return;
   }
 
   event.respondWith(
     caches.match(event.request, { ignoreSearch: true }).then(response => {
-      // Si on a le fichier en mémoire, on le donne !
-      if (response) {
-        return response;
+      // 1. Le fichier est en mémoire exact ? On le donne.
+      if (response) return response;
+
+      // 2. BIDOUILLE APPLE : S'il cherche juste "monsite.com/", on lui force "index.html"
+      if (event.request.url.endsWith('/')) {
+        return caches.match('/index.html');
       }
       
-      // Sinon on essaie Internet...
+      // 3. Sinon on cherche sur Internet.
       return fetch(event.request).catch(() => {
-        // Si Internet est coupé (Mode Avion) et qu'on cherche une page Web, on renvoie l'accueil
-        if (event.request.mode === 'navigate') {
+        // 4. Si Internet est coupé (Mode Avion) ET qu'il veut une page HTML, on sauve les meubles :
+        if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
           return caches.match('/index.html');
         }
       });
