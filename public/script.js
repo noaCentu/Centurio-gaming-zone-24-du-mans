@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v29 - QR Code Magnifique, Rapide & Adaptable !");
+console.log("🚀 Script Centurio v30 - QR Code Unique, Adaptable et Magnifique !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -237,7 +237,7 @@ function renderGames() {
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
-// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (BEAU, RAPIDE ET ADAPTABLE)
+// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (CORRECTION DU DOUBLON)
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
     
@@ -250,29 +250,37 @@ window.openModal = function(gameId) {
     if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, {
             text: adminUrl,
-            width: 200, // 👈 On réduit un peu la taille de base pour donner de l'air
+            width: 200, 
             height: 200,
-            colorDark : "#291834", // Violet Centurio
+            colorDark : "#291834", 
             colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.L // Scan instantané
+            correctLevel : QRCode.CorrectLevel.L
         });
         
-        // Ajout du style
         setTimeout(() => {
-            const canvasImg = qrContainer.querySelector('canvas') || qrContainer.querySelector('img');
-            if (canvasImg) {
-                canvasImg.style.padding = "12px"; 
-                canvasImg.style.background = "#ffffff";
-                canvasImg.style.borderRadius = "15px"; 
-                canvasImg.style.border = "5px solid var(--brand, #f8aa37)"; 
-                canvasImg.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; 
-                canvasImg.style.margin = "0 auto";
-                canvasImg.style.display = "block";
+            // L'outil génère DEUX éléments : un brouillon (canvas) et une vraie image (img)
+            const canvas = qrContainer.querySelector('canvas');
+            const img = qrContainer.querySelector('img');
+            
+            // On s'assure que le brouillon reste bien caché !
+            if (canvas) {
+                canvas.style.display = "none";
+            }
+            
+            // On habille uniquement la vraie image
+            if (img) {
+                img.style.padding = "12px"; 
+                img.style.background = "#ffffff";
+                img.style.borderRadius = "15px"; 
+                img.style.border = "5px solid var(--brand, #f8aa37)"; 
+                img.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; 
+                img.style.margin = "0 auto";
+                img.style.display = "block";
                 
-                // 🚀 LA CORRECTION ANTI-COUPURE (Rend l'image élastique)
-                canvasImg.style.maxWidth = "100%"; 
-                canvasImg.style.height = "auto";
-                canvasImg.style.boxSizing = "border-box";
+                // La correction anti-coupure 
+                img.style.maxWidth = "100%"; 
+                img.style.height = "auto";
+                img.style.boxSizing = "border-box";
             }
         }, 50);
     } else {
