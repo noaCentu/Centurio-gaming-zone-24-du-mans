@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v25 - Unification Glassmorphism !");
+console.log("🚀 Script Centurio v26 - QR Code 100% Hors-Ligne !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -50,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
-
 
 // 🎮 LOGIQUE DE JEU CLASSIQUE
 const games = [
@@ -238,12 +237,38 @@ function renderGames() {
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
+// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (100% LOCAL ET HORS-LIGNE)
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
+    
     document.getElementById('animator-modal').style.display = 'flex';
     const adminUrl = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=20&data=${encodeURIComponent(adminUrl)}`;
-    document.getElementById('qr-container').innerHTML = `<img src="${qrCodeUrl}" alt="QR Code" style="border-radius:10px; border: 5px solid var(--primary); max-width: 100%;">`;
+    
+    const qrContainer = document.getElementById('qr-container');
+    qrContainer.innerHTML = ''; // On vide pour être propre
+    
+    if (typeof QRCode !== 'undefined') {
+        new QRCode(qrContainer, {
+            text: adminUrl,
+            width: 200,
+            height: 200,
+            colorDark : "#291834", // Aux couleurs Centurio
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+        
+        // Bordure stylée
+        setTimeout(() => {
+            const canvasImg = qrContainer.querySelector('canvas') || qrContainer.querySelector('img');
+            if (canvasImg) {
+                canvasImg.style.borderRadius = "10px";
+                canvasImg.style.border = "4px solid var(--brand, #f8aa37)";
+                canvasImg.style.margin = "auto";
+            }
+        }, 50);
+    } else {
+        qrContainer.innerHTML = "<p style='color:red;'>Outil de dessin introuvable. Avez-vous vidé le cache de votre PC ?</p>";
+    }
 };
 
 window.closeModal = function() { document.getElementById('animator-modal').style.display = 'none'; };
