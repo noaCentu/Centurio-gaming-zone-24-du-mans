@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v26 - QR Code 100% Hors-Ligne !");
+console.log("🚀 Script Centurio v27 - QR Code Rapide & 100% Hors-Ligne !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -237,7 +237,7 @@ function renderGames() {
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
-// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (100% LOCAL ET HORS-LIGNE)
+// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (VERSION ULTRA-RAPIDE)
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
     
@@ -250,20 +250,23 @@ window.openModal = function(gameId) {
     if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, {
             text: adminUrl,
-            width: 200,
-            height: 200,
-            colorDark : "#291834", // Aux couleurs Centurio
+            width: 250, // Plus grand pour être plus net
+            height: 250,
+            colorDark : "#000000", // Noir PUR = Contraste maximum pour le scanner
             colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+            correctLevel : QRCode.CorrectLevel.L // Niveau Low = Beaucoup moins de petits carrés, flash instantané !
         });
         
-        // Bordure stylée
+        // Ajout de la "Quiet Zone" (Marge blanche vitale pour le scanner)
         setTimeout(() => {
             const canvasImg = qrContainer.querySelector('canvas') || qrContainer.querySelector('img');
             if (canvasImg) {
+                canvasImg.style.padding = "15px"; // La fameuse zone blanche
+                canvasImg.style.background = "#ffffff";
                 canvasImg.style.borderRadius = "10px";
                 canvasImg.style.border = "4px solid var(--brand, #f8aa37)";
                 canvasImg.style.margin = "auto";
+                canvasImg.style.display = "block"; // Centre l'image correctement
             }
         }, 50);
     } else {
