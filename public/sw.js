@@ -1,5 +1,6 @@
-const CACHE_NAME = 'centurio-cache-v32';
+const CACHE_NAME = 'centurio-cache-v33';
 
+// Les fichiers vitaux de base (toujours pré-chargés)
 const urlsToCache = [
   '/',
   '/index.html',
@@ -17,11 +18,9 @@ self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      console.log('✅ PWA : Mise en cache v32 en cours...');
+      console.log('✅ PWA : Téléchargement des fichiers de base (v33)...');
       return Promise.all(
-        urlsToCache.map(url => {
-          return cache.add(url).catch(err => console.log('⚠️ Ignoré :', url));
-        })
+        urlsToCache.map(url => cache.add(url).catch(err => console.log('⚠️ Fichier ignoré :', url)))
       );
     })
   );
@@ -38,24 +37,33 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // Ignorer les requêtes serveur
+  // 1. On ignore toujours les requêtes vers la base de données et WebSockets (le réseau en direct)
   if (event.request.url.includes('/api/') || event.request.url.includes('socket.io')) {
     return;
   }
 
+  // 2. LA MAGIE DU CACHE DYNAMIQUE
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then(response => {
-      // 1. Le fichier est en mémoire exact ? On le donne.
-      if (response) return response;
-
-      // 2. BIDOUILLE APPLE : S'il cherche juste "monsite.com/", on lui force "index.html"
-      if (event.request.url.endsWith('/')) {
-        return caches.match('/index.html');
-      }
+    caches.match(event.request, { ignoreSearch: true }).then(cachedResponse => {
       
-      // 3. Sinon on cherche sur Internet.
-      return fetch(event.request).catch(() => {
-        // 4. Si Internet est coupé (Mode Avion) ET qu'il veut une page HTML, on sauve les meubles :
+      // Si on l'a déjà en mémoire (ex: le fichier du générateur de QR Code), on le donne instantanément !
+      if (cachedResponse) {
+        return cachedResponse;
+      }
+
+      // Si on ne l'a pas en mémoire, on va le chercher sur Internet...
+      return fetch(event.request).then(networkResponse => {
+        // ... ET ON LE SAUVEGARDE SECRÈTEMENT EN MÉMOIRE POUR LA PROCHAINE FOIS (si on n'a plus de Wi-Fi) !
+        if (event.request.method === 'GET' && networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+        
+      }).catch(() => {
+        // FILET DE SÉCURITÉ : Si Internet est coupé et qu'on cherche une page Web, on renvoie l'accueil
         if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
           return caches.match('/index.html');
         }
