@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v28 - QR Code Magnifique & Ultra-Rapide !");
+console.log("🚀 Script Centurio v29 - QR Code Magnifique, Rapide & Adaptable !");
 
 // 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -237,7 +237,7 @@ function renderGames() {
     } catch(err) { console.error("Erreur Affichage :", err); }
 }
 
-// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (BEAU & ULTRA-RAPIDE)
+// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (BEAU, RAPIDE ET ADAPTABLE)
 window.openModal = function(gameId) {
     if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
     
@@ -250,25 +250,29 @@ window.openModal = function(gameId) {
     if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, {
             text: adminUrl,
-            width: 250, 
-            height: 250,
-            colorDark : "#291834", // Violet Centurio = Magnifique
+            width: 200, // 👈 On réduit un peu la taille de base pour donner de l'air
+            height: 200,
+            colorDark : "#291834", // Violet Centurio
             colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.L // Niveau Low = Moins de complexité, scan instantané !
+            correctLevel : QRCode.CorrectLevel.L // Scan instantané
         });
         
-        // Ajout du style de la Quiet Zone (Marge blanche vitale)
+        // Ajout du style
         setTimeout(() => {
             const canvasImg = qrContainer.querySelector('canvas') || qrContainer.querySelector('img');
             if (canvasImg) {
-                // Style complet pour le rendre magnifique
-                canvasImg.style.padding = "15px"; // Marge blanche obligatoire pour le scan
+                canvasImg.style.padding = "12px"; 
                 canvasImg.style.background = "#ffffff";
-                canvasImg.style.borderRadius = "15px"; // Coins très arrondis (Glassmorphism style)
-                canvasImg.style.border = "5px solid var(--brand, #f8aa37)"; // Grosse bordure Orange Centurio
-                canvasImg.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; // Ombre portée pour le relief
-                canvasImg.style.margin = "auto";
+                canvasImg.style.borderRadius = "15px"; 
+                canvasImg.style.border = "5px solid var(--brand, #f8aa37)"; 
+                canvasImg.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; 
+                canvasImg.style.margin = "0 auto";
                 canvasImg.style.display = "block";
+                
+                // 🚀 LA CORRECTION ANTI-COUPURE (Rend l'image élastique)
+                canvasImg.style.maxWidth = "100%"; 
+                canvasImg.style.height = "auto";
+                canvasImg.style.boxSizing = "border-box";
             }
         }, 50);
     } else {
