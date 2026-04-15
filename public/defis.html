@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=42">
+    <link rel="stylesheet" href="style.css?v=43">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
-        /* 🎨 LA PALETTE DE COULEURS UNIVERSELLE */
         :root {
             --bg-body: #291834;
             --text-main: #ffffff;
@@ -20,9 +19,9 @@
             --modal-bg: #1e1e1e;
             --menu-bg: #1a1a1a;
             --border-line: #333333;
+            --input-bg: #333333;
             --card-bg: rgba(255,255,255,0.1);
         }
-        
         body.light-mode {
             --bg-body: #f4f4f9;
             --text-main: #291834;
@@ -32,10 +31,11 @@
             --modal-bg: #ffffff;
             --menu-bg: #ffffff;
             --border-line: #dddddd;
+            --input-bg: #f0f0f0;
             --card-bg: rgba(0,0,0,0.05);
         }
 
-        html, body { margin: 0; padding: 0; height: 100%; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s; }
+        html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; }
         
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         body.light-mode .fullscreen-bg { display: none; }
@@ -46,20 +46,11 @@
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
         .hamburger-btn, .lang-btn { color: var(--text-main) !important; font-size: 24px; cursor: pointer; text-shadow: none !important; }
 
-        .page-content { 
-            width: 90%; max-width: 600px; margin: 0 auto 20px; padding: 35px 25px; 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
-            border-radius: 20px; text-align: center; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
-            border: 1px solid var(--glass-border); transition: 0.3s;
-        }
-
-        /* Cartes des Jeux */
+        .page-content { width: 90%; max-width: 600px; margin: 0 auto 20px; padding: 35px 25px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); position: relative; z-index: 1; transition: 0.3s; }
+        
         .game-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
         .game-card.done { border-left: 5px solid #4CAF50; opacity: 0.8; }
 
-        /* Menus et Modales */
         .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
         .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
@@ -69,25 +60,22 @@
         .modal-overlay { z-index: 4000; display: none; align-items: center; justify-content: center; }
         
         .modal { background: var(--modal-bg); border: 1px solid var(--border-line); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; transition: 0.3s; }
-        
         .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: var(--text-main); margin-bottom: 20px; border: none; background: transparent; }
         .side-menu a, .lang-menu div { text-decoration: none; color: var(--text-main) !important; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid var(--border-line); display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .side-menu a:hover, .lang-menu div:hover { background: var(--card-bg); color: var(--brand) !important; }
 
-        /* Boutons */
         .btn-group-select { background: var(--brand, #f8aa37); color: white !important; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
         .btn-outline { background: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; max-width: 200px; margin-top: 10px; transition: 0.2s; }
         .btn-outline:active, .btn-outline:hover { background: var(--text-main); color: var(--modal-bg); border-color: var(--text-main); }
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
-        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
-        
-        /* Elements de formulaire */
-        textarea { background: var(--input-bg, #333) !important; color: var(--text-main) !important; border: 1px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; }
+        textarea { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; font-family: inherit; }
         .survey-option { border: 1px solid var(--border-line); padding: 10px; border-radius: 5px; cursor: pointer; color: var(--text-main); }
         .survey-option.selected { background: var(--brand); color: white; border-color: var(--brand); }
         .survey-scale { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
+        
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -136,22 +124,6 @@
         <div id="games-list"></div>
     </div>
 
-    <div class="modal-overlay" id="group-modal">
-        <div class="modal fade-in">
-            <div style="font-size: 50px; margin-bottom: 10px;">👨‍👩‍👧‍👦</div>
-            <h3>Bienvenue !</h3>
-            <p style="font-size: 14px; margin-bottom: 25px;">Combien de personnes sont avec vous pour relever les défis ?</p>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                <button class="btn-group-select" onclick="setGroupSize(1)">1</button>
-                <button class="btn-group-select" onclick="setGroupSize(2)">2</button>
-                <button class="btn-group-select" onclick="setGroupSize(3)">3</button>
-                <button class="btn-group-select" onclick="setGroupSize(4)">4</button>
-                <button class="btn-group-select" onclick="setGroupSize(5)">5</button>
-                <button class="btn-group-select" onclick="setGroupSize('6+')">6+</button>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="animator-modal">
         <div class="modal fade-in">
             <h3>Validation</h3>
@@ -166,22 +138,22 @@
             <h3>Questionnaire</h3>
             <p style="font-size: 12px; margin-bottom: 15px;">Ce formulaire est rapide et anonyme.</p>
             
-            <div style="text-align: left; margin-bottom: 10px;">1. Expérience de la Gaming Zone ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px;">1. Expérience de la Gaming Zone ? *</div>
             <div class="survey-scale" id="scale-q1">
                 <div class="survey-option" onclick="selectOpt('q1',1)">1</div><div class="survey-option" onclick="selectOpt('q1',2)">2</div><div class="survey-option" onclick="selectOpt('q1',3)">3</div><div class="survey-option" onclick="selectOpt('q1',4)">4</div><div class="survey-option" onclick="selectOpt('q1',5)">5</div>
             </div>
             
-            <div style="text-align: left; margin-bottom: 10px;">2. Apprécié l'application mobile ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px;">2. Apprécié l'application mobile ? *</div>
             <div class="survey-scale" id="scale-q2">
                 <div class="survey-option" onclick="selectOpt('q2',1)">1</div><div class="survey-option" onclick="selectOpt('q2',2)">2</div><div class="survey-option" onclick="selectOpt('q2',3)">3</div><div class="survey-option" onclick="selectOpt('q2',4)">4</div><div class="survey-option" onclick="selectOpt('q2',5)">5</div>
             </div>
             
-            <div style="text-align: left; margin-bottom: 10px;">3. Facile d'utilisation ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px;">3. Facile d'utilisation ? *</div>
             <div class="survey-scale" id="scale-q3">
                 <div class="survey-option" onclick="selectOpt('q3',1)">1</div><div class="survey-option" onclick="selectOpt('q3',2)">2</div><div class="survey-option" onclick="selectOpt('q3',3)">3</div><div class="survey-option" onclick="selectOpt('q3',4)">4</div><div class="survey-option" onclick="selectOpt('q3',5)">5</div>
             </div>
             
-            <div style="text-align: left; margin-bottom: 5px;">4. Idées d'amélioration ?</div>
+            <div style="text-align: left; margin-bottom: 5px; font-size: 14px;">4. Idées d'amélioration ?</div>
             <textarea id="survey-comment" rows="3"></textarea>
             
             <button class="btn-group-select" onclick="submitSurvey()" style="width: 100%; margin-top: 15px;">Envoyer</button>
@@ -191,7 +163,7 @@
     </div>
 
     <div class="modal-overlay" id="success-modal">
-        <div class="modal fade-in" style="border: 3px solid #4CAF50; transform: scale(1.1);">
+        <div class="modal fade-in" style="border: 3px solid #4CAF50; transform: scale(1.1); background: var(--modal-bg);">
             <div style="font-size: 70px; margin-bottom: 10px;">✅</div>
             <h2 style="color: #4CAF50; font-weight: 800; text-transform: uppercase;">Défi Validé !</h2>
         </div>
@@ -213,7 +185,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=42"></script>
+    <script src="script.js?v=43"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
