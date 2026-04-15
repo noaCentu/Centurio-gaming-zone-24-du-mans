@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=43">
+    <link rel="stylesheet" href="style.css?v=44">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -40,17 +40,21 @@
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         body.light-mode .fullscreen-bg { display: none; }
         
-        h1, h2, h3, .header-title { color: var(--text-main) !important; text-shadow: none !important; }
+        h1, h2, h3 { color: var(--text-main) !important; text-shadow: none !important; }
         p { color: var(--text-muted) !important; }
 
-        .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
-        .hamburger-btn, .lang-btn { color: var(--text-main) !important; font-size: 24px; cursor: pointer; text-shadow: none !important; }
+        /* 🚨 LA BARRE DE MENU TOUJOURS SOMBRE 🚨 */
+        .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; transition: 0.3s; }
+        body.light-mode .header-v2 { background-color: #291834; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-title, .hamburger-btn, .lang-btn { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
+        .hamburger-btn { font-size: 24px; cursor: pointer; }
 
         .page-content { width: 90%; max-width: 600px; margin: 0 auto 20px; padding: 35px 25px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); position: relative; z-index: 1; transition: 0.3s; }
         
         .game-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
         .game-card.done { border-left: 5px solid #4CAF50; opacity: 0.8; }
 
+        /* Le menu déroulant s'adapte lui ! */
         .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
         .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
@@ -185,7 +189,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=43"></script>
+    <script src="script.js?v=44"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
