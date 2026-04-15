@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=45">
+    <link rel="stylesheet" href="style.css?v=46">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
-        /* PAGE FORCÉE EN MODE SOMBRE */
         :root {
             --bg-body: #291834;
             --text-main: #ffffff;
@@ -31,7 +30,6 @@
         h1, h2, h3, .header-title { color: #ffffff !important; }
         p { color: var(--text-muted) !important; }
 
-        /* NAVBAR TOUJOURS SOMBRE */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
         .header-title, .hamburger-btn, .lang-btn { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
         .hamburger-btn { font-size: 24px; cursor: pointer; }
@@ -90,7 +88,7 @@
                 <div onclick="changeLang('ja', '🇯🇵')">🇯🇵 JA</div>
             </div>
         </div>
-        <div class="header-title">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div class="header-title"><span class="notranslate">Gaming Zone</span><br><span style="font-size: 14px;">24h du Mans</span></div>
         <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
     </div>
 
@@ -104,14 +102,14 @@
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
+            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Staff</a>
         </div>
     </div>
 
     <div class="page-accueil-full fade-in">
         <div class="overlay-welcome">
-            <h2 class="welcome-title">Bienvenue à la Gaming Zone</h2>
-            <p class="welcome-text">Prêt à faire chauffer les manettes ? 🔥<br><br>Parcourez nos différents stands, relevez les défis et faites-les valider par nos animateurs. Une fois prêt, rendez-vous à l'accueil pour récupérer votre cadeau exclusif Centurio !</p>
+            <h2 class="welcome-title">Bienvenue à la <span class="notranslate">Gaming Zone</span></h2>
+            <p class="welcome-text">Prêt à faire chauffer les manettes ? 🔥<br><br>Parcourez nos différents stands, relevez les défis et faites-les valider par nos animateurs. Une fois prêt, rendez-vous à l'accueil pour récupérer votre cadeau exclusif <span class="notranslate">Centurio</span> !</p>
             <a href="defis.html" class="btn-cta">C'est parti ! 🎮</a>
         </div>
     </div>
@@ -143,7 +141,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=45"></script>
+    <script src="script.js?v=46"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         function checkAdmin() {
