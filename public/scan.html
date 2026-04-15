@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scanner Centurio PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=37">
+    <link rel="stylesheet" href="style.css?v=38">
     
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -21,9 +21,8 @@
         .survey-content textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; margin-bottom: 15px; }
         .btn-submit-survey { background: var(--brand); color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
         
-        /* Cible visuelle (Sniper) superposée sur la caméra */
-        #reader { position: relative; width: 100%; max-width: 350px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--secondary); background-color: black; }
-        #reader::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 250px; height: 250px; border: 2px dashed rgba(255, 255, 255, 0.5); pointer-events: none; z-index: 10; box-shadow: 0 0 0 4000px rgba(0,0,0,0.4); }
+        /* Caméra pure, sans cible superposée */
+        #reader { width: 100%; max-width: 350px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--brand); background-color: black; }
     </style>
 </head>
 <body>
@@ -33,7 +32,7 @@
 
     <div class="page-content" style="text-align: center; padding-bottom: 100px;">
         <h2 style="margin-bottom: 5px;">Validation Rapide</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Placez le QR Code dans le carré.</p>
+        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pointez vers le QR Code.</p>
         
         <div id="reader"></div>
         
@@ -90,7 +89,7 @@
         function onScanSuccess(decodedText) {
             if (isProcessing) return; 
             isProcessing = true;
-            document.getElementById('reader').style.borderColor = "var(--brand)";
+            document.getElementById('reader').style.borderColor = "var(--success)";
 
             try {
                 const url = new URL(decodedText);
@@ -110,31 +109,35 @@
                             rDiv.style.backgroundColor = '#f8d7da'; rDiv.style.color = '#721c24'; rDiv.innerText = "❌ ERREUR : " + data.message;
                             document.getElementById('reader').style.borderColor = "red";
                         }
-                        setTimeout(() => { rDiv.style.display = 'none'; document.getElementById('reader').style.borderColor = "var(--secondary)"; isProcessing = false; }, 2500);
-                    }).catch(err => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; });
+                        setTimeout(() => { rDiv.style.display = 'none'; document.getElementById('reader').style.borderColor = "var(--brand)"; isProcessing = false; }, 2500);
+                    }).catch(err => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand)"; });
                 } else {
-                    setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
+                    setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand)"; }, 1500);
                 }
             } catch(e) {
-                setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--secondary)"; }, 1500);
+                setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand)"; }, 1500);
             }
         }
 
-        // 🚀 LES RÉGLAGES DU SCANNER (Ultra-rapide mais TRÈS TOLÉRANT)
-        const cameraConfig = { 
-            fps: 30, // 30 images/sec c'est fluide sans faire chauffer le téléphone
-            qrbox: { width: 250, height: 250 }, // Le carré magique du Sniper
-            disableFlip: false 
-        };
+        // 🚀 PLUS DE CARRÉ : On prend toute l'image brute de la caméra
+        const cameraConfig = { fps: 30, disableFlip: false };
         
-        // 🚀 LE DOUBLE DÉMARRAGE (Anti-Crash PC / Mobile)
-        // 1. On essaie d'abord d'allumer la caméra arrière (téléphones)
-        html5QrCode.start({ facingMode: "environment" }, cameraConfig, onScanSuccess, () => {})
-        .catch(() => {
-            console.warn("Caméra arrière introuvable, tentative avec la caméra frontale...");
-            // 2. Si ça échoue (PC ou vieille tablette), on allume la webcam normale
-            html5QrCode.start({ facingMode: "user" }, cameraConfig, onScanSuccess, () => {})
-            .catch(() => alert("🚨 ERREUR : Le navigateur bloque la caméra. Avez-vous cliqué sur 'Autoriser' ?"));
+        // Démarrage de la caméra
+        Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length > 0) {
+                let cameraId = devices[0].id;
+                
+                html5QrCode.start({ facingMode: "environment" }, cameraConfig, onScanSuccess, () => {})
+                .catch(() => {
+                    console.warn("Échec caméra arrière, on force la première caméra trouvée...");
+                    html5QrCode.start(cameraId, cameraConfig, onScanSuccess, () => {})
+                    .catch(err => alert("🚨 Échec : Autorisez la caméra dans votre navigateur."));
+                });
+            } else {
+                alert("🚨 Le système ne détecte aucune caméra.");
+            }
+        }).catch(err => {
+            alert("🚨 BLOCAGE DE SÉCURITÉ : Vous devez être en 'https://' pour que la caméra s'allume !");
         });
 
         function logout() {
