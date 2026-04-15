@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v43 - Thème global, Stands, Groupe !");
+console.log("🚀 Script Centurio v44 - Thème ciblé & Navbar sombre !");
 
 // 📱 SERVICE WORKER (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 🌓 GESTION GLOBALE DU THÈME JOUR / NUIT
+// 🌓 GESTION DU THÈME JOUR / NUIT
 window.toggleTheme = function() {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
@@ -16,7 +16,6 @@ window.toggleTheme = function() {
     const btn = document.getElementById('night-btn');
     if (btn) btn.innerText = isLight ? '🌙' : '☀️';
     
-    // Si on est sur la page des défis, on redessine le graphique
     if (typeof renderGames === 'function' && document.getElementById('progress-chart')) {
         renderGames(); 
     }
@@ -57,7 +56,6 @@ const games = [
 
 let userId = localStorage.getItem('centurioUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('centurioUserId', userId);
-
 let socket = null;
 
 window.syncWithServer = function() {
@@ -107,7 +105,7 @@ try {
 
 setInterval(syncWithServer, 5000);
 
-// AFFICHAGE DES DÉFIS (Seulement sur defis.html)
+// AFFICHAGE DES DÉFIS
 window.renderGames = function() {
     const list = document.getElementById('games-list');
     if (!list) return; 
@@ -177,7 +175,6 @@ window.updateChart = function(count) {
     }
 };
 
-// 🚀 LE QR CODE (Parfait et Unique)
 window.openModal = function(gameId) {
     document.getElementById('animator-modal').style.display = 'flex';
     const group = localStorage.getItem('centurioGroupSize') || 1;
@@ -235,9 +232,14 @@ window.submitSurvey = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Appliquer le thème au lancement
+    // 🚨 SÉCURITÉ : On n'applique le thème clair QUE SI on n'est PAS sur la page d'accueil (index.html)
     const isLight = localStorage.getItem('centurioTheme') === 'light';
-    if (isLight) document.body.classList.add('light-mode');
+    const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
+    
+    if (isLight && !isIndexPage) {
+        document.body.classList.add('light-mode');
+    }
+    
     const btn = document.getElementById('night-btn');
     if (btn) btn.innerText = isLight ? '🌙' : '☀️';
 
