@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v40 - Stands, Groupe & Sans PWA !");
+console.log("🚀 Script Centurio v41 - Thème Adaptatif & Contraste !");
 
 // 📱 SERVICE WORKER POUR LE MODE HORS-LIGNE
 if ('serviceWorker' in navigator) {
@@ -6,6 +6,19 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Error', err));
     });
 }
+
+// 🌓 GESTION DU THÈME JOUR / NUIT
+window.toggleTheme = function() {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('centurioTheme', isLight ? 'light' : 'dark');
+    
+    const btn = document.getElementById('night-btn');
+    if (btn) btn.innerText = isLight ? '🌙' : '☀️';
+    
+    // On redessine le graphique pour qu'il change de couleur !
+    if (typeof renderGames === 'function') renderGames(); 
+};
 
 // 👨‍👩‍👧‍👦 GESTION DU GROUPE
 function checkGroupSize() {
@@ -28,7 +41,7 @@ window.setGroupSize = function(size) {
     checkGroupSize();
 };
 
-// 🎮 LISTE DES STANDS (1 à 7)
+// 🎮 LISTE DES STANDS
 const games = [
     { id: 's1', name: 'Stand 1', desc: 'Animation du Stand 1' },
     { id: 's2', name: 'Stand 2', desc: 'Animation du Stand 2' },
@@ -76,6 +89,23 @@ try {
     }
 } catch(e) {}
 
+try {
+    if (typeof FingerprintJS !== 'undefined') {
+        FingerprintJS.load().then(fp => {
+            fp.get().then(result => {
+                userId = result.visitorId;
+                localStorage.setItem('centurioUserId', userId);
+                if(socket) socket.emit('register_user', userId);
+                syncWithServer();
+            });
+        }).catch(() => syncWithServer());
+    } else {
+        syncWithServer();
+    }
+} catch(e) { syncWithServer(); }
+
+setInterval(syncWithServer, 5000);
+
 // AFFICHAGE DES CARTES
 function renderGames() {
     const list = document.getElementById('games-list');
@@ -100,7 +130,7 @@ function renderGames() {
         card.innerHTML = `
             <div style="text-align:left;">
                 <h3 style="margin:0; font-size:16px;">${game.name}</h3>
-                <p style="margin:0; font-size:12px; color:#aaa;">${game.desc}</p>
+                <p style="margin:0; font-size:12px; opacity: 0.8;">${game.desc}</p>
             </div>
             ${btnHtml}
         `;
@@ -119,11 +149,16 @@ function updateChart(count) {
     if (canvas) {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, 160, 160);
+        
+        // 🎨 Adaptation de la couleur du fond du graphique selon le thème
+        const isLight = document.body.classList.contains('light-mode');
         ctx.beginPath(); ctx.arc(80, 80, 70, 0, 2 * Math.PI); 
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 10; ctx.stroke();
+        ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'; // Bien visible dans les 2 cas
+        ctx.lineWidth = 14; ctx.stroke(); // Plus épais
+        
         if (percentage > 0) {
             ctx.beginPath(); ctx.arc(80, 80, 70, -0.5 * Math.PI, (-0.5 * Math.PI) + (percentage / 100) * 2 * Math.PI);
-            ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 12; ctx.lineCap = 'round'; ctx.stroke();
+            ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.stroke();
         }
     }
 }
@@ -152,9 +187,44 @@ window.openModal = function(gameId) {
 
 window.closeModal = function() { document.getElementById('animator-modal').style.display = 'none'; };
 
+window.openSurvey = function() { document.getElementById('survey-modal').style.display = 'flex'; };
+window.answers = { q1: null, q2: null, q3: null };
+window.selectOpt = function(question, value) {
+    window.answers[question] = value;
+    const options = document.getElementById('scale-' + question).children;
+    for(let i=0; i<options.length; i++) options[i].classList.remove('selected');
+    options[value - 1].classList.add('selected');
+};
+
+window.submitSurvey = function() {
+    if(!window.answers.q1 || !window.answers.q2 || !window.answers.q3) {
+        document.getElementById('survey-error').style.display = 'block'; return;
+    }
+    document.getElementById('survey-error').style.display = 'none';
+    const comment = document.getElementById('survey-comment').value;
+
+    fetch('/api/survey', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ q1: window.answers.q1, q2: window.answers.q2, q3: window.answers.q3, comment: comment, userId: userId })
+    }).then(() => {
+        localStorage.setItem('centurioSurveyDone', 'true');
+        document.getElementById('survey-modal').style.display = 'none';
+        if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        setTimeout(() => alert("Merci beaucoup ! Cadeau débloqué ! 🎁"), 500);
+        renderGames();
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
+    // 🌓 Initialisation du thème au lancement
+    const isLight = localStorage.getItem('centurioTheme') === 'light';
+    if (isLight) {
+        document.body.classList.add('light-mode');
+    }
+    const btn = document.getElementById('night-btn');
+    if (btn) btn.innerText = isLight ? '🌙' : '☀️';
+
     checkGroupSize();
     renderGames();
     syncWithServer();
-    setInterval(syncWithServer, 10000);
 });
