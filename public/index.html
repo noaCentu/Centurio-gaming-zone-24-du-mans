@@ -5,59 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=40">
-    
+    <link rel="stylesheet" href="style.css?v=41">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
-    <link rel="apple-touch-icon" href="/centurio-logo.png?v=3">
-    <link rel="manifest" href="/manifest.json?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
-        html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; width: 100% !important; background-color: #291834 !important; font-family: 'Poppins', sans-serif; }
-        .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover !important; background-position: center center !important; background-repeat: no-repeat !important; z-index: -10; }
-        body { display: flex; flex-direction: column; min-height: 100vh; }
+        :root {
+            --text-color: #ffffff;
+            --bg-glass: rgba(41, 24, 52, 0.75);
+            --modal-bg: #1e1e1e;
+            --border-color: rgba(255,255,255,0.15);
+        }
+        
+        body.light-mode {
+            --text-color: #333333;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --modal-bg: #ffffff;
+            --border-color: rgba(0,0,0,0.1);
+            background-color: #f5f5f5 !important;
+        }
+
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; background-color: #291834; font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        
+        .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
+        body.light-mode .fullscreen-bg { display: none; }
         
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
-        .header-title { color: white !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .hamburger-btn, .lang-btn { color: white !important; font-size: 24px; cursor: pointer; }
+        body:not(.light-mode) .header-title, body:not(.light-mode) .hamburger-btn, body:not(.light-mode) .lang-btn { color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        body.light-mode .header-title, body.light-mode .hamburger-btn, body.light-mode .lang-btn { color: var(--text-color); text-shadow: none; }
+        
+        .hamburger-btn { font-size: 24px; cursor: pointer; }
         
         .page-accueil-full { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1; padding-bottom: 20px; }
         .overlay-welcome { 
             width: 90%; max-width: 600px; padding: 35px 25px; 
-            background: rgba(41, 24, 52, 0.75) !important; 
-            backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; 
-            border-radius: 20px; text-align: center; color: white !important; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important; 
-            border: 1px solid rgba(255,255,255,0.15) !important; 
+            background: var(--bg-glass); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+            border-radius: 20px; text-align: center; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+            border: 1px solid var(--border-color); 
         }
         
-        .welcome-title { color: white !important; margin-bottom: 15px; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .welcome-text { color: #eaeaea !important; font-size: 14px; line-height: 1.6; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .welcome-title { margin-bottom: 15px; font-weight: 800; }
+        .welcome-text { font-size: 14px; line-height: 1.6; opacity: 0.9; }
 
-        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 16px 45px; font-size: 19px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 8px 20px rgba(248, 170, 55, 0.4); transition: transform 0.2s; animation: pulse 2s infinite; border: none; cursor: pointer; }
-        .btn-cta:active { transform: scale(0.95); }
+        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 16px 45px; font-size: 19px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 8px 20px rgba(248, 170, 55, 0.4); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0.7); } 70% { box-shadow: 0 0 0 18px rgba(248, 170, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0); } }
 
-        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 20px; border-left: 1px solid #333; }
+        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .menu-overlay.open { opacity: 1; pointer-events: auto; }
         .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: #fff; margin-bottom: 20px; border: none; background: transparent; }
         .side-menu a { text-decoration: none; color: #fff; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .side-menu a:hover { color: var(--brand); padding-left: 15px; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal { background: #1e1e1e; color: white; border: 1px solid #333; border-radius: 20px; padding: 25px; width: 90%; max-width: 350px; }
-        .pwd-container { position: relative; display: flex; align-items: center; margin-bottom: 15px; }
-        .pwd-container input { width: 100%; padding-right: 45px !important; }
-        .toggle-pwd { position: absolute; right: 15px; cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center; }
-
-        /* Boutons de sélection du groupe */
-        .btn-group-select { background: #f8aa37; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .btn-group-select:active { transform: scale(0.95); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: none; align-items: center; justify-content: center; }
+        .modal { background: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; }
         
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-outline { background: transparent; color: var(--text-color); border: 2px solid var(--text-color); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
     </style>
 </head>
 <body>
@@ -85,9 +95,7 @@
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 2px solid #333; border-bottom: none; color: #888; font-size: 14px; margin-top: 20px;">
-                🔒 Espace Staff
-            </a>
+            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 2px solid #333; border-bottom: none; color: #888; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
         </div>
     </div>
 
@@ -100,17 +108,17 @@
     </div>
 
     <div class="modal-overlay" id="group-modal" style="display: none; z-index: 5000;">
-        <div class="modal fade-in" style="background: #1e1e1e; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #444; width: 85%; max-width: 400px;">
+        <div class="modal fade-in">
             <div style="font-size: 50px; margin-bottom: 10px;">👨‍👩‍👧‍👦</div>
-            <h3 style="margin-bottom: 15px; color: white;">Bienvenue !</h3>
-            <p style="font-size: 14px; color: #aaa; margin-bottom: 25px;">Pour mieux vous accueillir, combien de personnes composent votre groupe ?</p>
+            <h3>Bienvenue !</h3>
+            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 25px;">Pour mieux vous accueillir, combien de personnes composent votre groupe ?</p>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                <button class="btn-group-select" onclick="setGroupSize(1)">1</button>
-                <button class="btn-group-select" onclick="setGroupSize(2)">2</button>
-                <button class="btn-group-select" onclick="setGroupSize(3)">3</button>
-                <button class="btn-group-select" onclick="setGroupSize(4)">4</button>
-                <button class="btn-group-select" onclick="setGroupSize(5)">5</button>
-                <button class="btn-group-select" onclick="setGroupSize('6+')">6+</button>
+                <button onclick="setGroupSize(1)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">1</button>
+                <button onclick="setGroupSize(2)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">2</button>
+                <button onclick="setGroupSize(3)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">3</button>
+                <button onclick="setGroupSize(4)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">4</button>
+                <button onclick="setGroupSize(5)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">5</button>
+                <button onclick="setGroupSize('6+')" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">6+</button>
             </div>
         </div>
     </div>
@@ -118,48 +126,33 @@
     <div class="modal-overlay" id="login-modal">
         <div class="modal fade-in">
             <h3>Connexion Sécurisée</h3>
-            <p style="font-size: 12px; margin-bottom: 15px; color: #888;">Accès réservé au staff Centurio.</p>
-            <div class="pwd-container">
-                <input type="password" id="admin-pwd" placeholder="Mot de passe" style="background:#333; color:white; border:1px solid #555; padding: 10px; border-radius: 8px;">
-                <div class="toggle-pwd" onclick="togglePassword()">
-                    <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </div>
-            </div>
-            <button class="btn-submit" onclick="login()" style="width: 100%; padding: 12px; background: var(--brand); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Se connecter</button>
-            <button class="btn-cancel" onclick="document.getElementById('login-modal').style.display='none'" style="width: 100%; padding: 12px; background: transparent; color: #aaa; border: none; cursor: pointer; margin-top: 5px;">Fermer</button>
+            <p style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">Accès réservé au staff.</p>
+            <input type="password" id="admin-pwd" placeholder="Mot de passe" style="width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
+            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--brand); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Se connecter</button>
+            <button class="btn-outline" onclick="document.getElementById('login-modal').style.display='none'">Fermer</button>
             <p id="login-error" style="color: #ff4d4d; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect</p>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="script.js?v=40"></script>
-    
+    <button id="night-btn" onclick="toggleTheme()">☀️</button>
+
+    <script src="script.js?v=41"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
-        
-        function togglePassword() {
-            const pwdInput = document.getElementById('admin-pwd'); const eyeIcon = document.getElementById('eye-icon');
-            if (pwdInput.type === 'password') { pwdInput.type = 'text'; eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`; } 
-            else { pwdInput.type = 'password'; eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`; }
-        }
-        
-        if (localStorage.getItem('centurioAdminToken') || localStorage.getItem('centurioStatsToken')) { localStorage.removeItem('centurioAdminToken'); localStorage.removeItem('centurioStatsToken'); sessionStorage.clear(); }
+        function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
         
         function checkAdmin() {
             const admin = sessionStorage.getItem('centurioAdminToken'); const stats = sessionStorage.getItem('centurioStatsToken');
             if (admin) window.location.href = "scan.html"; else if (stats) window.location.href = "stats.html"; else document.getElementById('login-modal').style.display = 'flex';
         }
-        
         function login() {
             const pwd = document.getElementById('admin-pwd').value; const errorMsg = document.getElementById('login-error');
             fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ password: pwd }) })
             .then(res => res.json()).then(data => {
                 if(data.success) { sessionStorage.clear(); if(data.role === 'admin') { sessionStorage.setItem('centurioAdminToken', data.token); window.location.href = "scan.html"; } else if (data.role === 'stats') { sessionStorage.setItem('centurioStatsToken', data.token); window.location.href = "stats.html"; } } 
                 else errorMsg.style.display = 'block'; 
-            }).catch(err => alert("Erreur de connexion."));
+            });
         }
-        
-        function toggleLang() { const menu = document.getElementById('lang-list'); menu.style.display = menu.style.display === 'block' ? 'none' : 'block'; }
     </script>
 </body>
 </html>
