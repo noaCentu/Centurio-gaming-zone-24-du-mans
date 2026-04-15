@@ -5,80 +5,101 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=41">
+    <link rel="stylesheet" href="style.css?v=42">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
+        /* 🎨 LA PALETTE DE COULEURS UNIVERSELLE */
         :root {
-            --text-color: #ffffff;
-            --bg-glass: rgba(41, 24, 52, 0.75);
+            --bg-body: #291834;
+            --text-main: #ffffff;
+            --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.15);
             --modal-bg: #1e1e1e;
-            --border-color: rgba(255,255,255,0.15);
+            --menu-bg: #1a1a1a;
+            --border-line: #333333;
+            --input-bg: #333333;
+            --card-bg: rgba(255,255,255,0.1);
         }
         
         body.light-mode {
-            --text-color: #333333;
-            --bg-glass: rgba(255, 255, 255, 0.9);
+            --bg-body: #f4f4f9;
+            --text-main: #291834; /* Le violet devient la couleur du texte */
+            --text-muted: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(41, 24, 52, 0.15);
             --modal-bg: #ffffff;
-            --border-color: rgba(0,0,0,0.1);
-            background-color: #f5f5f5 !important;
+            --menu-bg: #ffffff;
+            --border-line: #dddddd;
+            --input-bg: #f0f0f0;
+            --card-bg: rgba(0,0,0,0.05);
         }
 
-        html, body { margin: 0; padding: 0; height: 100%; width: 100%; background-color: #291834; font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s; }
         
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         body.light-mode .fullscreen-bg { display: none; }
         
+        h1, h2, h3, .header-title { color: var(--text-main) !important; text-shadow: none !important; }
+        p { color: var(--text-muted) !important; }
+
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
-        body:not(.light-mode) .header-title, body:not(.light-mode) .hamburger-btn, body:not(.light-mode) .lang-btn { color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        body.light-mode .header-title, body.light-mode .hamburger-btn, body.light-mode .lang-btn { color: var(--text-color); text-shadow: none; }
-        
-        .hamburger-btn { font-size: 24px; cursor: pointer; }
+        .hamburger-btn, .lang-btn { color: var(--text-main) !important; font-size: 24px; cursor: pointer; text-shadow: none !important; }
         
         .page-accueil-full { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; position: relative; z-index: 1; padding-bottom: 20px; }
         .overlay-welcome { 
             width: 90%; max-width: 600px; padding: 35px 25px; 
-            background: var(--bg-glass); 
+            background: var(--glass-bg); 
             backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
             border-radius: 20px; text-align: center; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
-            border: 1px solid var(--border-color); 
+            border: 1px solid var(--glass-border); transition: 0.3s;
         }
         
         .welcome-title { margin-bottom: 15px; font-weight: 800; }
-        .welcome-text { font-size: 14px; line-height: 1.6; opacity: 0.9; }
+        .welcome-text { font-size: 14px; line-height: 1.6; }
 
-        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white; padding: 16px 45px; font-size: 19px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 8px 20px rgba(248, 170, 55, 0.4); animation: pulse 2s infinite; }
+        .btn-cta { display: inline-block; background: var(--brand, #f8aa37); color: white !important; padding: 16px 45px; font-size: 19px; font-weight: 800; text-transform: uppercase; text-decoration: none; border-radius: 50px; margin-top: 30px; box-shadow: 0 8px 20px rgba(248, 170, 55, 0.4); animation: pulse 2s infinite; border: none; cursor: pointer; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0.7); } 70% { box-shadow: 0 0 0 18px rgba(248, 170, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(248, 170, 55, 0); } }
 
-        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
+        /* Menu Latéral et Menu Langues */
+        .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .menu-overlay.open { opacity: 1; pointer-events: auto; }
-        .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: #fff; margin-bottom: 20px; border: none; background: transparent; }
-        .side-menu a { text-decoration: none; color: #fff; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
-        .side-menu a:hover { color: var(--brand); padding-left: 15px; }
+        .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: var(--text-main); margin-bottom: 20px; border: none; background: transparent; }
+        .side-menu a, .lang-menu div { text-decoration: none; color: var(--text-main) !important; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid var(--border-line); display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .side-menu a:hover, .lang-menu div:hover { background: var(--card-bg); color: var(--brand) !important; }
 
+        /* Modales (Pop-ups) */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: none; align-items: center; justify-content: center; }
-        .modal { background: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; }
+        .modal { background: var(--modal-bg); border: 1px solid var(--border-line); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; transition: 0.3s; }
+        
+        /* Champs de saisie */
+        input, textarea { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--border-line) !important; }
+
+        .btn-group-select { background: var(--brand, #f8aa37); color: white !important; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-outline { background: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
+        .btn-outline:active, .btn-outline:hover { background: var(--text-main); color: var(--modal-bg); border-color: var(--text-main); }
         
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .btn-outline { background: transparent; color: var(--text-color); border: 2px solid var(--text-color); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
     </style>
 </head>
 <body>
     <div class="fullscreen-bg"></div>
 
     <div class="header-v2">
-        <div class="lang-dropdown">
+        <div class="lang-dropdown" style="position: relative;">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
-            <div class="lang-menu" id="lang-list" style="display:none; position:absolute; background:white; color:black; border-radius:8px; padding:10px; z-index: 5000;">
-                <div onclick="changeLang('fr', '🇫🇷')" style="padding: 5px; cursor: pointer;">🇫🇷 Français</div>
-                <div onclick="changeLang('en', '🇬🇧')" style="padding: 5px; cursor: pointer;">🇬🇧 English</div>
+            <div class="lang-menu" id="lang-list" style="display:none; position:absolute; top: 35px; left: 0; border-radius:8px; overflow: hidden; z-index: 5000; width: 120px;">
+                <div onclick="changeLang('fr', '🇫🇷')" style="cursor: pointer;">🇫🇷 Français</div>
+                <div onclick="changeLang('en', '🇬🇧')" style="cursor: pointer;">🇬🇧 English</div>
             </div>
         </div>
         <div class="header-title">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
@@ -88,14 +109,14 @@
     <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
     <div class="side-menu" id="side-menu">
         <button class="close-menu" onclick="toggleMenu()">×</button>
-        <a href="index.html" style="color: var(--brand);">🏠 Accueil</a>
+        <a href="index.html" style="color: var(--brand) !important;">🏠 Accueil</a>
         <a href="defis.html">🎮 Défis</a>
         <a href="plan.html">🗺️ Plan de la zone</a>
         <a href="affluence.html">📊 Affluence en direct</a>
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 2px solid #333; border-bottom: none; color: #888; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
+            <a href="#" onclick="toggleMenu(); checkAdmin();" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
         </div>
     </div>
 
@@ -111,14 +132,14 @@
         <div class="modal fade-in">
             <div style="font-size: 50px; margin-bottom: 10px;">👨‍👩‍👧‍👦</div>
             <h3>Bienvenue !</h3>
-            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 25px;">Pour mieux vous accueillir, combien de personnes composent votre groupe ?</p>
+            <p style="font-size: 14px; margin-bottom: 25px;">Pour mieux vous accueillir, combien de personnes composent votre groupe ?</p>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                <button onclick="setGroupSize(1)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">1</button>
-                <button onclick="setGroupSize(2)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">2</button>
-                <button onclick="setGroupSize(3)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">3</button>
-                <button onclick="setGroupSize(4)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">4</button>
-                <button onclick="setGroupSize(5)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">5</button>
-                <button onclick="setGroupSize('6+')" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold; cursor:pointer;">6+</button>
+                <button class="btn-group-select" onclick="setGroupSize(1)">1</button>
+                <button class="btn-group-select" onclick="setGroupSize(2)">2</button>
+                <button class="btn-group-select" onclick="setGroupSize(3)">3</button>
+                <button class="btn-group-select" onclick="setGroupSize(4)">4</button>
+                <button class="btn-group-select" onclick="setGroupSize(5)">5</button>
+                <button class="btn-group-select" onclick="setGroupSize('6+')">6+</button>
             </div>
         </div>
     </div>
@@ -126,17 +147,17 @@
     <div class="modal-overlay" id="login-modal">
         <div class="modal fade-in">
             <h3>Connexion Sécurisée</h3>
-            <p style="font-size: 12px; opacity: 0.8; margin-bottom: 15px;">Accès réservé au staff.</p>
-            <input type="password" id="admin-pwd" placeholder="Mot de passe" style="width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 10px; background: transparent; border: 1px solid var(--border-color); color: var(--text-color);">
-            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--brand); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Se connecter</button>
-            <button class="btn-outline" onclick="document.getElementById('login-modal').style.display='none'">Fermer</button>
+            <p style="font-size: 12px; margin-bottom: 15px;">Accès réservé au staff.</p>
+            <input type="password" id="admin-pwd" placeholder="Mot de passe" style="width: 100%; padding: 10px; border-radius: 8px; margin-bottom: 10px; outline: none; box-sizing: border-box;">
+            <button onclick="login()" style="width: 100%; padding: 12px; background: var(--brand, #f8aa37); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Se connecter</button>
+            <button class="btn-outline" onclick="document.getElementById('login-modal').style.display='none'">Annuler</button>
             <p id="login-error" style="color: #ff4d4d; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect</p>
         </div>
     </div>
 
     <button id="night-btn" onclick="toggleTheme()">☀️</button>
 
-    <script src="script.js?v=41"></script>
+    <script src="script.js?v=42"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
@@ -153,6 +174,14 @@
                 else errorMsg.style.display = 'block'; 
             });
         }
+        
+        // Initialisation du thème
+        document.addEventListener('DOMContentLoaded', () => {
+            const isLight = localStorage.getItem('centurioTheme') === 'light';
+            if (isLight) document.body.classList.add('light-mode');
+            const btn = document.getElementById('night-btn');
+            if (btn) btn.innerText = isLight ? '🌙' : '☀️';
+        });
     </script>
 </body>
 </html>
