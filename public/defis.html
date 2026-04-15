@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=44">
+    <link rel="stylesheet" href="style.css?v=45">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -18,8 +18,8 @@
             --glass-border: rgba(255, 255, 255, 0.15);
             --modal-bg: #1e1e1e;
             --menu-bg: #1a1a1a;
-            --border-line: #333333;
-            --input-bg: #333333;
+            --border-line: #444444;
+            --input-bg: #2a2a2a;
             --card-bg: rgba(255,255,255,0.1);
         }
         body.light-mode {
@@ -31,7 +31,7 @@
             --modal-bg: #ffffff;
             --menu-bg: #ffffff;
             --border-line: #dddddd;
-            --input-bg: #f0f0f0;
+            --input-bg: #f9f9f9;
             --card-bg: rgba(0,0,0,0.05);
         }
 
@@ -65,7 +65,7 @@
         
         .modal { background: var(--modal-bg); border: 1px solid var(--border-line); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; transition: 0.3s; }
         .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: var(--text-main); margin-bottom: 20px; border: none; background: transparent; }
-        .side-menu a, .lang-menu div { text-decoration: none; color: var(--text-main) !important; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid var(--border-line); display: flex; align-items: center; gap: 10px; transition: 0.2s; }
+        .side-menu a, .lang-menu div { text-decoration: none; color: var(--text-main) !important; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid var(--border-line); display: flex; align-items: center; gap: 10px; transition: 0.2s; cursor: pointer; }
         .side-menu a:hover, .lang-menu div:hover { background: var(--card-bg); color: var(--brand) !important; }
 
         .btn-group-select { background: var(--brand, #f8aa37); color: white !important; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
@@ -73,24 +73,40 @@
         .btn-outline:active, .btn-outline:hover { background: var(--text-main); color: var(--modal-bg); border-color: var(--text-main); }
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        textarea { background: var(--input-bg) !important; color: var(--text-main) !important; border: 1px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; font-family: inherit; }
-        .survey-option { border: 1px solid var(--border-line); padding: 10px; border-radius: 5px; cursor: pointer; color: var(--text-main); }
+        /* CORRECTION DES CONTRASTES DU QUESTIONNAIRE */
+        textarea { background: var(--input-bg) !important; color: var(--text-main) !important; border: 2px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; font-family: inherit; }
+        textarea::placeholder { color: #888888; }
+        .survey-option { border: 2px solid var(--border-line); background: var(--input-bg); padding: 10px; border-radius: 5px; cursor: pointer; color: var(--text-main); font-weight: bold; }
         .survey-option.selected { background: var(--brand); color: white; border-color: var(--brand); }
-        .survey-scale { display: flex; justify-content: center; gap: 5px; margin-bottom: 15px; }
+        .survey-scale { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
         
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        /* Masquer la barre Google moche */
+        body { top: 0 !important; }
+        .skiptranslate { display: none !important; }
     </style>
 </head>
 <body>
+    <div id="google_translate_element" style="display:none;"></div>
+    <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
     <div class="fullscreen-bg"></div>
 
     <div class="header-v2">
         <div class="lang-dropdown" style="position: relative;">
             <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
-            <div class="lang-menu" id="lang-list" style="display:none; position:absolute; top: 35px; left: 0; border-radius:8px; overflow: hidden; z-index: 5000; width: 120px;">
-                <div onclick="changeLang('fr', '🇫🇷')" style="cursor: pointer;">🇫🇷 Français</div>
-                <div onclick="changeLang('en', '🇬🇧')" style="cursor: pointer;">🇬🇧 English</div>
+            <div class="lang-menu" id="lang-list" style="display:none; position:absolute; top: 35px; left: 0; border-radius:8px; overflow: hidden; z-index: 5000; width: 90px;">
+                <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 FR</div>
+                <div onclick="changeLang('en', '🇬🇧')">🇬🇧 EN</div>
+                <div onclick="changeLang('es', '🇪🇸')">🇪🇸 ES</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 DE</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 IT</div>
+                <div onclick="changeLang('nl', '🇳🇱')">🇳🇱 NL</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 CN</div>
+                <div onclick="changeLang('ja', '🇯🇵')">🇯🇵 JA</div>
             </div>
         </div>
         <div class="header-title">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
@@ -107,7 +123,7 @@
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Staff</a>
+            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
         </div>
     </div>
 
@@ -142,23 +158,23 @@
             <h3>Questionnaire</h3>
             <p style="font-size: 12px; margin-bottom: 15px;">Ce formulaire est rapide et anonyme.</p>
             
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px;">1. Expérience de la Gaming Zone ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">1. Expérience de la Gaming Zone ? *</div>
             <div class="survey-scale" id="scale-q1">
                 <div class="survey-option" onclick="selectOpt('q1',1)">1</div><div class="survey-option" onclick="selectOpt('q1',2)">2</div><div class="survey-option" onclick="selectOpt('q1',3)">3</div><div class="survey-option" onclick="selectOpt('q1',4)">4</div><div class="survey-option" onclick="selectOpt('q1',5)">5</div>
             </div>
             
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px;">2. Apprécié l'application mobile ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">2. Apprécié l'application mobile ? *</div>
             <div class="survey-scale" id="scale-q2">
                 <div class="survey-option" onclick="selectOpt('q2',1)">1</div><div class="survey-option" onclick="selectOpt('q2',2)">2</div><div class="survey-option" onclick="selectOpt('q2',3)">3</div><div class="survey-option" onclick="selectOpt('q2',4)">4</div><div class="survey-option" onclick="selectOpt('q2',5)">5</div>
             </div>
             
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px;">3. Facile d'utilisation ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">3. Facile d'utilisation ? *</div>
             <div class="survey-scale" id="scale-q3">
                 <div class="survey-option" onclick="selectOpt('q3',1)">1</div><div class="survey-option" onclick="selectOpt('q3',2)">2</div><div class="survey-option" onclick="selectOpt('q3',3)">3</div><div class="survey-option" onclick="selectOpt('q3',4)">4</div><div class="survey-option" onclick="selectOpt('q3',5)">5</div>
             </div>
             
-            <div style="text-align: left; margin-bottom: 5px; font-size: 14px;">4. Idées d'amélioration ?</div>
-            <textarea id="survey-comment" rows="3"></textarea>
+            <div style="text-align: left; margin-bottom: 5px; font-size: 14px; color: var(--text-main);">4. Idées d'amélioration ?</div>
+            <textarea id="survey-comment" rows="3" placeholder="Votre message..."></textarea>
             
             <button class="btn-group-select" onclick="submitSurvey()" style="width: 100%; margin-top: 15px;">Envoyer</button>
             <button class="btn-outline" onclick="document.getElementById('survey-modal').style.display='none'">Annuler</button>
@@ -189,10 +205,9 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=44"></script>
+    <script src="script.js?v=45"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
-        function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
     </script>
 </body>
 </html>
