@@ -58,11 +58,10 @@ async function initStats(key) {
     return stats;
 }
 
-// 🟢 CORRECTION ICI : On attend la connexion avant de lancer initStats
 mongoose.connect(MONGO_URI)
     .then(() => {
         console.log("🟢 Connecté avec succès au coffre-fort MongoDB !");
-        initStats("main"); // On initialise les stats uniquement quand c'est connecté
+        initStats("main");
     })
     .catch(err => console.error("🔴 Erreur de connexion MongoDB :", err));
 
@@ -95,7 +94,7 @@ io.on('connection', async (socket) => {
     } catch(e) {}
     
     socket.on('register_user', async (userId) => {
-        socket.join(userId); // 🟢 Le joueur rejoint sa room radio perso !
+        socket.join(userId);
         try {
             let player = await Player.findOne({ userId: userId });
             if (!player) player = new Player({ userId: userId, games: [], visitedDays: [] });
@@ -109,6 +108,25 @@ io.on('connection', async (socket) => {
     });
     socket.on('disconnect', () => currentConnections-- );
 });
+
+// --- 🚦 GESTION DE L'AFFLUENCE EN TEMPS RÉEL ---
+let currentAffluence = 1; // 1=Fluide, 2=Modérée, 3=Forte, 4=Saturée
+
+app.get('/api/affluence', (req, res) => {
+    res.json({ success: true, level: currentAffluence });
+});
+
+app.post('/api/affluence', (req, res) => {
+    const { token, level } = req.body;
+    if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "Non autorisé" });
+    
+    currentAffluence = level;
+    // On envoie le signal à TOUS les visiteurs connectés instantanément !
+    io.emit('affluence_updated', currentAffluence);
+    
+    res.json({ success: true });
+});
+// --------------------------------------------------
 
 app.post('/api/login', async (req, res) => {
     const { password } = req.body;
@@ -157,7 +175,6 @@ app.post('/api/validate', async (req, res) => {
 
         if (player.games.length === 8) await GlobalStat.updateOne({ idName: "main" }, { $inc: { totalGagnants: 1 } });
         
-        // 🟢 ENVOI DU SIGNAL RADIO AU JOUEUR !
         io.to(userId).emit('challenge_validated', gameId);
         res.json({ success: true });
     } catch(e) { res.json({ success: false, message: "Erreur serveur" }); }
