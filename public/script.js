@@ -1,66 +1,45 @@
-console.log("🚀 Script Centurio v30 - QR Code Unique, Adaptable et Magnifique !");
+console.log("🚀 Script Centurio v40 - Stands, Groupe & Sans PWA !");
 
-// 📱 INSTALLATION DE LA PWA (Mode hors-ligne)
+// 📱 LE SERVICE WORKER RESTE (Pour le mode hors-ligne) MAIS PLUS D'INSTALLATION
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-        .then(reg => console.log('✅ PWA : Service Worker activé !'))
         .catch(err => console.log('❌ PWA : Erreur', err));
     });
 }
 
-// 🪄 LOGIQUE DU POP-UP D'INSTALLATION
-let deferredPrompt;
-window.closeInstallPwa = function() {
-    document.getElementById('install-overlay').style.display = 'none';
-    localStorage.setItem('centurioPwaPrompt', 'done'); 
-};
-
-window.installPwa = async function() {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-    }
-    window.closeInstallPwa();
-};
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); 
-    deferredPrompt = e;
-    if (!localStorage.getItem('centurioPwaPrompt') && !window.matchMedia('(display-mode: standalone)').matches) {
-        document.getElementById('install-overlay').style.display = 'flex';
-    }
-});
-
-// Détection spéciale pour Apple (iOS)
-document.addEventListener('DOMContentLoaded', () => {
-    const isIos = () => {
-        const userAgent = window.navigator.userAgent.toLowerCase();
-        return /iphone|ipad|ipod/.test(userAgent);
-    };
-    const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+// 👨‍👩‍👧‍👦 LOGIQUE DU GROUPE (Nombre de personnes)
+function checkGroupSize() {
+    let groupSize = localStorage.getItem('centurioGroupSize');
+    const groupBadge = document.getElementById('group-badge');
     
-    if (isIos() && !isInStandaloneMode() && !localStorage.getItem('centurioPwaPrompt')) {
-        const overlay = document.getElementById('install-overlay');
-        if (overlay) {
-            overlay.style.display = 'flex';
-            document.getElementById('btn-install-pwa').style.display = 'none'; 
-            document.getElementById('ios-instructions').style.display = 'block'; 
-        }
+    if (!groupSize) {
+        // Si pas de groupe défini, on affiche le pop-up
+        const groupModal = document.getElementById('group-modal');
+        if(groupModal) groupModal.style.display = 'flex';
+    } else if (groupBadge) {
+        // Si déjà défini, on l'affiche en haut de l'écran
+        groupBadge.innerHTML = `👨‍👩‍👧‍👦 Groupe : <b>${groupSize}</b> pers.`;
+        groupBadge.style.display = 'inline-block';
     }
-});
+}
 
-// 🎮 LOGIQUE DE JEU CLASSIQUE
+window.setGroupSize = function(size) {
+    localStorage.setItem('centurioGroupSize', size);
+    document.getElementById('group-modal').style.display = 'none';
+    checkGroupSize(); // Met à jour l'affichage
+};
+
+// 🎮 NOUVELLE LISTE DES STANDS
 const games = [
-    { id: 'mk', name: 'Mario Kart', desc: 'Finir dans le Top 3' },
-    { id: 'mp', name: 'Mario Party', desc: 'Gagner un mini-jeu' },
-    { id: 'ss', name: 'Switch Sports', desc: 'Faire un strike au Bowling' },
-    { id: 'tk', name: 'Tekken', desc: 'Gagner un combat' },
-    { id: 'jd', name: 'Just Dance', desc: 'Obtenir 4 étoiles minimum' },
-    { id: 'tm', name: 'Trackmania', desc: 'Battre le temps fantôme' },
-    { id: 'fg', name: 'Fall Guys', desc: 'Se qualifier à la 1ère manche' },
-    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: 'Présentez ce QR Code à l accueil pour votre lot !' }
+    { id: 's1', name: 'Stand 1', desc: 'Valider l\'animation du Stand 1' },
+    { id: 's2', name: 'Stand 2', desc: 'Valider l\'animation du Stand 2' },
+    { id: 's3', name: 'Stand 3', desc: 'Valider l\'animation du Stand 3' },
+    { id: 's4', name: 'Stand 4', desc: 'Valider l\'animation du Stand 4' },
+    { id: 's5', name: 'Stand 5', desc: 'Valider l\'animation du Stand 5' },
+    { id: 's6', name: 'Stand 6', desc: 'Valider l\'animation du Stand 6' },
+    { id: 's7', name: 'Stand 7', desc: 'Valider l\'animation du Stand 7' },
+    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: 'Présentez ce QR Code à l accueil !' }
 ];
 
 let userId = localStorage.getItem('centurioUserId');
@@ -83,7 +62,7 @@ window.syncWithServer = function() {
                 if (data.surveyDone) localStorage.setItem('centurioSurveyDone', 'true');
                 renderGames();
             }
-        }).catch(err => console.log("Sync ignorée (Réseau faible ou Hors-ligne)"));
+        }).catch(err => console.log("Sync ignorée (Réseau faible)"));
 };
 
 try {
@@ -96,18 +75,10 @@ try {
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
             
-            const now = new Date();
-            const formattedDate = now.toLocaleDateString('fr-FR');
-            const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
-            localStorage.setItem('centurioLastValidationTime', `Dernier défi validé le ${formattedDate} à ${formattedTime}`);
-            
             closeModal();
 
             if (typeof confetti !== 'undefined') {
-                confetti({
-                    particleCount: 150, spread: 80, origin: { y: 0.6 },
-                    colors: ['#f8aa37', '#3a2a40', '#4CAF50', '#ffffff']
-                });
+                confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 }, colors: ['#f8aa37', '#3a2a40', '#4CAF50', '#ffffff'] });
             }
             
             if (gameId === 'cadeau') {
@@ -123,7 +94,7 @@ try {
             renderGames();
         });
     }
-} catch(e) { console.error("Radio bloquée, mode Manuel"); }
+} catch(e) {}
 
 try {
     if (typeof FingerprintJS !== 'undefined') {
@@ -161,7 +132,7 @@ function renderGames() {
             card.innerHTML = `
                 <div class="game-info" style="text-align: left;">
                     <h3>${game.name}</h3>
-                    <p>${isDone ? 'Défi validé ✅' : game.desc}</p>
+                    <p>${isDone ? 'Validé ✅' : game.desc}</p>
                 </div>
                 ${isDone ? '<button class="btn-valider" style="opacity: 0.5; cursor: default;">OK</button>' : `<button class="btn-valider" onclick="openModal('${game.id}')">Scan</button>`}
             `;
@@ -175,8 +146,7 @@ function renderGames() {
             surveyCard.innerHTML = `
                 <div class="game-info" style="text-align: left;">
                     <h3>📝 Votre avis compte !</h3>
-                    <p style="font-size: 11px; color: #aaa; margin-top: 5px;">Questionnaire 100% anonyme.</p>
-                    <p style="font-size: 12px; color: #ff4d4d; font-weight: bold; margin-top: 5px;">⚠️ Obligatoire pour le cadeau.</p>
+                    <p style="font-size: 11px; color: #aaa; margin-top: 5px;">Questionnaire obligatoire pour le cadeau.</p>
                 </div>
                 <button class="btn-valider" style="background-color: #55acee;" onclick="openSurvey()">Répondre</button>
             `;
@@ -211,80 +181,41 @@ function renderGames() {
         if (canvas) {
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, 200, 200);
-            
-            // L'anneau gris transparent
             ctx.beginPath(); ctx.arc(100, 100, 90, 0, 2 * Math.PI); 
             ctx.strokeStyle = 'rgba(255,255,255,0.1)'; 
             ctx.lineWidth = 15; ctx.stroke();
-            
-            // L'anneau orange (progression)
             if (percentage > 0) {
                 ctx.beginPath(); ctx.arc(100, 100, 90, -0.5 * Math.PI, (-0.5 * Math.PI) + (percentage / 100) * 2 * Math.PI);
                 ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 18; ctx.lineCap = 'round'; ctx.stroke();
             }
         }
-
-        const timeInfo = document.getElementById('last-validation-info');
-        const savedTime = localStorage.getItem('centurioLastValidationTime');
-        if (savedTime && count > 0 && timeInfo) {
-            timeInfo.innerText = savedTime;
-            timeInfo.style.display = 'block';
-            timeInfo.style.animation = 'fadeIn 0.5s ease-out'; 
-        } else if (timeInfo) {
-            timeInfo.style.display = 'none';
-        }
-
-    } catch(err) { console.error("Erreur Affichage :", err); }
+    } catch(err) { console.error("Erreur :", err); }
 }
 
-// 🚀 LE GÉNÉRATEUR MAGIQUE DE QR CODE (CORRECTION DU DOUBLON)
 window.openModal = function(gameId) {
-    if (!userId) return alert("Chargement du profil, patientez 1 seconde !");
+    if (!userId) return alert("Chargement, patientez...");
     
     document.getElementById('animator-modal').style.display = 'flex';
-    const adminUrl = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
+    
+    // On attache la taille du groupe à l'URL du QR Code pour que l'animateur la lise !
+    const groupSize = localStorage.getItem('centurioGroupSize') || 1;
+    const adminUrl = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}&group=${groupSize}`;
     
     const qrContainer = document.getElementById('qr-container');
-    qrContainer.innerHTML = ''; // On vide pour être propre
+    qrContainer.innerHTML = '';
     
     if (typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, {
-            text: adminUrl,
-            width: 200, 
-            height: 200,
-            colorDark : "#291834", 
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.L
-        });
-        
+        new QRCode(qrContainer, { text: adminUrl, width: 200, height: 200, colorDark: "#291834", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
         setTimeout(() => {
-            // L'outil génère DEUX éléments : un brouillon (canvas) et une vraie image (img)
-            const canvas = qrContainer.querySelector('canvas');
             const img = qrContainer.querySelector('img');
-            
-            // On s'assure que le brouillon reste bien caché !
-            if (canvas) {
-                canvas.style.display = "none";
-            }
-            
-            // On habille uniquement la vraie image
             if (img) {
-                img.style.padding = "12px"; 
-                img.style.background = "#ffffff";
-                img.style.borderRadius = "15px"; 
-                img.style.border = "5px solid var(--brand, #f8aa37)"; 
-                img.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; 
-                img.style.margin = "0 auto";
-                img.style.display = "block";
-                
-                // La correction anti-coupure 
-                img.style.maxWidth = "100%"; 
-                img.style.height = "auto";
+                img.style.padding = "12px"; img.style.background = "#ffffff";
+                img.style.borderRadius = "15px"; img.style.border = "5px solid var(--brand, #f8aa37)"; 
+                img.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; img.style.margin = "0 auto";
+                img.style.display = "block"; img.style.maxWidth = "100%"; img.style.height = "auto";
                 img.style.boxSizing = "border-box";
             }
         }, 50);
-    } else {
-        qrContainer.innerHTML = "<p style='color:red;'>Outil de dessin introuvable. Videz le cache.</p>";
     }
 };
 
@@ -312,12 +243,13 @@ window.submitSurvey = function() {
     }).then(() => {
         localStorage.setItem('centurioSurveyDone', 'true');
         document.getElementById('survey-modal').style.display = 'none';
-        
         if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
-        
         setTimeout(() => alert("Merci beaucoup ! Cadeau débloqué ! 🎁"), 500);
         renderGames();
-    }).catch(e => console.error(e));
+    });
 };
 
-document.addEventListener('DOMContentLoaded', renderGames);
+document.addEventListener('DOMContentLoaded', () => {
+    renderGames();
+    checkGroupSize(); // Lance la vérification du groupe au démarrage !
+});
