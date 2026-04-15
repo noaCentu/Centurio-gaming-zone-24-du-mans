@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=45">
+    <link rel="stylesheet" href="style.css?v=46">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -43,7 +43,6 @@
         h1, h2, h3 { color: var(--text-main) !important; text-shadow: none !important; }
         p { color: var(--text-muted) !important; }
 
-        /* 🚨 LA BARRE DE MENU TOUJOURS SOMBRE 🚨 */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; transition: 0.3s; }
         body.light-mode .header-v2 { background-color: #291834; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .header-title, .hamburger-btn, .lang-btn { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
@@ -54,7 +53,6 @@
         .game-card { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
         .game-card.done { border-left: 5px solid #4CAF50; opacity: 0.8; }
 
-        /* Le menu déroulant s'adapte lui ! */
         .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
         .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
@@ -73,7 +71,6 @@
         .btn-outline:active, .btn-outline:hover { background: var(--text-main); color: var(--modal-bg); border-color: var(--text-main); }
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        /* CORRECTION DES CONTRASTES DU QUESTIONNAIRE */
         textarea { background: var(--input-bg) !important; color: var(--text-main) !important; border: 2px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; font-family: inherit; }
         textarea::placeholder { color: #888888; }
         .survey-option { border: 2px solid var(--border-line); background: var(--input-bg); padding: 10px; border-radius: 5px; cursor: pointer; color: var(--text-main); font-weight: bold; }
@@ -83,7 +80,6 @@
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* Masquer la barre Google moche */
         body { top: 0 !important; }
         .skiptranslate { display: none !important; }
     </style>
@@ -109,7 +105,7 @@
                 <div onclick="changeLang('ja', '🇯🇵')">🇯🇵 JA</div>
             </div>
         </div>
-        <div class="header-title">Gaming Zone<br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div class="header-title"><span class="notranslate">Gaming Zone</span><br><span style="font-size: 14px;">24h du Mans</span></div>
         <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
     </div>
 
@@ -158,7 +154,7 @@
             <h3>Questionnaire</h3>
             <p style="font-size: 12px; margin-bottom: 15px;">Ce formulaire est rapide et anonyme.</p>
             
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">1. Expérience de la Gaming Zone ? *</div>
+            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">1. Expérience de la <span class="notranslate">Gaming Zone</span> ? *</div>
             <div class="survey-scale" id="scale-q1">
                 <div class="survey-option" onclick="selectOpt('q1',1)">1</div><div class="survey-option" onclick="selectOpt('q1',2)">2</div><div class="survey-option" onclick="selectOpt('q1',3)">3</div><div class="survey-option" onclick="selectOpt('q1',4)">4</div><div class="survey-option" onclick="selectOpt('q1',5)">5</div>
             </div>
@@ -205,7 +201,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=45"></script>
+    <script src="script.js?v=46"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
     </script>
