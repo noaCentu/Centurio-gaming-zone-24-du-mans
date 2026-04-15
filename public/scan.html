@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scanner Centurio PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=36">
+    <link rel="stylesheet" href="style.css?v=37">
     
     <script src="https://unpkg.com/html5-qrcode"></script>
     
@@ -120,22 +120,22 @@
             }
         }
 
-        // 🚀 LES RÉGLAGES EXTRÊMES DE LA CAMÉRA
+        // 🚀 LES RÉGLAGES DU SCANNER (Ultra-rapide mais TRÈS TOLÉRANT)
         const cameraConfig = { 
-            fps: 60, 
-            qrbox: { width: 250, height: 250 }, 
+            fps: 30, // 30 images/sec c'est fluide sans faire chauffer le téléphone
+            qrbox: { width: 250, height: 250 }, // Le carré magique du Sniper
             disableFlip: false 
         };
         
-        // 🚀 FORCER L'AUTOFOCUS ET LA HAUTE RÉSOLUTION
-        const videoConstraints = {
-            facingMode: "environment", 
-            width: { min: 640, ideal: 1280, max: 1920 }, 
-            height: { min: 480, ideal: 720, max: 1080 },
-            focusMode: "continuous" 
-        };
-
-        html5QrCode.start(videoConstraints, cameraConfig, onScanSuccess, () => {}).catch(() => alert("🚨 ERREUR CAMÉRA : Autorisez l'accès à l'appareil photo !"));
+        // 🚀 LE DOUBLE DÉMARRAGE (Anti-Crash PC / Mobile)
+        // 1. On essaie d'abord d'allumer la caméra arrière (téléphones)
+        html5QrCode.start({ facingMode: "environment" }, cameraConfig, onScanSuccess, () => {})
+        .catch(() => {
+            console.warn("Caméra arrière introuvable, tentative avec la caméra frontale...");
+            // 2. Si ça échoue (PC ou vieille tablette), on allume la webcam normale
+            html5QrCode.start({ facingMode: "user" }, cameraConfig, onScanSuccess, () => {})
+            .catch(() => alert("🚨 ERREUR : Le navigateur bloque la caméra. Avez-vous cliqué sur 'Autoriser' ?"));
+        });
 
         function logout() {
             sessionStorage.removeItem('centurioAdminToken');
