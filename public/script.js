@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v44 - Thème ciblé & Navbar sombre !");
+console.log("🚀 Script Centurio v45 - Langues globales & Formulaires parfaits !");
 
 // 📱 SERVICE WORKER (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -7,7 +7,32 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 🌓 GESTION DU THÈME JOUR / NUIT
+// 🌍 GESTION DES LANGUES (Globale pour toutes les pages)
+window.toggleLang = function() {
+    const menu = document.getElementById('lang-list');
+    if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+};
+
+window.changeLang = function(langCode, flag) {
+    const btn = document.querySelector('.lang-btn');
+    if (btn) btn.innerText = flag;
+    
+    const menu = document.getElementById('lang-list');
+    if (menu) menu.style.display = 'none';
+    
+    localStorage.setItem('centurioFlag', flag);
+    
+    const select = document.querySelector('.goog-te-combo');
+    if (select) {
+        select.value = langCode;
+        select.dispatchEvent(new Event('change'));
+    } else {
+        document.cookie = `googtrans=/fr/${langCode}; path=/`;
+        window.location.reload();
+    }
+};
+
+// 🌓 GESTION GLOBALE DU THÈME JOUR / NUIT
 window.toggleTheme = function() {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
@@ -56,6 +81,7 @@ const games = [
 
 let userId = localStorage.getItem('centurioUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('centurioUserId', userId);
+
 let socket = null;
 
 window.syncWithServer = function() {
@@ -175,6 +201,7 @@ window.updateChart = function(count) {
     }
 };
 
+// 🚀 LE QR CODE
 window.openModal = function(gameId) {
     document.getElementById('animator-modal').style.display = 'flex';
     const group = localStorage.getItem('centurioGroupSize') || 1;
@@ -232,7 +259,14 @@ window.submitSurvey = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 🚨 SÉCURITÉ : On n'applique le thème clair QUE SI on n'est PAS sur la page d'accueil (index.html)
+    // Restaure le drapeau de la langue sélectionnée
+    const savedFlag = localStorage.getItem('centurioFlag');
+    if (savedFlag) {
+        const langBtn = document.querySelector('.lang-btn');
+        if (langBtn) langBtn.innerText = savedFlag;
+    }
+
+    // SÉCURITÉ : Pas de mode clair sur l'index
     const isLight = localStorage.getItem('centurioTheme') === 'light';
     const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
     
