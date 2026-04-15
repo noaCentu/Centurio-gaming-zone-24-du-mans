@@ -5,30 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scanner Centurio PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=46">
-    
+    <link rel="stylesheet" href="style.css?v=56">
     <script src="https://unpkg.com/html5-qrcode"></script>
     
     <style>
         :root {
-            --bg-body: #291834;
-            --text-main: #ffffff;
-            --text-muted: #dddddd;
-            --glass-bg: rgba(41, 24, 52, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --modal-bg: #1e1e1e;
-            --border-line: #555555;
-            --input-bg: #2a2a2a;
+            --bg-body: #291834; --text-main: #ffffff; --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75); --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-bg: #1e1e1e; --border-line: #555555; --input-bg: #2a2a2a;
         }
         body.light-mode {
-            --bg-body: #f4f4f9;
-            --text-main: #291834;
-            --text-muted: #555555;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(41, 24, 52, 0.15);
-            --modal-bg: #ffffff;
-            --border-line: #dddddd;
-            --input-bg: #f0f0f0;
+            --bg-body: #f4f4f9; --text-main: #291834; --text-muted: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.95); --glass-border: rgba(41, 24, 52, 0.15);
+            --modal-bg: #ffffff; --border-line: #dddddd; --input-bg: #f0f0f0;
         }
 
         html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; }
@@ -42,23 +31,26 @@
 
         #reader { width: 100%; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--brand, #f8aa37); background-color: black; }
         
+        /* MENU AFFLUENCE */
+        .affluence-box { margin-top: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 15px; border: 1px solid var(--glass-border); }
+        .affluence-box h3 { margin-top: 0; font-size: 15px; margin-bottom: 10px; }
+        .affluence-box select { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border-line); background: var(--input-bg); color: var(--text-main); font-family: inherit; font-weight: bold; outline: none; cursor: pointer; }
+
         .btn-avis { background: #673AB7; color: white; border: none; padding: 12px; width: 100%; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 30px; box-shadow: 0 4px 10px rgba(103, 58, 183, 0.3); }
         .survey-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .survey-content { background: var(--modal-bg); color: var(--text-main); padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-line); }
+        .survey-content { background: var(--modal-bg); color: var(--text-main); padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; border: 1px solid var(--border-line); }
         .survey-q { margin-bottom: 15px; text-align: left; }
-        .survey-q p { font-size: 14px; font-weight: 600; margin-bottom: 5px; color: var(--text-main); line-height: 1.3; }
+        .survey-q p { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
         
         .stars { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
         .stars span { font-size: 35px; color: #888888; cursor: pointer; transition: 0.2s; }
         .stars span.active { color: var(--brand, #f8aa37); }
         
         textarea { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 2px solid var(--border-line); background: var(--input-bg); color: var(--text-main); font-family: inherit; margin-bottom: 15px; }
-        textarea::placeholder { color: #888888; }
-        .btn-submit-survey { background: var(--brand, #f8aa37); color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
+        .btn-submit-survey { background: var(--brand, #f8aa37); color: white; border: none; padding: 15px; width: 100%; font-weight: bold; border-radius: 10px; cursor: pointer; }
         .btn-cancel { background: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
         
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-
         body { top: 0 !important; }
         .skiptranslate { display: none !important; }
     </style>
@@ -72,13 +64,22 @@
         <div class="header-title"><span class="notranslate">Scanner</span> <span>Staff</span></div>
     </div>
 
-    <div class="page-content" style="text-align: center; padding-bottom: 30px; margin-top: 20px;">
+    <div class="page-content" style="margin-top: 20px;">
         <h2 style="margin-bottom: 5px;">Validation Rapide</h2>
         <p style="font-size: 13px; margin-bottom: 20px;">Pointez vers le QR Code.</p>
         
         <div id="reader"></div>
-        
-        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; margin-left: auto; margin-right: auto;"></div>
+        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none;"></div>
+
+        <div class="affluence-box">
+            <h3>🚦 Affluence en salle</h3>
+            <select id="affluence-select" onchange="updateAffluence(this.value)">
+                <option value="1">🟢 Fluide (Piste dégagée)</option>
+                <option value="2">🟡 Modérée (Trafic léger)</option>
+                <option value="3">🟠 Forte (Piste chargée)</option>
+                <option value="4">🔴 Saturée (Bouchons !)</option>
+            </select>
+        </div>
 
         <button id="btn-open-survey" class="btn-avis" onclick="document.getElementById('admin-survey').style.display='flex'">📝 Donner mon avis sur l'application</button>
         <button class="btn-cancel" onclick="logout()" style="margin-top: 20px;">Se déconnecter</button>
@@ -87,31 +88,10 @@
     <div class="survey-modal" id="admin-survey">
         <div class="survey-content">
             <h3 style="margin-bottom: 15px; text-align: center;">Feedback Animateurs</h3>
-            
-            <div class="survey-q">
-                <p>1. Facilité d'utilisation du scanner QR Code ?</p>
-                <div class="stars" id="sq1">
-                    <span onclick="rate('sq1', 1)">★</span><span onclick="rate('sq1', 2)">★</span><span onclick="rate('sq1', 3)">★</span><span onclick="rate('sq1', 4)">★</span><span onclick="rate('sq1', 5)">★</span>
-                </div>
-            </div>
-
-            <div class="survey-q">
-                <p>2. Stabilité et rapidité de l'application ?</p>
-                <div class="stars" id="sq2">
-                    <span onclick="rate('sq2', 1)">★</span><span onclick="rate('sq2', 2)">★</span><span onclick="rate('sq2', 3)">★</span><span onclick="rate('sq2', 4)">★</span><span onclick="rate('sq2', 5)">★</span>
-                </div>
-            </div>
-
-            <div class="survey-q" style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px;">
-                <p style="color: var(--brand, #f8aa37);">3. (Optionnel)</p>
-                <p style="font-size: 12px; margin-bottom: 5px;">Avantage par rapport au carnet papier ?</p>
-                <div class="stars" id="sq3">
-                    <span onclick="rate('sq3', 1)">★</span><span onclick="rate('sq3', 2)">★</span><span onclick="rate('sq3', 3)">★</span><span onclick="rate('sq3', 4)">★</span><span onclick="rate('sq3', 5)">★</span>
-                </div>
-            </div>
-
+            <div class="survey-q"><p>1. Facilité d'utilisation du scanner ?</p><div class="stars" id="sq1"><span onclick="rate('sq1', 1)">★</span><span onclick="rate('sq1', 2)">★</span><span onclick="rate('sq1', 3)">★</span><span onclick="rate('sq1', 4)">★</span><span onclick="rate('sq1', 5)">★</span></div></div>
+            <div class="survey-q"><p>2. Stabilité et rapidité de l'application ?</p><div class="stars" id="sq2"><span onclick="rate('sq2', 1)">★</span><span onclick="rate('sq2', 2)">★</span><span onclick="rate('sq2', 3)">★</span><span onclick="rate('sq2', 4)">★</span><span onclick="rate('sq2', 5)">★</span></div></div>
+            <div class="survey-q" style="background: rgba(0,0,0,0.1); padding: 10px; border-radius: 8px;"><p style="color: var(--brand, #f8aa37);">3. (Optionnel)</p><p style="font-size: 12px; margin-bottom: 5px;">Avantage par rapport au papier ?</p><div class="stars" id="sq3"><span onclick="rate('sq3', 1)">★</span><span onclick="rate('sq3', 2)">★</span><span onclick="rate('sq3', 3)">★</span><span onclick="rate('sq3', 4)">★</span><span onclick="rate('sq3', 5)">★</span></div></div>
             <textarea id="s-comment" rows="3" placeholder="Une idée, un bug, une suggestion ?"></textarea>
-            
             <button class="btn-submit-survey" onclick="submitAdminSurvey()">Envoyer mon avis</button>
             <button class="btn-cancel" onclick="document.getElementById('admin-survey').style.display='none'">Fermer</button>
         </div>
@@ -119,7 +99,7 @@
 
     <button id="night-btn" onclick="toggleTheme()">☀️</button>
 
-    <script src="script.js?v=46"></script>
+    <script src="script.js?v=56"></script>
     <script>
         const token = sessionStorage.getItem('centurioAdminToken');
         if (!token) window.location.href = "index.html"; 
@@ -127,6 +107,22 @@
         if (localStorage.getItem('centurioAdminSurveyDone')) {
             document.getElementById('btn-open-survey').style.display = 'none';
         }
+
+        // --- GESTION AFFLUENCE COTE ADMIN ---
+        // Récupérer la valeur actuelle au chargement
+        fetch('/api/affluence')
+            .then(res => res.json())
+            .then(data => { if(data.success) document.getElementById('affluence-select').value = data.level; });
+
+        // Mettre à jour et envoyer au serveur
+        function updateAffluence(level) {
+            fetch('/api/affluence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token, level: parseInt(level) })
+            });
+        }
+        // ------------------------------------
 
         const html5QrCode = new Html5Qrcode("reader");
         let isProcessing = false; 
@@ -174,17 +170,10 @@
                     html5QrCode.start(cameraId, cameraConfig, onScanSuccess, () => {})
                     .catch(err => alert("🚨 Échec : Autorisez la caméra."));
                 });
-            } else {
-                alert("🚨 Aucune caméra détectée.");
             }
-        }).catch(err => {
-            alert("🚨 BLOCAGE : Nécessite une connexion sécurisée.");
         });
 
-        function logout() {
-            sessionStorage.removeItem('centurioAdminToken');
-            window.location.href = "index.html";
-        }
+        function logout() { sessionStorage.removeItem('centurioAdminToken'); window.location.href = "index.html"; }
 
         let scores = { sq1: 0, sq2: 0, sq3: 0 };
         function rate(qId, val) {
@@ -195,7 +184,6 @@
 
         function submitAdminSurvey() {
             if(scores.sq1 === 0 || scores.sq2 === 0) return alert("Veuillez noter les questions 1 et 2 !");
-            
             fetch('/api/admin_survey', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ q1: scores.sq1, q2: scores.sq2, q3: scores.sq3, comment: document.getElementById('s-comment').value, token: token })
