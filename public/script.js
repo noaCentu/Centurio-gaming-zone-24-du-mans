@@ -1,13 +1,13 @@
-console.log("🚀 Script Centurio v41 - Thème Adaptatif & Contraste !");
+console.log("🚀 Script Centurio v43 - Thème global, Stands, Groupe !");
 
-// 📱 SERVICE WORKER POUR LE MODE HORS-LIGNE
+// 📱 SERVICE WORKER (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Error', err));
     });
 }
 
-// 🌓 GESTION DU THÈME JOUR / NUIT
+// 🌓 GESTION GLOBALE DU THÈME JOUR / NUIT
 window.toggleTheme = function() {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
@@ -16,8 +16,10 @@ window.toggleTheme = function() {
     const btn = document.getElementById('night-btn');
     if (btn) btn.innerText = isLight ? '🌙' : '☀️';
     
-    // On redessine le graphique pour qu'il change de couleur !
-    if (typeof renderGames === 'function') renderGames(); 
+    // Si on est sur la page des défis, on redessine le graphique
+    if (typeof renderGames === 'function' && document.getElementById('progress-chart')) {
+        renderGames(); 
+    }
 };
 
 // 👨‍👩‍👧‍👦 GESTION DU GROUPE
@@ -58,8 +60,8 @@ localStorage.setItem('centurioUserId', userId);
 
 let socket = null;
 
-// SYNC AVEC RENDER
 window.syncWithServer = function() {
+    if (!userId) return;
     fetch(`/api/my-progress/${userId}`)
         .then(res => res.json())
         .then(data => {
@@ -68,12 +70,11 @@ window.syncWithServer = function() {
                 data.games.forEach(gId => { progress[gId] = true; });
                 localStorage.setItem('centurioProgress', JSON.stringify(progress));
                 if (data.surveyDone) localStorage.setItem('centurioSurveyDone', 'true');
-                renderGames();
+                if (document.getElementById('games-list')) renderGames();
             }
         }).catch(() => {});
 };
 
-// SOCKET POUR RECEVOIR LA VALIDATION
 try {
     if (typeof io !== 'undefined') {
         socket = io();
@@ -82,9 +83,9 @@ try {
             let progress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
-            closeModal();
+            if (typeof closeModal === 'function') closeModal();
             if (typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-            renderGames();
+            if (document.getElementById('games-list')) renderGames();
         });
     }
 } catch(e) {}
@@ -106,8 +107,8 @@ try {
 
 setInterval(syncWithServer, 5000);
 
-// AFFICHAGE DES CARTES
-function renderGames() {
+// AFFICHAGE DES DÉFIS (Seulement sur defis.html)
+window.renderGames = function() {
     const list = document.getElementById('games-list');
     if (!list) return; 
     list.innerHTML = '';
@@ -123,24 +124,38 @@ function renderGames() {
         const card = document.createElement('div');
         card.className = `game-card ${isDone ? 'done' : ''}`;
         
-        let btnHtml = `<button class="btn-valider" onclick="openModal('${game.id}')" style="background:#f8aa37; border:none; color:white; padding:8px 15px; border-radius:8px; font-weight:bold;">Scan</button>`;
+        let btnHtml = `<button class="btn-group-select" onclick="openModal('${game.id}')">Scan</button>`;
         if (isDone) btnHtml = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`;
-        if (game.id === 'cadeau' && !surveyDone && !isDone) btnHtml = `<button onclick="alert('Faites le questionnaire !')" style="background:#444; border:none; color:#888; padding:8px 15px; border-radius:8px;">🔒</button>`;
+        if (game.id === 'cadeau' && !surveyDone && !isDone) btnHtml = `<button class="btn-group-select" style="background:var(--border-line); color:var(--text-muted);" onclick="alert('Faites le questionnaire !')">🔒</button>`;
 
         card.innerHTML = `
             <div style="text-align:left;">
                 <h3 style="margin:0; font-size:16px;">${game.name}</h3>
-                <p style="margin:0; font-size:12px; opacity: 0.8;">${game.desc}</p>
+                <p style="margin:0; font-size:12px; opacity:0.8;">${game.desc}</p>
             </div>
             ${btnHtml}
         `;
         list.appendChild(card);
     });
 
-    updateChart(count);
-}
+    if (!surveyDone) {
+        const surveyCard = document.createElement('div');
+        surveyCard.className = 'game-card';
+        surveyCard.style.borderLeft = '4px dashed var(--brand)';
+        surveyCard.innerHTML = `
+            <div style="text-align: left;">
+                <h3 style="margin:0; font-size:16px;">📝 Votre avis !</h3>
+                <p style="margin:0; font-size:11px; opacity:0.8;">Obligatoire pour le cadeau.</p>
+            </div>
+            <button class="btn-group-select" style="background: #55acee;" onclick="openSurvey()">Répondre</button>
+        `;
+        list.appendChild(surveyCard);
+    }
 
-function updateChart(count) {
+    updateChart(count);
+};
+
+window.updateChart = function(count) {
     const percentage = Math.round((count / 7) * 100);
     const chartText = document.getElementById('chart-text');
     if(chartText) chartText.innerText = `${percentage}%`;
@@ -150,20 +165,19 @@ function updateChart(count) {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, 160, 160);
         
-        // 🎨 Adaptation de la couleur du fond du graphique selon le thème
         const isLight = document.body.classList.contains('light-mode');
         ctx.beginPath(); ctx.arc(80, 80, 70, 0, 2 * Math.PI); 
-        ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'; // Bien visible dans les 2 cas
-        ctx.lineWidth = 14; ctx.stroke(); // Plus épais
+        ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'; 
+        ctx.lineWidth = 14; ctx.stroke(); 
         
         if (percentage > 0) {
             ctx.beginPath(); ctx.arc(80, 80, 70, -0.5 * Math.PI, (-0.5 * Math.PI) + (percentage / 100) * 2 * Math.PI);
             ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.stroke();
         }
     }
-}
+};
 
-// QR CODE AVEC TAILLE DE GROUPE
+// 🚀 LE QR CODE (Parfait et Unique)
 window.openModal = function(gameId) {
     document.getElementById('animator-modal').style.display = 'flex';
     const group = localStorage.getItem('centurioGroupSize') || 1;
@@ -175,19 +189,24 @@ window.openModal = function(gameId) {
     if (typeof QRCode !== 'undefined') {
         new QRCode(qrContainer, { text: adminUrl, width: 200, height: 200, colorDark: "#291834", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
         setTimeout(() => {
+            const canvas = qrContainer.querySelector('canvas');
             const img = qrContainer.querySelector('img');
+            
+            if (canvas) canvas.style.display = "none";
             if (img) {
-                img.style.padding = "10px"; img.style.background = "white"; img.style.borderRadius = "10px";
-                img.style.border = "4px solid #f8aa37"; img.style.margin = "0 auto"; img.style.display = "block";
-                img.style.maxWidth = "100%"; img.style.height = "auto";
+                img.style.padding = "12px"; img.style.background = "#ffffff";
+                img.style.borderRadius = "15px"; img.style.border = "5px solid var(--brand, #f8aa37)"; 
+                img.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; img.style.margin = "0 auto";
+                img.style.display = "block"; img.style.maxWidth = "100%"; img.style.height = "auto";
+                img.style.boxSizing = "border-box";
             }
         }, 50);
     }
 };
 
 window.closeModal = function() { document.getElementById('animator-modal').style.display = 'none'; };
-
 window.openSurvey = function() { document.getElementById('survey-modal').style.display = 'flex'; };
+
 window.answers = { q1: null, q2: null, q3: null };
 window.selectOpt = function(question, value) {
     window.answers[question] = value;
@@ -211,20 +230,20 @@ window.submitSurvey = function() {
         document.getElementById('survey-modal').style.display = 'none';
         if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         setTimeout(() => alert("Merci beaucoup ! Cadeau débloqué ! 🎁"), 500);
-        renderGames();
+        if (document.getElementById('games-list')) renderGames();
     });
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 🌓 Initialisation du thème au lancement
+    // Appliquer le thème au lancement
     const isLight = localStorage.getItem('centurioTheme') === 'light';
-    if (isLight) {
-        document.body.classList.add('light-mode');
-    }
+    if (isLight) document.body.classList.add('light-mode');
     const btn = document.getElementById('night-btn');
     if (btn) btn.innerText = isLight ? '🌙' : '☀️';
 
     checkGroupSize();
-    renderGames();
-    syncWithServer();
+    if (document.getElementById('games-list')) {
+        renderGames();
+        syncWithServer();
+    }
 });
