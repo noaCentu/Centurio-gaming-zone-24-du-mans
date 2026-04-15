@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Plan - Gaming Zone</title>
+    <title>Plan Interactif - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=52">
+    <link rel="stylesheet" href="style.css?v=53">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -17,10 +17,9 @@
             --glass-bg: rgba(41, 24, 52, 0.75);
             --glass-border: rgba(255, 255, 255, 0.15);
             --modal-bg: #1e1e1e;
-            --menu-bg: #1a1a1a;
             --border-line: #444444;
-            --input-bg: #2a2a2a;
             --card-bg: rgba(255,255,255,0.1);
+            --success: #4CAF50;
         }
         body.light-mode {
             --bg-body: #f4f4f9;
@@ -29,89 +28,97 @@
             --glass-bg: rgba(255, 255, 255, 0.95);
             --glass-border: rgba(41, 24, 52, 0.15);
             --modal-bg: #ffffff;
-            --menu-bg: #ffffff;
             --border-line: #dddddd;
-            --input-bg: #f9f9f9;
             --card-bg: rgba(0,0,0,0.05);
         }
 
-        html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; }
-        
+        html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease; }
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         body.light-mode .fullscreen-bg { display: none; }
         
-        h1, h2, h3 { color: var(--text-main) !important; text-shadow: none !important; }
-        p { color: var(--text-muted) !important; line-height: 1.6; }
-
-        /* NAVBAR TOUJOURS SOMBRE */
+        /* NAVBAR */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; transition: 0.3s; }
         body.light-mode .header-v2 { background-color: #291834; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .header-title, .hamburger-btn, .lang-btn { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
         .hamburger-btn { font-size: 24px; cursor: pointer; }
 
-        .page-content { width: 90%; max-width: 600px; margin: 0 auto 20px; padding: 25px 20px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); position: relative; z-index: 1; transition: 0.3s; }
-        
-        /* 🗺️ LE PLAN EN CSS (Ultra-propre) */
+        .page-content { width: 95%; max-width: 600px; margin: 0 auto 20px; padding: 25px 15px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); position: relative; z-index: 1; transition: 0.3s; }
+
+        /* 🗺️ LE PLAN INTERACTIF */
         .map-container {
             display: grid;
-            grid-template-columns: 1fr 1.5fr 1fr;
-            gap: 10px;
-            background: var(--bg-body);
-            padding: 15px;
+            grid-template-columns: 1fr 1.2fr 1fr;
+            gap: 8px;
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
             border-radius: 15px;
-            border: 2px solid var(--border-line);
-            margin-bottom: 25px;
+            border: 1px solid var(--glass-border);
+            margin-bottom: 20px;
         }
         
-        .map-col { display: flex; flex-direction: column; gap: 10px; }
+        .map-col { display: flex; flex-direction: column; gap: 8px; }
         .map-col-center { display: flex; flex-direction: column; justify-content: space-between; }
         
         .map-box {
             background: var(--card-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            padding: 10px 5px;
+            border-radius: 10px;
+            padding: 12px 5px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 11px;
-            font-weight: bold;
-            flex: 1;
-            color: var(--text-main);
+            font-size: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            min-height: 50px;
         }
+        .map-box:active { transform: scale(0.95); }
         
-        .map-box.stand { border: 2px solid var(--brand, #f8aa37); color: var(--brand, #f8aa37); }
-        .map-box.scene { background: rgba(248, 170, 55, 0.15); border: 2px dashed var(--brand, #f8aa37); height: 80px; flex: none; font-size: 14px; }
-        .map-box.accueil { background: #4CAF50; color: white; border: none; height: 50px; flex: none; font-size: 14px; }
+        /* État Validé */
+        .map-box.done { 
+            background: rgba(76, 175, 80, 0.2) !important; 
+            border-color: var(--success) !important; 
+            color: var(--success) !important; 
+        }
+        .map-box.done::after { content: '✅'; position: absolute; top: -5px; right: -5px; font-size: 14px; }
 
-        /* Chaises de la scène */
-        .seats-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; padding: 10px; opacity: 0.5; }
-        .seat { background: var(--text-main); height: 12px; border-radius: 3px; }
+        .map-box.stand { border: 1.5px solid var(--brand, #f8aa37); color: var(--text-main); }
+        .map-box.scene { background: rgba(248, 170, 55, 0.1); border: 2px dashed var(--brand, #f8aa37); height: 80px; flex: none; font-size: 14px; cursor: default; }
+        .map-box.accueil { background: #4CAF50; color: white; border: none; height: 50px; flex: none; font-size: 13px; cursor: default; }
 
-        /* Légende */
-        .legend-box { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; text-align: left; font-size: 13px; }
-        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .legend-color { width: 15px; height: 15px; border-radius: 3px; }
+        .seats-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; opacity: 0.3; }
+        .seat { background: var(--text-main); height: 8px; border-radius: 2px; }
 
-        /* MENU DEROUlant */
+        /* MODALE INFO STAND */
+        .modal-info { background: var(--modal-bg); border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--glass-border); width: 85%; max-width: 350px; }
+        .modal-info h3 { color: var(--brand, #f8aa37) !important; margin-bottom: 10px; }
+        .modal-info p { font-size: 14px; margin-bottom: 20px; }
+
+        /* MENUS */
         .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
         .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
-        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .menu-overlay, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2999; }
+        .menu-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .menu-overlay.open { opacity: 1; pointer-events: auto; }
-        
+        .modal-overlay { z-index: 4000; display: none; align-items: center; justify-content: center; }
+
         .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: var(--text-main); margin-bottom: 20px; border: none; background: transparent; }
         .side-menu a, .lang-menu div { text-decoration: none; color: var(--text-main) !important; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid var(--border-line); display: flex; align-items: center; gap: 10px; transition: 0.2s; cursor: pointer; }
         .side-menu a:hover, .lang-menu div:hover { background: var(--card-bg); color: var(--brand) !important; }
 
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .btn-outline { background: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; }
 
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        body { top: 0 !important; }
         .skiptranslate { display: none !important; }
+        body { top: 0 !important; }
     </style>
 </head>
 <body>
@@ -149,18 +156,19 @@
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
+            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Staff</a>
         </div>
     </div>
 
     <div class="page-content fade-in">
-        <h2 style="margin-bottom: 20px;">Plan interactif</h2>
+        <h2 style="margin-bottom: 5px;">Plan tactique</h2>
+        <p style="font-size: 12px; margin-bottom: 15px;">Cliquez sur un stand pour voir le défi !</p>
         
         <div class="map-container">
             <div class="map-col">
-                <div class="map-box stand">Mario Party</div>
-                <div class="map-box stand">Switch Sports</div>
-                <div class="map-box stand">Mario Kart</div>
+                <div class="map-box stand" data-id="s1" onclick="showInfo('s1')">Mario Party</div>
+                <div class="map-box stand" data-id="s2" onclick="showInfo('s2')">Switch Sports</div>
+                <div class="map-box stand" data-id="s3" onclick="showInfo('s3')">Mario Kart</div>
             </div>
             
             <div class="map-col-center">
@@ -169,43 +177,73 @@
                     <div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div>
                     <div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div>
                     <div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div>
-                    <div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div><div class="seat"></div>
                 </div>
                 <div class="map-box accueil">ACCUEIL</div>
             </div>
             
             <div class="map-col">
-                <div class="map-box stand">Just Dance</div>
-                <div class="map-box stand">Fall Guys</div>
-                <div class="map-box stand">Trackmania</div>
-                <div class="map-box stand">Tekken 8</div>
+                <div class="map-box stand" data-id="s4" onclick="showInfo('s4')">Just Dance</div>
+                <div class="map-box stand" data-id="s5" onclick="showInfo('s5')">Fall Guys</div>
+                <div class="map-box stand" data-id="s6" onclick="showInfo('s6')">Trackmania</div>
+                <div class="map-box stand" data-id="s7" onclick="showInfo('s7')">Tekken 8</div>
             </div>
         </div>
 
-        <div class="legend-box">
-            <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid var(--border-line); padding-bottom: 10px;">🕒 Horaires : 10h00 - 21h00</h3>
-            
-            <div class="legend-item">
-                <div class="legend-color" style="border: 2px solid var(--brand, #f8aa37);"></div>
-                <span>Stands d'animations (Jeux)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #4CAF50;"></div>
-                <span>Point de validation & Récupération des cadeaux</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: rgba(248, 170, 55, 0.15); border: 2px dashed var(--brand, #f8aa37);"></div>
-                <span>Scène principale & Sièges</span>
-            </div>
-        </div>
+        <p style="font-size: 11px; opacity: 0.7; font-style: italic;">Les stands validés apparaissent avec un ✅</p>
+    </div>
 
+    <div class="modal-overlay" id="info-modal">
+        <div class="modal-info fade-in">
+            <h3 id="info-title">Nom du stand</h3>
+            <p id="info-desc">Description du défi...</p>
+            <button class="btn-outline" onclick="document.getElementById('info-modal').style.display='none'">Fermer</button>
+        </div>
     </div>
 
     <button id="night-btn" onclick="toggleTheme()">☀️</button>
 
-    <script src="script.js?v=52"></script>
+    <script src="script.js?v=53"></script>
     <script>
-        function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
+        function toggleMenu() { 
+            document.getElementById('side-menu').classList.toggle('open'); 
+            document.getElementById('menu-overlay').classList.toggle('open'); 
+        }
+
+        const standDetails = {
+            's1': { name: 'Mario Party', desc: 'Remportez un mini-jeu contre les autres joueurs !' },
+            's2': { name: 'Switch Sports', desc: 'Faites un strike au Bowling ou gagnez un match de Tennis !' },
+            's3': { name: 'Mario Kart', desc: 'Finissez dans le Top 3 d\'une course acharnée !' },
+            's4': { name: 'Just Dance', desc: 'Obtenez au moins 4 étoiles sur la chorégraphie en cours !' },
+            's5': { name: 'Fall Guys', desc: 'Qualifiez-vous lors de la première manche de la session !' },
+            's6': { name: 'Trackmania', desc: 'Battez le temps de référence sur le circuit du jour !' },
+            's7': { name: 'Tekken 8', desc: 'Gagnez un combat en "Best of 3" contre un adversaire !' }
+        };
+
+        function showInfo(id) {
+            const data = standDetails[id];
+            if(!data) return;
+            document.getElementById('info-title').innerText = data.name;
+            document.getElementById('info-desc').innerText = data.desc;
+            document.getElementById('info-modal').style.display = 'flex';
+        }
+
+        function updateMapProgress() {
+            const progress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
+            document.querySelectorAll('.map-box.stand').forEach(box => {
+                const id = box.getAttribute('data-id');
+                if (progress[id]) {
+                    box.classList.add('done');
+                } else {
+                    box.classList.remove('done');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateMapProgress();
+            // On vérifie le progrès toutes les 5 secondes au cas où un scan a eu lieu
+            setInterval(updateMapProgress, 5000);
+        });
     </script>
 </body>
 </html>
