@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Affluence - Gaming Zone</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=56">
+    <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
+    <meta name="theme-color" content="#291834">
+
+    <style>
+        :root {
+            --bg-body: #291834; --text-main: #ffffff; --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75); --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-bg: #1e1e1e; --menu-bg: #1a1a1a; --border-line: #444444;
+            --card-bg: rgba(255,255,255,0.1);
+        }
+        body.light-mode {
+            --bg-body: #f4f4f9; --text-main: #291834; --text-muted: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.95); --glass-border: rgba(41, 24, 52, 0.15);
+            --modal-bg: #ffffff; --menu-bg: #ffffff; --border-line: #dddddd;
+            --card-bg: rgba(0,0,0,0.05);
+        }
+
+        html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
+        body.light-mode .fullscreen-bg { display: none; }
+        
+        h2 { color: var(--text-main) !important; text-shadow: none !important; }
+        p { color: var(--text-muted) !important; line-height: 1.6; }
+
+        /* NAVBAR */
+        .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; transition: 0.3s; }
+        body.light-mode .header-v2 { background-color: #291834; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header-title, .hamburger-btn, .lang-btn { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
+        .hamburger-btn { font-size: 24px; cursor: pointer; }
+
+        .page-content { width: 90%; max-width: 600px; margin: 0 auto 20px; padding: 35px 25px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); position: relative; z-index: 1; transition: 0.3s; }
+
+        /* 🏁 LE COMPTE-TOURS (RPM BAR) 🏁 */
+        .rpm-container { background: #111; border: 4px solid var(--border-line); border-radius: 15px; padding: 25px; margin: 30px 0; box-shadow: inset 0 10px 20px rgba(0,0,0,0.8); }
+        .rpm-title { font-family: 'Poppins', sans-serif; font-weight: 900; font-size: 24px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        
+        .rpm-bar { display: flex; justify-content: space-between; gap: 4px; height: 40px; transform: skewX(-15deg); margin-bottom: 10px; }
+        
+        .led { flex: 1; background: #222; border-radius: 2px; transition: background 0.3s, box-shadow 0.3s; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); }
+        
+        /* Couleurs des LEDs allumées */
+        .led.green.on { background: #00ff00; box-shadow: 0 0 15px #00ff00, inset 0 0 5px #fff; }
+        .led.yellow.on { background: #ffff00; box-shadow: 0 0 15px #ffff00, inset 0 0 5px #fff; }
+        .led.orange.on { background: #ff9800; box-shadow: 0 0 15px #ff9800, inset 0 0 5px #fff; }
+        .led.red.on { background: #ff0000; box-shadow: 0 0 20px #ff0000, inset 0 0 5px #fff; animation: blink 0.3s infinite alternate; }
+
+        @keyframes blink { 0% { opacity: 1; } 100% { opacity: 0.3; } }
+
+        .rpm-labels { display: flex; justify-content: space-between; font-size: 10px; font-weight: bold; color: #888; font-family: monospace; }
+        .status-text { margin-top: 20px; font-size: 16px; font-weight: 800; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.1); display: inline-block; color: white; text-transform: uppercase; }
+
+        /* MENUS */
+        .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
+        .side-menu.open { right: 0; }
+        .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .menu-overlay.open { opacity: 1; pointer-events: auto; }
+        .close-menu { align-self: flex-end; font-size: 30px; cursor: pointer; color: var(--text-main); margin-bottom: 20px; border: none; background: transparent; }
+        .side-menu a, .lang-menu div { text-decoration: none; color: var(--text-main) !important; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid var(--border-line); display: flex; align-items: center; gap: 10px; transition: 0.2s; cursor: pointer; }
+        .side-menu a:hover, .lang-menu div:hover { background: var(--card-bg); color: var(--brand, #f8aa37) !important; }
+
+        #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        body { top: 0 !important; }
+        .skiptranslate { display: none !important; }
+    </style>
+</head>
+<body>
+    <div id="google_translate_element" style="display:none;"></div>
+    <script>function googleTranslateElementInit() { new google.translate.TranslateElement({pageLanguage: 'fr', autoDisplay: false}, 'google_translate_element'); }</script>
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <div class="fullscreen-bg"></div>
+
+    <div class="header-v2">
+        <div class="lang-dropdown" style="position: relative;">
+            <div class="lang-btn" onclick="toggleLang()">🇫🇷</div>
+            <div class="lang-menu" id="lang-list" style="display:none; position:absolute; top: 35px; left: 0; border-radius:8px; overflow: hidden; z-index: 5000; width: 90px;">
+                <div onclick="changeLang('fr', '🇫🇷')">🇫🇷 FR</div>
+                <div onclick="changeLang('en', '🇬🇧')">🇬🇧 EN</div>
+                <div onclick="changeLang('es', '🇪🇸')">🇪🇸 ES</div>
+                <div onclick="changeLang('de', '🇩🇪')">🇩🇪 DE</div>
+                <div onclick="changeLang('it', '🇮🇹')">🇮🇹 IT</div>
+                <div onclick="changeLang('nl', '🇳🇱')">🇳🇱 NL</div>
+                <div onclick="changeLang('zh-CN', '🇨🇳')">🇨🇳 CN</div>
+                <div onclick="changeLang('ja', '🇯🇵')">🇯🇵 JA</div>
+            </div>
+        </div>
+        <div class="header-title"><span class="notranslate">Gaming Zone</span><br><span style="font-size: 14px;">24h du Mans</span></div>
+        <div class="hamburger-btn" onclick="toggleMenu()">☰</div>
+    </div>
+
+    <div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+    <div class="side-menu" id="side-menu">
+        <button class="close-menu" onclick="toggleMenu()">×</button>
+        <a href="index.html">🏠 Accueil</a>
+        <a href="defis.html">🎮 Défis</a>
+        <a href="plan.html">🗺️ Plan de la zone</a>
+        <a href="affluence.html" style="color: var(--brand, #f8aa37) !important;">📊 Affluence en direct</a>
+        <a href="contact.html">✉️ Contact</a>
+        <a href="reglement.html">📜 Règles</a>
+        <div style="margin-top: auto; margin-bottom: 20px;">
+            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
+        </div>
+    </div>
+
+    <div class="page-content fade-in">
+        <h2 style="margin-bottom: 10px;">Trafic sur la piste</h2>
+        <p style="font-size: 13px;">Consultez l'affluence en temps réel dans la Gaming Zone avant de vous y rendre.</p>
+        
+        <div class="rpm-container">
+            <div class="rpm-title">AFFLUENCE</div>
+            
+            <div class="rpm-bar">
+                <div class="led green" id="led-1"></div>
+                <div class="led green" id="led-2"></div>
+                <div class="led green" id="led-3"></div>
+                <div class="led yellow" id="led-4"></div>
+                <div class="led yellow" id="led-5"></div>
+                <div class="led yellow" id="led-6"></div>
+                <div class="led orange" id="led-7"></div>
+                <div class="led orange" id="led-8"></div>
+                <div class="led red" id="led-9"></div>
+                <div class="led red" id="led-10"></div>
+            </div>
+            
+            <div class="rpm-labels">
+                <span>MIN</span>
+                <span>MAX</span>
+            </div>
+
+            <div class="status-text" id="status-text">Chargement...</div>
+        </div>
+
+        <p style="font-size: 11px; opacity: 0.6; font-style: italic;">Mise à jour en direct par le staff sur place 📡</p>
+    </div>
+
+    <button id="night-btn" onclick="toggleTheme()">☀️</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js?v=56"></script>
+    <script>
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
+
+        // 🏎️ MOTEUR DU COMPTE TOURS
+        function setRPM(level) {
+            // On éteint tout d'abord
+            for(let i=1; i<=10; i++) document.getElementById(`led-${i}`).classList.remove('on');
+            
+            const statusText = document.getElementById('status-text');
+            let ledsToLight = 0;
+
+            if (level == 1) {
+                ledsToLight = 3;
+                statusText.innerText = "🟢 Fluide (Piste dégagée)";
+                statusText.style.color = "#00ff00";
+            } else if (level == 2) {
+                ledsToLight = 6;
+                statusText.innerText = "🟡 Modérée (Trafic léger)";
+                statusText.style.color = "#ffff00";
+            } else if (level == 3) {
+                ledsToLight = 8;
+                statusText.innerText = "🟠 Forte (Piste chargée)";
+                statusText.style.color = "#ff9800";
+            } else if (level == 4) {
+                ledsToLight = 10;
+                statusText.innerText = "🔴 Saturée (Bouchons !)";
+                statusText.style.color = "#ff0000";
+            }
+
+            // Animation d'accélération
+            for(let i=1; i<=ledsToLight; i++) {
+                setTimeout(() => {
+                    document.getElementById(`led-${i}`).classList.add('on');
+                }, i * 60);
+            }
+        }
+
+        // 1. Demander le statut actuel au chargement
+        fetch('/api/affluence')
+            .then(res => res.json())
+            .then(data => { if(data.success) setRPM(data.level); });
+
+        // 2. Écouter les mises à jour en DIRECT via le socket
+        if (typeof io !== 'undefined') {
+            const socketAffluence = io();
+            socketAffluence.on('affluence_updated', (newLevel) => {
+                setRPM(newLevel);
+            });
+        }
+    </script>
+</body>
+</html>
