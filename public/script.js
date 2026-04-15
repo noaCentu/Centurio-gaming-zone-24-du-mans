@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v45 - Langues globales & Formulaires parfaits !");
+console.log("🚀 Script Centurio v46 - Traduction parfaite & Noms protégés !");
 
 // 📱 SERVICE WORKER (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// 🌍 GESTION DES LANGUES (Globale pour toutes les pages)
+// 🌍 GESTION DES LANGUES (Correction du retour au Français)
 window.toggleLang = function() {
     const menu = document.getElementById('lang-list');
     if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
@@ -21,6 +21,14 @@ window.changeLang = function(langCode, flag) {
     if (menu) menu.style.display = 'none';
     
     localStorage.setItem('centurioFlag', flag);
+    
+    // 🚨 CORRECTION : Si on repasse en Français, on éteint le traducteur pour retrouver le texte exact !
+    if (langCode === 'fr') {
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + window.location.hostname + "; path=/;";
+        window.location.reload();
+        return;
+    }
     
     const select = document.querySelector('.goog-te-combo');
     if (select) {
@@ -67,7 +75,7 @@ window.setGroupSize = function(size) {
     checkGroupSize();
 };
 
-// 🎮 LISTE DES STANDS
+// 🎮 LISTE DES STANDS (Avec protection du mot Centurio)
 const games = [
     { id: 's1', name: 'Stand 1', desc: 'Animation du Stand 1' },
     { id: 's2', name: 'Stand 2', desc: 'Animation du Stand 2' },
@@ -76,7 +84,7 @@ const games = [
     { id: 's5', name: 'Stand 5', desc: 'Animation du Stand 5' },
     { id: 's6', name: 'Stand 6', desc: 'Animation du Stand 6' },
     { id: 's7', name: 'Stand 7', desc: 'Animation du Stand 7' },
-    { id: 'cadeau', name: '🎁 Cadeau Centurio', desc: 'Récupérez votre lot !' }
+    { id: 'cadeau', name: '🎁 Cadeau <span class="notranslate">Centurio</span>', desc: 'Récupérez votre lot !' }
 ];
 
 let userId = localStorage.getItem('centurioUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
