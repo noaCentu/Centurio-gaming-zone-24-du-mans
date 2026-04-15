@@ -1,13 +1,11 @@
-console.log("🚀 Script Centurio v46 - Traduction parfaite & Noms protégés !");
+console.log("🚀 Script Centurio v50 - Ordre Formulaire/Cadeau & Heure du Scan !");
 
-// 📱 SERVICE WORKER (Mode hors-ligne)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW Error', err));
     });
 }
 
-// 🌍 GESTION DES LANGUES (Correction du retour au Français)
 window.toggleLang = function() {
     const menu = document.getElementById('lang-list');
     if (menu) menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
@@ -22,7 +20,6 @@ window.changeLang = function(langCode, flag) {
     
     localStorage.setItem('centurioFlag', flag);
     
-    // 🚨 CORRECTION : Si on repasse en Français, on éteint le traducteur pour retrouver le texte exact !
     if (langCode === 'fr') {
         document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=" + window.location.hostname + "; path=/;";
@@ -40,7 +37,6 @@ window.changeLang = function(langCode, flag) {
     }
 };
 
-// 🌓 GESTION GLOBALE DU THÈME JOUR / NUIT
 window.toggleTheme = function() {
     document.body.classList.toggle('light-mode');
     const isLight = document.body.classList.contains('light-mode');
@@ -54,7 +50,6 @@ window.toggleTheme = function() {
     }
 };
 
-// 👨‍👩‍👧‍👦 GESTION DU GROUPE
 function checkGroupSize() {
     let groupSize = localStorage.getItem('centurioGroupSize');
     const badge = document.getElementById('group-badge');
@@ -75,7 +70,6 @@ window.setGroupSize = function(size) {
     checkGroupSize();
 };
 
-// 🎮 LISTE DES STANDS (Avec protection du mot Centurio)
 const games = [
     { id: 's1', name: 'Stand 1', desc: 'Animation du Stand 1' },
     { id: 's2', name: 'Stand 2', desc: 'Animation du Stand 2' },
@@ -115,6 +109,13 @@ try {
             let progress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
+            
+            // SAUVEGARDE DE LA DATE ET L'HEURE DU DERNIER SCAN
+            const now = new Date();
+            const formattedDate = now.toLocaleDateString('fr-FR');
+            const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
+            localStorage.setItem('centurioLastValidationTime', `Dernier défi validé le ${formattedDate} à ${formattedTime}`);
+
             if (typeof closeModal === 'function') closeModal();
             if (typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             if (document.getElementById('games-list')) renderGames();
@@ -139,7 +140,7 @@ try {
 
 setInterval(syncWithServer, 5000);
 
-// AFFICHAGE DES DÉFIS
+// AFFICHAGE DES DÉFIS DANS LE BON ORDRE
 window.renderGames = function() {
     const list = document.getElementById('games-list');
     if (!list) return; 
@@ -149,16 +150,16 @@ window.renderGames = function() {
     let count = 0;
     const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
 
-    games.forEach(game => {
+    // 1. AFFICHER UNIQUEMENT LES STANDS DE JEU (Pas le cadeau)
+    games.filter(g => g.id !== 'cadeau').forEach(game => {
         const isDone = progress[game.id] === true;
-        if (isDone && game.id !== 'cadeau') count++;
+        if (isDone) count++;
 
         const card = document.createElement('div');
         card.className = `game-card ${isDone ? 'done' : ''}`;
         
         let btnHtml = `<button class="btn-group-select" onclick="openModal('${game.id}')">Scan</button>`;
         if (isDone) btnHtml = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`;
-        if (game.id === 'cadeau' && !surveyDone && !isDone) btnHtml = `<button class="btn-group-select" style="background:var(--border-line); color:var(--text-muted);" onclick="alert('Faites le questionnaire !')">🔒</button>`;
 
         card.innerHTML = `
             <div style="text-align:left;">
@@ -170,10 +171,11 @@ window.renderGames = function() {
         list.appendChild(card);
     });
 
+    // 2. AFFICHER LE FORMULAIRE DE RETOUR (S'il n'est pas fait, placé AVANT le cadeau)
     if (!surveyDone) {
         const surveyCard = document.createElement('div');
         surveyCard.className = 'game-card';
-        surveyCard.style.borderLeft = '4px dashed var(--brand)';
+        surveyCard.style.borderLeft = '4px dashed var(--brand, #f8aa37)';
         surveyCard.innerHTML = `
             <div style="text-align: left;">
                 <h3 style="margin:0; font-size:16px;">📝 Votre avis !</h3>
@@ -184,7 +186,44 @@ window.renderGames = function() {
         list.appendChild(surveyCard);
     }
 
+    // 3. AFFICHER LE CADEAU TOUT EN BAS
+    const cadeauGame = games.find(g => g.id === 'cadeau');
+    if (cadeauGame) {
+        const isDone = progress['cadeau'] === true;
+        const card = document.createElement('div');
+        card.className = `game-card ${isDone ? 'done' : ''}`;
+
+        let btnHtml = `<button class="btn-group-select" onclick="openModal('cadeau')">Scan</button>`;
+        if (isDone) {
+            btnHtml = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`;
+        } else if (!surveyDone) {
+            btnHtml = `<button class="btn-group-select" style="background:var(--border-line); color:var(--text-muted);" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒</button>`;
+            card.style.opacity = '0.6'; // Effet grisé pour montrer qu'il est bloqué
+        }
+
+        card.innerHTML = `
+            <div style="text-align:left;">
+                <h3 style="margin:0; font-size:16px;">${cadeauGame.name}</h3>
+                <p style="margin:0; font-size:12px; opacity:0.8;">${cadeauGame.desc}</p>
+            </div>
+            ${btnHtml}
+        `;
+        list.appendChild(card);
+    }
+
     updateChart(count);
+    
+    // 4. AFFICHER L'HEURE DU DERNIER SCAN (Sous le graphique)
+    const timeInfo = document.getElementById('last-validation-info');
+    const savedTime = localStorage.getItem('centurioLastValidationTime');
+    if (timeInfo) {
+        if (savedTime && count > 0) {
+            timeInfo.innerText = savedTime;
+            timeInfo.style.display = 'block';
+        } else {
+            timeInfo.style.display = 'none';
+        }
+    }
 };
 
 window.updateChart = function(count) {
@@ -209,7 +248,6 @@ window.updateChart = function(count) {
     }
 };
 
-// 🚀 LE QR CODE
 window.openModal = function(gameId) {
     document.getElementById('animator-modal').style.display = 'flex';
     const group = localStorage.getItem('centurioGroupSize') || 1;
@@ -267,14 +305,12 @@ window.submitSurvey = function() {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Restaure le drapeau de la langue sélectionnée
     const savedFlag = localStorage.getItem('centurioFlag');
     if (savedFlag) {
         const langBtn = document.querySelector('.lang-btn');
         if (langBtn) langBtn.innerText = savedFlag;
     }
 
-    // SÉCURITÉ : Pas de mode clair sur l'index
     const isLight = localStorage.getItem('centurioTheme') === 'light';
     const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
     
