@@ -5,24 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scanner Centurio PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="style.css?v=43">
     
     <script src="https://unpkg.com/html5-qrcode"></script>
     
     <style>
+        :root {
+            --bg-body: #291834;
+            --text-main: #ffffff;
+            --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-bg: #1e1e1e;
+            --border-line: #333333;
+            --input-bg: #333333;
+        }
+        body.light-mode {
+            --bg-body: #f4f4f9;
+            --text-main: #291834;
+            --text-muted: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(41, 24, 52, 0.15);
+            --modal-bg: #ffffff;
+            --border-line: #dddddd;
+            --input-bg: #f0f0f0;
+        }
+
+        html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; }
+        
+        .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 15px; }
+        .header-title { color: var(--text-main); font-weight: 800; font-size: 20px; }
+        .header-title span { color: var(--brand, #f8aa37); }
+
+        .page-content { width: 90%; max-width: 400px; margin: 0 auto 20px; padding: 35px 25px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); transition: 0.3s; }
+
+        /* Caméra pure, sans cible superposée */
+        #reader { width: 100%; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--brand, #f8aa37); background-color: black; }
+        
         .btn-avis { background: #673AB7; color: white; border: none; padding: 12px; width: 100%; font-size: 14px; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 30px; box-shadow: 0 4px 10px rgba(103, 58, 183, 0.3); }
         .survey-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .survey-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; }
+        .survey-content { background: var(--modal-bg); color: var(--text-main); padding: 25px; border-radius: 15px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border-line); }
         .survey-q { margin-bottom: 15px; text-align: left; }
-        .survey-q p { font-size: 14px; font-weight: 600; margin-bottom: 5px; color: #333; line-height: 1.3; }
+        .survey-q p { font-size: 14px; font-weight: 600; margin-bottom: 5px; color: var(--text-main); line-height: 1.3; }
         .stars { display: flex; gap: 5px; justify-content: center; margin-bottom: 10px; }
-        .stars span { font-size: 35px; color: #ddd; cursor: pointer; transition: 0.2s; }
+        .stars span { font-size: 35px; color: var(--border-line); cursor: pointer; transition: 0.2s; }
         .stars span.active { color: #f8aa37; }
-        .survey-content textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit; margin-bottom: 15px; }
-        .btn-submit-survey { background: var(--brand); color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
+        textarea { width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; border: 1px solid var(--border-line); background: var(--input-bg); color: var(--text-main); font-family: inherit; margin-bottom: 15px; }
+        .btn-submit-survey { background: var(--brand, #f8aa37); color: white; border: none; padding: 15px; width: 100%; font-size: 16px; font-weight: bold; border-radius: 10px; cursor: pointer; }
+        .btn-cancel { background: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; }
         
-        /* Caméra pure, sans cible superposée */
-        #reader { width: 100%; max-width: 350px; margin: 0 auto; border-radius: 15px; overflow: hidden; border: 4px solid var(--brand); background-color: black; }
+        #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
@@ -30,16 +62,16 @@
         <div class="header-title">Scanner <span>Staff</span></div>
     </div>
 
-    <div class="page-content" style="text-align: center; padding-bottom: 100px;">
+    <div class="page-content" style="text-align: center; padding-bottom: 30px;">
         <h2 style="margin-bottom: 5px;">Validation Rapide</h2>
-        <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Pointez vers le QR Code.</p>
+        <p style="font-size: 13px; margin-bottom: 20px;">Pointez vers le QR Code.</p>
         
         <div id="reader"></div>
         
-        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; margin-left: auto; margin-right: auto; max-width: 350px;"></div>
+        <div id="scan-result" style="margin-top: 20px; font-weight: 800; font-size: 18px; padding: 20px; border-radius: 15px; display: none; margin-left: auto; margin-right: auto;"></div>
 
         <button id="btn-open-survey" class="btn-avis" onclick="document.getElementById('admin-survey').style.display='flex'">📝 Donner mon avis sur l'application</button>
-        <button class="btn-cancel" onclick="logout()" style="margin-top: 20px; text-decoration: underline; font-size: 14px;">Se déconnecter de l'espace Staff</button>
+        <button class="btn-cancel" onclick="logout()" style="margin-top: 20px;">Se déconnecter</button>
     </div>
 
     <div class="survey-modal" id="admin-survey">
@@ -60,9 +92,9 @@
                 </div>
             </div>
 
-            <div class="survey-q" style="background: #f9f9f9; padding: 10px; border-radius: 8px;">
-                <p style="color: var(--brand);">3. (Optionnel - Si présent l'an dernier)</p>
-                <p style="font-size: 12px; margin-bottom: 5px;">Trouvez-vous un réel avantage d'utiliser l'application par rapport au carnet papier ? (1 = Pire, 5 = Grand avantage)</p>
+            <div class="survey-q" style="background: var(--card-bg); padding: 10px; border-radius: 8px;">
+                <p style="color: var(--brand, #f8aa37);">3. (Optionnel)</p>
+                <p style="font-size: 12px; margin-bottom: 5px;">Avantage par rapport au carnet papier ?</p>
                 <div class="stars" id="sq3">
                     <span onclick="rate('sq3', 1)">★</span><span onclick="rate('sq3', 2)">★</span><span onclick="rate('sq3', 3)">★</span><span onclick="rate('sq3', 4)">★</span><span onclick="rate('sq3', 5)">★</span>
                 </div>
@@ -71,10 +103,13 @@
             <textarea id="s-comment" rows="3" placeholder="Une idée, un bug, une suggestion ?"></textarea>
             
             <button class="btn-submit-survey" onclick="submitAdminSurvey()">Envoyer mon avis</button>
-            <button class="btn-cancel" onclick="document.getElementById('admin-survey').style.display='none'" style="width: 100%; margin-top: 10px;">Fermer</button>
+            <button class="btn-cancel" onclick="document.getElementById('admin-survey').style.display='none'">Fermer</button>
         </div>
     </div>
 
+    <button id="night-btn" onclick="toggleTheme()">☀️</button>
+
+    <script src="script.js?v=43"></script>
     <script>
         const token = sessionStorage.getItem('centurioAdminToken');
         if (!token) window.location.href = "index.html"; 
@@ -89,7 +124,7 @@
         function onScanSuccess(decodedText) {
             if (isProcessing) return; 
             isProcessing = true;
-            document.getElementById('reader').style.borderColor = "var(--success)";
+            document.getElementById('reader').style.borderColor = "var(--brand, #f8aa37)";
 
             try {
                 const url = new URL(decodedText);
@@ -104,40 +139,37 @@
                         rDiv.style.display = 'block';
                         if(data.success) {
                             rDiv.style.backgroundColor = '#d4edda'; rDiv.style.color = '#155724'; rDiv.innerText = "✅ VALIDÉ !";
-                            document.getElementById('reader').style.borderColor = "var(--success)";
+                            document.getElementById('reader').style.borderColor = "#4CAF50";
                         } else {
                             rDiv.style.backgroundColor = '#f8d7da'; rDiv.style.color = '#721c24'; rDiv.innerText = "❌ ERREUR : " + data.message;
                             document.getElementById('reader').style.borderColor = "red";
                         }
-                        setTimeout(() => { rDiv.style.display = 'none'; document.getElementById('reader').style.borderColor = "var(--brand)"; isProcessing = false; }, 2500);
-                    }).catch(err => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand)"; });
+                        setTimeout(() => { rDiv.style.display = 'none'; document.getElementById('reader').style.borderColor = "var(--brand, #f8aa37)"; isProcessing = false; }, 2500);
+                    }).catch(err => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand, #f8aa37)"; });
                 } else {
-                    setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand)"; }, 1500);
+                    setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand, #f8aa37)"; }, 1500);
                 }
             } catch(e) {
-                setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand)"; }, 1500);
+                setTimeout(() => { isProcessing = false; document.getElementById('reader').style.borderColor = "var(--brand, #f8aa37)"; }, 1500);
             }
         }
 
-        // 🚀 PLUS DE CARRÉ : On prend toute l'image brute de la caméra
+        // Plus de carré : On prend toute l'image brute de la caméra
         const cameraConfig = { fps: 30, disableFlip: false };
         
-        // Démarrage de la caméra
         Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length > 0) {
                 let cameraId = devices[0].id;
-                
                 html5QrCode.start({ facingMode: "environment" }, cameraConfig, onScanSuccess, () => {})
                 .catch(() => {
-                    console.warn("Échec caméra arrière, on force la première caméra trouvée...");
                     html5QrCode.start(cameraId, cameraConfig, onScanSuccess, () => {})
-                    .catch(err => alert("🚨 Échec : Autorisez la caméra dans votre navigateur."));
+                    .catch(err => alert("🚨 Échec : Autorisez la caméra."));
                 });
             } else {
-                alert("🚨 Le système ne détecte aucune caméra.");
+                alert("🚨 Aucune caméra détectée.");
             }
         }).catch(err => {
-            alert("🚨 BLOCAGE DE SÉCURITÉ : Vous devez être en 'https://' pour que la caméra s'allume !");
+            alert("🚨 BLOCAGE : Nécessite une connexion sécurisée.");
         });
 
         function logout() {
