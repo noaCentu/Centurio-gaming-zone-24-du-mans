@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plan Interactif - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=53">
+    <link rel="stylesheet" href="style.css?v=54">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -36,6 +36,9 @@
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         body.light-mode .fullscreen-bg { display: none; }
         
+        h3 { color: var(--text-main) !important; text-shadow: none !important; }
+        p { color: var(--text-muted) !important; }
+
         /* NAVBAR */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; transition: 0.3s; }
         body.light-mode .header-v2 { background-color: #291834; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -93,10 +96,15 @@
         .seats-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; opacity: 0.3; }
         .seat { background: var(--text-main); height: 8px; border-radius: 2px; }
 
+        /* LA LÉGENDE */
+        .legend-box { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; text-align: left; font-size: 13px; margin-bottom: 10px; }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--text-main); }
+        .legend-color { width: 15px; height: 15px; border-radius: 3px; }
+
         /* MODALE INFO STAND */
         .modal-info { background: var(--modal-bg); border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--glass-border); width: 85%; max-width: 350px; }
         .modal-info h3 { color: var(--brand, #f8aa37) !important; margin-bottom: 10px; }
-        .modal-info p { font-size: 14px; margin-bottom: 20px; }
+        .modal-info p { font-size: 14px; margin-bottom: 20px; color: var(--text-main) !important; }
 
         /* MENUS */
         .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
@@ -161,7 +169,7 @@
     </div>
 
     <div class="page-content fade-in">
-        <h2 style="margin-bottom: 5px;">Plan tactique</h2>
+        <h2 style="margin-bottom: 5px; font-weight: 800;">Plan tactique</h2>
         <p style="font-size: 12px; margin-bottom: 15px;">Cliquez sur un stand pour voir le défi !</p>
         
         <div class="map-container">
@@ -189,7 +197,27 @@
             </div>
         </div>
 
-        <p style="font-size: 11px; opacity: 0.7; font-style: italic;">Les stands validés apparaissent avec un ✅</p>
+        <div class="legend-box">
+            <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid var(--border-line); padding-bottom: 10px;">🕒 Horaires : 10h00 - 21h00</h3>
+            
+            <div class="legend-item">
+                <div class="legend-color" style="border: 2px solid var(--brand, #f8aa37);"></div>
+                <span>Stands d'animations (Jeux)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4CAF50;"></div>
+                <span>Point de validation & Cadeaux</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(248, 170, 55, 0.15); border: 2px dashed var(--brand, #f8aa37);"></div>
+                <span>Scène principale & Sièges</span>
+            </div>
+            <div class="legend-item" style="margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 10px;">
+                <span style="font-size: 16px;">✅</span>
+                <span style="font-size: 12px; opacity: 0.8; font-style: italic;">Vos stands validés s'affichent avec ce symbole sur le plan.</span>
+            </div>
+        </div>
+
     </div>
 
     <div class="modal-overlay" id="info-modal">
@@ -202,7 +230,7 @@
 
     <button id="night-btn" onclick="toggleTheme()">☀️</button>
 
-    <script src="script.js?v=53"></script>
+    <script src="script.js?v=54"></script>
     <script>
         function toggleMenu() { 
             document.getElementById('side-menu').classList.toggle('open'); 
