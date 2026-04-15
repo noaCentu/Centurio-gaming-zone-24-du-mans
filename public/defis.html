@@ -5,32 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=30">
+    <link rel="stylesheet" href="style.css?v=41">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <link rel="apple-touch-icon" href="/centurio-logo.png?v=3">
-    <link rel="manifest" href="/manifest.json?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
-        html, body { margin: 0 !important; padding: 0 !important; height: 100% !important; width: 100% !important; background-color: #291834 !important; }
-        .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover !important; background-position: center center !important; background-repeat: no-repeat !important; z-index: -10; }
-        body { display: flex; flex-direction: column; min-height: 100vh; font-family: 'Poppins', sans-serif; }
+        /* 🎨 VARIABLES DU THÈME (S'adaptent toutes seules !) */
+        :root {
+            --text-color: #ffffff;
+            --bg-glass: rgba(41, 24, 52, 0.75);
+            --card-bg: rgba(255,255,255,0.1);
+            --modal-bg: #1e1e1e;
+            --border-color: rgba(255,255,255,0.15);
+        }
+        
+        body.light-mode {
+            --text-color: #333333;
+            --bg-glass: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(0,0,0,0.05);
+            --modal-bg: #ffffff;
+            --border-color: rgba(0,0,0,0.1);
+            background-color: #f5f5f5 !important;
+        }
+
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; background-color: #291834; font-family: 'Poppins', sans-serif; color: var(--text-color); }
+        
+        /* Cache l'image de fond dans le thème clair pour la lisibilité */
+        .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
+        body.light-mode .fullscreen-bg { display: none; }
         
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; }
-        .header-title, .hamburger-btn, .lang-btn { color: white !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        
+        body:not(.light-mode) .header-title, body:not(.light-mode) .hamburger-btn, body:not(.light-mode) .lang-btn { color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        body.light-mode .header-title, body.light-mode .hamburger-btn, body.light-mode .lang-btn { color: var(--text-color); text-shadow: none; }
+        
         .hamburger-btn { font-size: 24px; cursor: pointer; }
 
         .page-content { 
             width: 90%; max-width: 600px; margin: 0 auto 20px; padding: 35px 25px; 
-            background: rgba(41, 24, 52, 0.75) !important; 
-            backdrop-filter: blur(12px) !important; -webkit-backdrop-filter: blur(12px) !important; 
-            border-radius: 20px; text-align: center; color: white !important; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important; 
-            border: 1px solid rgba(255,255,255,0.15) !important; 
+            background: var(--bg-glass); 
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); 
+            border-radius: 20px; text-align: center; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3); 
+            border: 1px solid var(--border-color); 
             position: relative; z-index: 1;
         }
 
-        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; padding: 20px; border-left: 1px solid #333; }
+        .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; background: #1a1a1a; box-shadow: -5px 0 15px rgba(0,0,0,0.5); z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
         .menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .menu-overlay.open { opacity: 1; pointer-events: auto; }
@@ -38,15 +60,20 @@
         .side-menu a { text-decoration: none; color: #fff; font-size: 16px; font-weight: 600; padding: 15px 10px; border-bottom: 1px solid #333; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .side-menu a:hover { color: var(--brand); padding-left: 15px; }
 
-        .game-card { background: rgba(255,255,255,0.1) !important; border: 1px solid rgba(255,255,255,0.2) !important; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
+        .game-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
         .game-card.done { border-left: 5px solid #4CAF50; opacity: 0.8; }
         
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { 0% { opacity: 0; transform: translateY(15px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* Style pour les boutons du groupe */
-        .btn-group-select { background: #f8aa37; color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
-        .btn-group-select:active { transform: scale(0.95); }
+        /* Bouton Nuit/Jour Flottant */
+        #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        .modal { background: var(--modal-bg); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; }
+        
+        /* Bouton Fermer Bien Visible */
+        .btn-outline { background: transparent; color: var(--text-color); border: 2px solid var(--text-color); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; max-width: 200px; margin-top: 10px; transition: 0.2s; }
+        .btn-outline:active { transform: scale(0.95); background: var(--text-color); color: var(--modal-bg); }
     </style>
 </head>
 <body>
@@ -80,7 +107,7 @@
 
     <div class="page-content fade-in">
         <div style="margin-bottom: 15px;">
-            <span id="group-badge" style="display: none; background: rgba(248,170,55,0.2); border: 1px solid #f8aa37; color: white; padding: 5px 15px; border-radius: 20px; font-size: 13px;"></span>
+            <span id="group-badge" style="display: none; background: rgba(248,170,55,0.2); border: 1px solid #f8aa37; color: var(--text-color); padding: 5px 15px; border-radius: 20px; font-size: 13px;"></span>
         </div>
 
         <div class="chart-container" style="display: flex; flex-direction: column; align-items: center;">
@@ -96,36 +123,38 @@
     </div>
 
     <div class="modal-overlay" id="group-modal" style="display: none; z-index: 5000;">
-        <div class="modal fade-in" style="background: #1e1e1e; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #444; width: 85%;">
+        <div class="modal fade-in">
             <div style="font-size: 50px; margin-bottom: 10px;">👨‍👩‍👧‍👦</div>
             <h3>Bienvenue !</h3>
-            <p style="font-size: 14px; color: #aaa; margin-bottom: 25px;">Combien de personnes sont avec vous pour relever les défis ?</p>
+            <p style="font-size: 14px; opacity: 0.8; margin-bottom: 25px;">Combien de personnes sont avec vous pour relever les défis ?</p>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                <button class="btn-group-select" onclick="setGroupSize(1)">1</button>
-                <button class="btn-group-select" onclick="setGroupSize(2)">2</button>
-                <button class="btn-group-select" onclick="setGroupSize(3)">3</button>
-                <button class="btn-group-select" onclick="setGroupSize(4)">4</button>
-                <button class="btn-group-select" onclick="setGroupSize(5)">5</button>
-                <button class="btn-group-select" onclick="setGroupSize('6+')">6+</button>
+                <button class="btn-group-select" onclick="setGroupSize(1)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold;">1</button>
+                <button class="btn-group-select" onclick="setGroupSize(2)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold;">2</button>
+                <button class="btn-group-select" onclick="setGroupSize(3)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold;">3</button>
+                <button class="btn-group-select" onclick="setGroupSize(4)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold;">4</button>
+                <button class="btn-group-select" onclick="setGroupSize(5)" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold;">5</button>
+                <button class="btn-group-select" onclick="setGroupSize('6+')" style="background:var(--brand); border:none; color:white; padding:12px; border-radius:10px; font-weight:bold;">6+</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="animator-modal" style="display:none;">
-        <div class="modal fade-in" style="background: #1e1e1e; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid #444;">
+        <div class="modal fade-in">
             <h3>Validation</h3>
-            <p style="font-size: 13px; color: #aaa;">Montrez ce code à l'animateur du stand.</p>
+            <p style="font-size: 13px; opacity: 0.8;">Montrez ce code à l'animateur du stand.</p>
             <div id="qr-container" style="margin: 20px 0;"></div>
-            <button class="btn-cancel" onclick="closeModal()" style="background: #444; color: white; border: none; padding: 10px 20px; border-radius: 10px;">Fermer</button>
+            <button class="btn-outline" onclick="closeModal()">Fermer</button>
         </div>
     </div>
+
+    <button id="night-btn" onclick="toggleTheme()">☀️</button>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=40"></script>
+    <script src="script.js?v=41"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         function toggleLang() { const m = document.getElementById('lang-list'); m.style.display = m.style.display === 'block' ? 'none' : 'block'; }
