@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v50 - Ordre Formulaire/Cadeau & Heure du Scan !");
+console.log("🚀 Script Centurio v51 - Retour des animations de victoire !");
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -118,6 +118,20 @@ try {
 
             if (typeof closeModal === 'function') closeModal();
             if (typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            
+            // 🚨 RETOUR DE L'ANIMATION DE VALIDATION QUI AVAIT DISPARU 🚨
+            if (gameId === 'cadeau') {
+                const finalModal = document.getElementById('final-modal');
+                if(finalModal) finalModal.style.display = 'flex';
+            } else {
+                const successModal = document.getElementById('success-modal');
+                if(successModal) { 
+                    successModal.style.display = 'flex'; 
+                    // Se ferme toute seule après 3 secondes
+                    setTimeout(() => successModal.style.display = 'none', 3000); 
+                }
+            }
+
             if (document.getElementById('games-list')) renderGames();
         });
     }
@@ -150,7 +164,7 @@ window.renderGames = function() {
     let count = 0;
     const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
 
-    // 1. AFFICHER UNIQUEMENT LES STANDS DE JEU (Pas le cadeau)
+    // 1. AFFICHER UNIQUEMENT LES STANDS DE JEU
     games.filter(g => g.id !== 'cadeau').forEach(game => {
         const isDone = progress[game.id] === true;
         if (isDone) count++;
@@ -171,7 +185,7 @@ window.renderGames = function() {
         list.appendChild(card);
     });
 
-    // 2. AFFICHER LE FORMULAIRE DE RETOUR (S'il n'est pas fait, placé AVANT le cadeau)
+    // 2. AFFICHER LE FORMULAIRE DE RETOUR
     if (!surveyDone) {
         const surveyCard = document.createElement('div');
         surveyCard.className = 'game-card';
@@ -193,17 +207,20 @@ window.renderGames = function() {
         const card = document.createElement('div');
         card.className = `game-card ${isDone ? 'done' : ''}`;
 
-        let btnHtml = `<button class="btn-group-select" onclick="openModal('cadeau')">Scan</button>`;
+        let btnHtml = '';
         if (isDone) {
             btnHtml = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`;
         } else if (!surveyDone) {
             btnHtml = `<button class="btn-group-select" style="background:var(--border-line); color:var(--text-muted);" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒</button>`;
-            card.style.opacity = '0.6'; // Effet grisé pour montrer qu'il est bloqué
+            card.style.opacity = '0.6'; 
+        } else {
+            btnHtml = `<button class="btn-group-select" onclick="openModal('cadeau')">Scan</button>`;
+            card.style.borderLeft = '4px solid var(--brand, #f8aa37)'; 
         }
 
         card.innerHTML = `
             <div style="text-align:left;">
-                <h3 style="margin:0; font-size:16px;">${cadeauGame.name}</h3>
+                <h3 style="margin:0; font-size:16px; ${!surveyDone && !isDone ? 'color:var(--text-muted);' : 'color:var(--brand, #f8aa37);'}">${cadeauGame.name}</h3>
                 <p style="margin:0; font-size:12px; opacity:0.8;">${cadeauGame.desc}</p>
             </div>
             ${btnHtml}
@@ -213,7 +230,7 @@ window.renderGames = function() {
 
     updateChart(count);
     
-    // 4. AFFICHER L'HEURE DU DERNIER SCAN (Sous le graphique)
+    // 4. AFFICHER L'HEURE DU DERNIER SCAN
     const timeInfo = document.getElementById('last-validation-info');
     const savedTime = localStorage.getItem('centurioLastValidationTime');
     if (timeInfo) {
