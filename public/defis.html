@@ -5,38 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=50">
+    <link rel="stylesheet" href="style.css?v=57">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
         :root {
-            --bg-body: #291834;
-            --text-main: #ffffff;
-            --text-muted: #dddddd;
-            --glass-bg: rgba(41, 24, 52, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --modal-bg: #1e1e1e;
-            --menu-bg: #1a1a1a;
-            --border-line: #444444;
-            --input-bg: #2a2a2a;
-            --card-bg: rgba(255,255,255,0.1);
+            --bg-body: #291834; --text-main: #ffffff; --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75); --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-bg: #1e1e1e; --menu-bg: #1a1a1a; --border-line: #444444;
+            --input-bg: #2a2a2a; --card-bg: rgba(255,255,255,0.1);
         }
         body.light-mode {
-            --bg-body: #f4f4f9;
-            --text-main: #291834;
-            --text-muted: #555555;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(41, 24, 52, 0.15);
-            --modal-bg: #ffffff;
-            --menu-bg: #ffffff;
-            --border-line: #dddddd;
-            --input-bg: #f9f9f9;
-            --card-bg: rgba(0,0,0,0.05);
+            --bg-body: #f4f4f9; --text-main: #291834; --text-muted: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.95); --glass-border: rgba(41, 24, 52, 0.15);
+            --modal-bg: #ffffff; --menu-bg: #ffffff; --border-line: #dddddd;
+            --input-bg: #f9f9f9; --card-bg: rgba(0,0,0,0.05);
         }
 
         html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease, color 0.3s ease; }
-        
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         body.light-mode .fullscreen-bg { display: none; }
         
@@ -124,11 +111,7 @@
     </div>
 
     <div class="page-content fade-in">
-        <div style="margin-bottom: 15px;">
-            <span id="group-badge" style="display: none; background: rgba(248,170,55,0.2); border: 1px solid #f8aa37; color: var(--text-main); padding: 5px 15px; border-radius: 20px; font-size: 13px;"></span>
-        </div>
-
-        <div class="chart-container" style="display: flex; flex-direction: column; align-items: center;">
+        <div class="chart-container" style="display: flex; flex-direction: column; align-items: center; margin-top: 10px;">
             <h3>Progression</h3>
             <div style="position: relative; width: 160px; height: 160px;">
                 <canvas id="progress-chart" width="160" height="160"></canvas>
@@ -202,7 +185,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=50"></script>
+    <script src="script.js?v=57"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
     </script>
