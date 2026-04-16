@@ -5,26 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Accueil - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=47">
+    <link rel="stylesheet" href="style.css?v=57">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
         :root {
-            --bg-body: #291834;
-            --text-main: #ffffff;
-            --text-muted: #dddddd;
-            --glass-bg: rgba(41, 24, 52, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --modal-bg: #1e1e1e;
-            --menu-bg: #1a1a1a;
-            --border-line: #333333;
-            --input-bg: #333333;
-            --card-bg: rgba(255,255,255,0.1);
+            --bg-body: #291834; --text-main: #ffffff; --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75); --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-bg: #1e1e1e; --menu-bg: #1a1a1a; --border-line: #333333;
+            --input-bg: #333333; --card-bg: rgba(255,255,255,0.1);
         }
 
         html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); display: flex; flex-direction: column; }
-        
         .fullscreen-bg { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-image: url('/centurio-gaming-zone-bg.jpg'); background-size: cover; background-position: center; z-index: -10; }
         
         h1, h2, h3, .header-title { color: #ffffff !important; }
@@ -54,11 +47,10 @@
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 4000; display: none; align-items: center; justify-content: center; }
         .modal { background: var(--modal-bg); border: 1px solid var(--border-line); border-radius: 20px; padding: 30px; text-align: center; width: 85%; max-width: 400px; }
         
-        .btn-group-select { background: var(--brand, #f8aa37); color: white !important; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .btn-group-select { background: var(--brand, #f8aa37); color: white !important; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; width: 100%; }
         .btn-outline { background: transparent; color: var(--text-muted); border: 2px solid var(--text-muted); padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 10px; transition: 0.2s; }
         .btn-outline:active, .btn-outline:hover { background: var(--text-main); color: var(--modal-bg); border-color: var(--text-main); }
         
-        /* RETOUR DE L'OEIL POUR LE MOT DE PASSE */
         .pwd-container { position: relative; display: flex; align-items: center; margin-bottom: 15px; width: 100%; }
         .pwd-container input { width: 100%; padding: 10px; padding-right: 40px !important; border-radius: 8px; border: 1px solid var(--border-line); background: var(--input-bg); color: var(--text-main); outline: none; box-sizing: border-box; }
         .toggle-pwd { position: absolute; right: 10px; cursor: pointer; color: #888; display: flex; align-items: center; justify-content: center; }
@@ -117,22 +109,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="group-modal">
-        <div class="modal fade-in">
-            <div style="font-size: 50px; margin-bottom: 10px;">👨‍👩‍👧‍👦</div>
-            <h3>Bienvenue !</h3>
-            <p style="font-size: 14px; margin-bottom: 25px;">Pour mieux vous accueillir, combien de personnes composent votre groupe ?</p>
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                <button class="btn-group-select" onclick="setGroupSize(1)">1</button>
-                <button class="btn-group-select" onclick="setGroupSize(2)">2</button>
-                <button class="btn-group-select" onclick="setGroupSize(3)">3</button>
-                <button class="btn-group-select" onclick="setGroupSize(4)">4</button>
-                <button class="btn-group-select" onclick="setGroupSize(5)">5</button>
-                <button class="btn-group-select" onclick="setGroupSize('6+')">6+</button>
-            </div>
-        </div>
-    </div>
-
     <div class="modal-overlay" id="login-modal">
         <div class="modal fade-in">
             <h3>Connexion Sécurisée</h3>
@@ -143,13 +119,13 @@
                     <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                 </div>
             </div>
-            <button class="btn-group-select" onclick="login()" style="width: 100%;">Se connecter</button>
+            <button class="btn-group-select" onclick="login()">Se connecter</button>
             <button class="btn-outline" onclick="document.getElementById('login-modal').style.display='none'">Annuler</button>
             <p id="login-error" style="color: #ff4d4d; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect</p>
         </div>
     </div>
 
-    <script src="script.js?v=47"></script>
+    <script src="script.js?v=57"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
         
