@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v51 - Retour des animations de victoire !");
+console.log("🚀 Script Centurio v57 - Sans Groupe & Thème Persistant !");
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -14,9 +14,7 @@ window.toggleLang = function() {
 window.changeLang = function(langCode, flag) {
     const btn = document.querySelector('.lang-btn');
     if (btn) btn.innerText = flag;
-    
-    const menu = document.getElementById('lang-list');
-    if (menu) menu.style.display = 'none';
+    if (document.getElementById('lang-list')) document.getElementById('lang-list').style.display = 'none';
     
     localStorage.setItem('centurioFlag', flag);
     
@@ -45,31 +43,11 @@ window.toggleTheme = function() {
     const btn = document.getElementById('night-btn');
     if (btn) btn.innerText = isLight ? '🌙' : '☀️';
     
-    if (typeof renderGames === 'function' && document.getElementById('progress-chart')) {
-        renderGames(); 
-    }
+    if (typeof renderGames === 'function' && document.getElementById('progress-chart')) renderGames();
+    if (typeof updateDisplay === 'function' && document.getElementById('day-selector')) updateDisplay();
 };
 
-function checkGroupSize() {
-    let groupSize = localStorage.getItem('centurioGroupSize');
-    const badge = document.getElementById('group-badge');
-    const modal = document.getElementById('group-modal');
-    
-    if (!groupSize) {
-        if(modal) modal.style.display = 'flex';
-    } else if (badge) {
-        badge.innerHTML = `👨‍👩‍👧‍👦 Groupe : <b>${groupSize}</b> pers.`;
-        badge.style.display = 'inline-block';
-    }
-}
-
-window.setGroupSize = function(size) {
-    localStorage.setItem('centurioGroupSize', size);
-    const modal = document.getElementById('group-modal');
-    if(modal) modal.style.display = 'none';
-    checkGroupSize();
-};
-
+// 🎮 LISTE DES STANDS (IDs s1 à s7)
 const games = [
     { id: 's1', name: 'Stand 1', desc: 'Animation du Stand 1' },
     { id: 's2', name: 'Stand 2', desc: 'Animation du Stand 2' },
@@ -83,9 +61,9 @@ const games = [
 
 let userId = localStorage.getItem('centurioUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('centurioUserId', userId);
-
 let socket = null;
 
+// SYNC AVEC LE SERVEUR
 window.syncWithServer = function() {
     if (!userId) return;
     fetch(`/api/my-progress/${userId}`)
@@ -101,6 +79,7 @@ window.syncWithServer = function() {
         }).catch(() => {});
 };
 
+// GESTION DU SOCKET
 try {
     if (typeof io !== 'undefined') {
         socket = io();
@@ -110,7 +89,6 @@ try {
             progress[gameId] = true;
             localStorage.setItem('centurioProgress', JSON.stringify(progress));
             
-            // SAUVEGARDE DE LA DATE ET L'HEURE DU DERNIER SCAN
             const now = new Date();
             const formattedDate = now.toLocaleDateString('fr-FR');
             const formattedTime = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }).replace(':', 'h');
@@ -119,17 +97,11 @@ try {
             if (typeof closeModal === 'function') closeModal();
             if (typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             
-            // 🚨 RETOUR DE L'ANIMATION DE VALIDATION QUI AVAIT DISPARU 🚨
             if (gameId === 'cadeau') {
-                const finalModal = document.getElementById('final-modal');
-                if(finalModal) finalModal.style.display = 'flex';
+                if(document.getElementById('final-modal')) document.getElementById('final-modal').style.display = 'flex';
             } else {
-                const successModal = document.getElementById('success-modal');
-                if(successModal) { 
-                    successModal.style.display = 'flex'; 
-                    // Se ferme toute seule après 3 secondes
-                    setTimeout(() => successModal.style.display = 'none', 3000); 
-                }
+                const sModal = document.getElementById('success-modal');
+                if(sModal) { sModal.style.display = 'flex'; setTimeout(() => sModal.style.display = 'none', 3000); }
             }
 
             if (document.getElementById('games-list')) renderGames();
@@ -137,6 +109,7 @@ try {
     }
 } catch(e) {}
 
+// FINGERPRINT
 try {
     if (typeof FingerprintJS !== 'undefined') {
         FingerprintJS.load().then(fp => {
@@ -147,14 +120,10 @@ try {
                 syncWithServer();
             });
         }).catch(() => syncWithServer());
-    } else {
-        syncWithServer();
-    }
+    } else { syncWithServer(); }
 } catch(e) { syncWithServer(); }
 
-setInterval(syncWithServer, 5000);
-
-// AFFICHAGE DES DÉFIS DANS LE BON ORDRE
+// RENDER DE LA LISTE DES DÉFIS
 window.renderGames = function() {
     const list = document.getElementById('games-list');
     if (!list) return; 
@@ -164,183 +133,124 @@ window.renderGames = function() {
     let count = 0;
     const surveyDone = localStorage.getItem('centurioSurveyDone') === 'true';
 
-    // 1. AFFICHER UNIQUEMENT LES STANDS DE JEU
     games.filter(g => g.id !== 'cadeau').forEach(game => {
         const isDone = progress[game.id] === true;
         if (isDone) count++;
-
         const card = document.createElement('div');
         card.className = `game-card ${isDone ? 'done' : ''}`;
-        
-        let btnHtml = `<button class="btn-group-select" onclick="openModal('${game.id}')">Scan</button>`;
-        if (isDone) btnHtml = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`;
-
-        card.innerHTML = `
-            <div style="text-align:left;">
-                <h3 style="margin:0; font-size:16px;">${game.name}</h3>
-                <p style="margin:0; font-size:12px; opacity:0.8;">${game.desc}</p>
-            </div>
-            ${btnHtml}
-        `;
+        let btnHtml = isDone ? `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>` : `<button class="btn-group-select" onclick="openModal('${game.id}')">Scan</button>`;
+        card.innerHTML = `<div style="text-align:left;"><h3 style="margin:0; font-size:16px;">${game.name}</h3><p style="margin:0; font-size:12px; opacity:0.8;">${game.desc}</p></div>${btnHtml}`;
         list.appendChild(card);
     });
 
-    // 2. AFFICHER LE FORMULAIRE DE RETOUR
     if (!surveyDone) {
-        const surveyCard = document.createElement('div');
-        surveyCard.className = 'game-card';
-        surveyCard.style.borderLeft = '4px dashed var(--brand, #f8aa37)';
-        surveyCard.innerHTML = `
-            <div style="text-align: left;">
-                <h3 style="margin:0; font-size:16px;">📝 Votre avis !</h3>
-                <p style="margin:0; font-size:11px; opacity:0.8;">Obligatoire pour le cadeau.</p>
-            </div>
-            <button class="btn-group-select" style="background: #55acee;" onclick="openSurvey()">Répondre</button>
-        `;
-        list.appendChild(surveyCard);
+        const sCard = document.createElement('div');
+        sCard.className = 'game-card';
+        sCard.style.borderLeft = '4px dashed var(--brand, #f8aa37)';
+        sCard.innerHTML = `<div style="text-align: left;"><h3 style="margin:0; font-size:16px;">📝 Votre avis !</h3><p style="margin:0; font-size:11px; opacity:0.8;">Obligatoire pour le cadeau.</p></div><button class="btn-group-select" style="background: #55acee;" onclick="openSurvey()">Répondre</button>`;
+        list.appendChild(sCard);
     }
 
-    // 3. AFFICHER LE CADEAU TOUT EN BAS
     const cadeauGame = games.find(g => g.id === 'cadeau');
-    if (cadeauGame) {
-        const isDone = progress['cadeau'] === true;
-        const card = document.createElement('div');
-        card.className = `game-card ${isDone ? 'done' : ''}`;
-
-        let btnHtml = '';
-        if (isDone) {
-            btnHtml = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`;
-        } else if (!surveyDone) {
-            btnHtml = `<button class="btn-group-select" style="background:var(--border-line); color:var(--text-muted);" onclick="alert('Veuillez remplir le questionnaire juste au-dessus pour débloquer votre cadeau !')">🔒</button>`;
-            card.style.opacity = '0.6'; 
-        } else {
-            btnHtml = `<button class="btn-group-select" onclick="openModal('cadeau')">Scan</button>`;
-            card.style.borderLeft = '4px solid var(--brand, #f8aa37)'; 
-        }
-
-        card.innerHTML = `
-            <div style="text-align:left;">
-                <h3 style="margin:0; font-size:16px; ${!surveyDone && !isDone ? 'color:var(--text-muted);' : 'color:var(--brand, #f8aa37);'}">${cadeauGame.name}</h3>
-                <p style="margin:0; font-size:12px; opacity:0.8;">${cadeauGame.desc}</p>
-            </div>
-            ${btnHtml}
-        `;
-        list.appendChild(card);
-    }
+    const cadeauDone = progress['cadeau'] === true;
+    const cCard = document.createElement('div');
+    cCard.className = `game-card ${cadeauDone ? 'done' : ''}`;
+    let cBtn = '';
+    if (cadeauDone) { cBtn = `<span style="color:#4CAF50; font-weight:bold;">OK ✅</span>`; }
+    else if (!surveyDone) { 
+        cBtn = `<button class="btn-group-select" style="background:var(--border-line); color:var(--text-muted);" onclick="alert('Remplissez le questionnaire au-dessus !')">🔒</button>`;
+        cCard.style.opacity = '0.6';
+    } else { cBtn = `<button class="btn-group-select" onclick="openModal('cadeau')">Scan</button>`; cCard.style.borderLeft = '4px solid var(--brand, #f8aa37)'; }
+    
+    cCard.innerHTML = `<div style="text-align:left;"><h3 style="margin:0; font-size:16px; ${!surveyDone && !cadeauDone ? 'color:var(--text-muted);' : 'color:var(--brand, #f8aa37);'}">${cadeauGame.name}</h3><p style="margin:0; font-size:12px; opacity:0.8;">${cadeauGame.desc}</p></div>${cBtn}`;
+    list.appendChild(cCard);
 
     updateChart(count);
     
-    // 4. AFFICHER L'HEURE DU DERNIER SCAN
-    const timeInfo = document.getElementById('last-validation-info');
-    const savedTime = localStorage.getItem('centurioLastValidationTime');
-    if (timeInfo) {
-        if (savedTime && count > 0) {
-            timeInfo.innerText = savedTime;
-            timeInfo.style.display = 'block';
-        } else {
-            timeInfo.style.display = 'none';
-        }
-    }
+    const tInfo = document.getElementById('last-validation-info');
+    const sTime = localStorage.getItem('centurioLastValidationTime');
+    if (tInfo) { if (sTime && count > 0) { tInfo.innerText = sTime; tInfo.style.display = 'block'; } else tInfo.style.display = 'none'; }
 };
 
 window.updateChart = function(count) {
-    const percentage = Math.round((count / 7) * 100);
-    const chartText = document.getElementById('chart-text');
-    if(chartText) chartText.innerText = `${percentage}%`;
-
-    const canvas = document.getElementById('progress-chart');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
+    const pcent = Math.round((count / 7) * 100);
+    if(document.getElementById('chart-text')) document.getElementById('chart-text').innerText = `${pcent}%`;
+    const canv = document.getElementById('progress-chart');
+    if (canv) {
+        const ctx = canv.getContext('2d');
         ctx.clearRect(0, 0, 160, 160);
-        
-        const isLight = document.body.classList.contains('light-mode');
+        const isL = document.body.classList.contains('light-mode');
         ctx.beginPath(); ctx.arc(80, 80, 70, 0, 2 * Math.PI); 
-        ctx.strokeStyle = isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'; 
+        ctx.strokeStyle = isL ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'; 
         ctx.lineWidth = 14; ctx.stroke(); 
-        
-        if (percentage > 0) {
-            ctx.beginPath(); ctx.arc(80, 80, 70, -0.5 * Math.PI, (-0.5 * Math.PI) + (percentage / 100) * 2 * Math.PI);
+        if (pcent > 0) {
+            ctx.beginPath(); ctx.arc(80, 80, 70, -0.5 * Math.PI, (-0.5 * Math.PI) + (pcent / 100) * 2 * Math.PI);
             ctx.strokeStyle = '#f8aa37'; ctx.lineWidth = 16; ctx.lineCap = 'round'; ctx.stroke();
         }
     }
 };
 
 window.openModal = function(gameId) {
-    document.getElementById('animator-modal').style.display = 'flex';
-    const group = localStorage.getItem('centurioGroupSize') || 1;
-    const adminUrl = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}&group=${group}`;
-    
-    const qrContainer = document.getElementById('qr-container');
-    qrContainer.innerHTML = '';
-    
-    if (typeof QRCode !== 'undefined') {
-        new QRCode(qrContainer, { text: adminUrl, width: 200, height: 200, colorDark: "#291834", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
-        setTimeout(() => {
-            const canvas = qrContainer.querySelector('canvas');
-            const img = qrContainer.querySelector('img');
-            
-            if (canvas) canvas.style.display = "none";
-            if (img) {
-                img.style.padding = "12px"; img.style.background = "#ffffff";
-                img.style.borderRadius = "15px"; img.style.border = "5px solid var(--brand, #f8aa37)"; 
-                img.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; img.style.margin = "0 auto";
-                img.style.display = "block"; img.style.maxWidth = "100%"; img.style.height = "auto";
-                img.style.boxSizing = "border-box";
-            }
-        }, 50);
+    if(document.getElementById('animator-modal')) document.getElementById('animator-modal').style.display = 'flex';
+    // 🚨 On a supprimé la variable "group" ici 🚨
+    const url = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
+    const qrC = document.getElementById('qr-container');
+    if (qrC) {
+        qrC.innerHTML = '';
+        if (typeof QRCode !== 'undefined') {
+            new QRCode(qrC, { text: url, width: 200, height: 200, colorDark: "#291834", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.L });
+            setTimeout(() => {
+                const img = qrC.querySelector('img');
+                if (img) {
+                    img.style.padding = "12px"; img.style.background = "#ffffff"; img.style.borderRadius = "15px"; 
+                    img.style.border = "5px solid #f8aa37"; img.style.boxShadow = "0 10px 25px rgba(0,0,0,0.5)"; 
+                    img.style.margin = "0 auto"; img.style.display = "block"; img.style.maxWidth = "100%"; img.style.height = "auto";
+                }
+                if (qrC.querySelector('canvas')) qrC.querySelector('canvas').style.display = 'none';
+            }, 50);
+        }
     }
 };
 
-window.closeModal = function() { document.getElementById('animator-modal').style.display = 'none'; };
+window.closeModal = function() { if(document.getElementById('animator-modal')) document.getElementById('animator-modal').style.display = 'none'; };
 window.openSurvey = function() { document.getElementById('survey-modal').style.display = 'flex'; };
 
 window.answers = { q1: null, q2: null, q3: null };
-window.selectOpt = function(question, value) {
-    window.answers[question] = value;
-    const options = document.getElementById('scale-' + question).children;
-    for(let i=0; i<options.length; i++) options[i].classList.remove('selected');
-    options[value - 1].classList.add('selected');
+window.selectOpt = function(q, v) {
+    window.answers[q] = v;
+    const opts = document.getElementById('scale-' + q).children;
+    for(let i=0; i<opts.length; i++) opts[i].classList.remove('selected');
+    opts[v - 1].classList.add('selected');
 };
 
 window.submitSurvey = function() {
     if(!window.answers.q1 || !window.answers.q2 || !window.answers.q3) {
-        document.getElementById('survey-error').style.display = 'block'; return;
+        if(document.getElementById('survey-error')) document.getElementById('survey-error').style.display = 'block'; return;
     }
-    document.getElementById('survey-error').style.display = 'none';
-    const comment = document.getElementById('survey-comment').value;
-
+    const comm = document.getElementById('survey-comment').value;
     fetch('/api/survey', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q1: window.answers.q1, q2: window.answers.q2, q3: window.answers.q3, comment: comment, userId: userId })
+        body: JSON.stringify({ q1: window.answers.q1, q2: window.answers.q2, q3: window.answers.q3, comment: comm, userId: userId })
     }).then(() => {
         localStorage.setItem('centurioSurveyDone', 'true');
-        document.getElementById('survey-modal').style.display = 'none';
+        if(document.getElementById('survey-modal')) document.getElementById('survey-modal').style.display = 'none';
         if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
-        setTimeout(() => alert("Merci beaucoup ! Cadeau débloqué ! 🎁"), 500);
+        setTimeout(() => alert("Merci ! Cadeau débloqué ! 🎁"), 500);
         if (document.getElementById('games-list')) renderGames();
     });
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    const savedFlag = localStorage.getItem('centurioFlag');
-    if (savedFlag) {
-        const langBtn = document.querySelector('.lang-btn');
-        if (langBtn) langBtn.innerText = savedFlag;
-    }
+    const sFlag = localStorage.getItem('centurioFlag');
+    if (sFlag && document.querySelector('.lang-btn')) document.querySelector('.lang-btn').innerText = sFlag;
 
-    const isLight = localStorage.getItem('centurioTheme') === 'light';
-    const isIndexPage = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
+    const isL = localStorage.getItem('centurioTheme') === 'light';
+    const isIdx = window.location.pathname.endsWith('index.html') || window.location.pathname === '/';
+    if (isL && !isIdx) document.body.classList.add('light-mode');
     
-    if (isLight && !isIndexPage) {
-        document.body.classList.add('light-mode');
-    }
-    
-    const btn = document.getElementById('night-btn');
-    if (btn) btn.innerText = isLight ? '🌙' : '☀️';
+    const nBtn = document.getElementById('night-btn');
+    if (nBtn) nBtn.innerText = document.body.classList.contains('light-mode') ? '🌙' : '☀️';
 
-    checkGroupSize();
-    if (document.getElementById('games-list')) {
-        renderGames();
-        syncWithServer();
-    }
+    if (document.getElementById('games-list')) { renderGames(); syncWithServer(); }
+    setInterval(syncWithServer, 10000);
 });
