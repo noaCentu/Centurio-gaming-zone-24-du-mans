@@ -5,31 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plan Interactif - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=54">
+    <link rel="stylesheet" href="style.css?v=57">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
     <style>
         :root {
-            --bg-body: #291834;
-            --text-main: #ffffff;
-            --text-muted: #dddddd;
-            --glass-bg: rgba(41, 24, 52, 0.75);
-            --glass-border: rgba(255, 255, 255, 0.15);
-            --modal-bg: #1e1e1e;
-            --border-line: #444444;
-            --card-bg: rgba(255,255,255,0.1);
+            --bg-body: #291834; --text-main: #ffffff; --text-muted: #dddddd;
+            --glass-bg: rgba(41, 24, 52, 0.75); --glass-border: rgba(255, 255, 255, 0.15);
+            --modal-bg: #1e1e1e; --border-line: #444444; --card-bg: rgba(255,255,255,0.1);
             --success: #4CAF50;
+            --menu-bg: #1a1a1a; /* 🚨 CORRECTION BUG MENU TRANSPARENT ICI 🚨 */
         }
         body.light-mode {
-            --bg-body: #f4f4f9;
-            --text-main: #291834;
-            --text-muted: #555555;
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --glass-border: rgba(41, 24, 52, 0.15);
-            --modal-bg: #ffffff;
-            --border-line: #dddddd;
-            --card-bg: rgba(0,0,0,0.05);
+            --bg-body: #f4f4f9; --text-main: #291834; --text-muted: #555555;
+            --glass-bg: rgba(255, 255, 255, 0.95); --glass-border: rgba(41, 24, 52, 0.15);
+            --modal-bg: #ffffff; --border-line: #dddddd; --card-bg: rgba(0,0,0,0.05);
+            --menu-bg: #ffffff; /* 🚨 CORRECTION BUG MENU TRANSPARENT ICI 🚨 */
         }
 
         html, body { margin: 0; padding: 0; min-height: 100vh; width: 100%; background-color: var(--bg-body); font-family: 'Poppins', sans-serif; color: var(--text-main); transition: background-color 0.3s ease; }
@@ -39,7 +31,6 @@
         h3 { color: var(--text-main) !important; text-shadow: none !important; }
         p { color: var(--text-muted) !important; }
 
-        /* NAVBAR */
         .header-v2 { position: relative; z-index: 10; display: flex; align-items: center; justify-content: space-between; padding: 15px; transition: 0.3s; }
         body.light-mode .header-v2 { background-color: #291834; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .header-title, .hamburger-btn, .lang-btn { color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5) !important; }
@@ -48,47 +39,15 @@
         .page-content { width: 95%; max-width: 600px; margin: 0 auto 20px; padding: 25px 15px; background: var(--glass-bg); backdrop-filter: blur(12px); border-radius: 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.3); border: 1px solid var(--glass-border); position: relative; z-index: 1; transition: 0.3s; }
 
         /* 🗺️ LE PLAN INTERACTIF */
-        .map-container {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr 1fr;
-            gap: 8px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px;
-            border-radius: 15px;
-            border: 1px solid var(--glass-border);
-            margin-bottom: 20px;
-        }
-        
+        .map-container { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 8px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 15px; border: 1px solid var(--glass-border); margin-bottom: 20px; }
         .map-col { display: flex; flex-direction: column; gap: 8px; }
         .map-col-center { display: flex; flex-direction: column; justify-content: space-between; }
         
-        .map-box {
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            padding: 12px 5px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            font-size: 10px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: 0.3s;
-            position: relative;
-            min-height: 50px;
-        }
+        .map-box { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 10px; padding: 12px 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.3s; position: relative; min-height: 50px; }
         .map-box:active { transform: scale(0.95); }
         
-        /* État Validé */
-        .map-box.done { 
-            background: rgba(76, 175, 80, 0.2) !important; 
-            border-color: var(--success) !important; 
-            color: var(--success) !important; 
-        }
+        .map-box.done { background: rgba(76, 175, 80, 0.2) !important; border-color: var(--success) !important; color: var(--success) !important; }
         .map-box.done::after { content: '✅'; position: absolute; top: -5px; right: -5px; font-size: 14px; }
-
         .map-box.stand { border: 1.5px solid var(--brand, #f8aa37); color: var(--text-main); }
         .map-box.scene { background: rgba(248, 170, 55, 0.1); border: 2px dashed var(--brand, #f8aa37); height: 80px; flex: none; font-size: 14px; cursor: default; }
         .map-box.accueil { background: #4CAF50; color: white; border: none; height: 50px; flex: none; font-size: 13px; cursor: default; }
@@ -96,18 +55,16 @@
         .seats-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; padding: 10px; opacity: 0.3; }
         .seat { background: var(--text-main); height: 8px; border-radius: 2px; }
 
-        /* LA LÉGENDE */
         .legend-box { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 15px; padding: 15px; text-align: left; font-size: 13px; margin-bottom: 10px; }
         .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--text-main); }
         .legend-color { width: 15px; height: 15px; border-radius: 3px; }
 
-        /* MODALE INFO STAND */
         .modal-info { background: var(--modal-bg); border-radius: 20px; padding: 25px; text-align: center; border: 1px solid var(--glass-border); width: 85%; max-width: 350px; }
         .modal-info h3 { color: var(--brand, #f8aa37) !important; margin-bottom: 10px; }
         .modal-info p { font-size: 14px; margin-bottom: 20px; color: var(--text-main) !important; }
 
-        /* MENUS */
-        .side-menu, .lang-menu { background: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+        /* MENUS AVEC BACKGROUND FORCE */
+        .side-menu, .lang-menu { background-color: var(--menu-bg) !important; border: 1px solid var(--border-line) !important; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
         .side-menu { position: fixed; top: 0; right: -250px; width: 250px; height: 100vh; z-index: 3000; transition: right 0.3s ease; display: flex; flex-direction: column; padding: 20px; }
         .side-menu.open { right: 0; }
         .menu-overlay, .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2999; }
@@ -164,7 +121,7 @@
         <a href="contact.html">✉️ Contact</a>
         <a href="reglement.html">📜 Règles</a>
         <div style="margin-top: auto; margin-bottom: 20px;">
-            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Staff</a>
+            <a href="index.html?admin=open" style="border-top: 1px solid var(--border-line); border-bottom: none; font-size: 14px; margin-top: 20px;">🔒 Espace Staff</a>
         </div>
     </div>
 
@@ -200,24 +157,13 @@
         <div class="legend-box">
             <h3 style="margin-top: 0; font-size: 16px; margin-bottom: 15px; border-bottom: 1px solid var(--border-line); padding-bottom: 10px;">🕒 Horaires : 10h00 - 21h00</h3>
             
-            <div class="legend-item">
-                <div class="legend-color" style="border: 2px solid var(--brand, #f8aa37);"></div>
-                <span>Stands d'animations (Jeux)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: #4CAF50;"></div>
-                <span>Point de validation & Cadeaux</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color" style="background: rgba(248, 170, 55, 0.15); border: 2px dashed var(--brand, #f8aa37);"></div>
-                <span>Scène principale & Sièges</span>
-            </div>
+            <div class="legend-item"><div class="legend-color" style="border: 2px solid var(--brand, #f8aa37);"></div><span>Stands d'animations (Jeux)</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: #4CAF50;"></div><span>Point de validation & Cadeaux</span></div>
+            <div class="legend-item"><div class="legend-color" style="background: rgba(248, 170, 55, 0.15); border: 2px dashed var(--brand, #f8aa37);"></div><span>Scène principale & Sièges</span></div>
             <div class="legend-item" style="margin-top: 15px; border-top: 1px solid var(--glass-border); padding-top: 10px;">
-                <span style="font-size: 16px;">✅</span>
-                <span style="font-size: 12px; opacity: 0.8; font-style: italic;">Vos stands validés s'affichent avec ce symbole sur le plan.</span>
+                <span style="font-size: 16px;">✅</span><span style="font-size: 12px; opacity: 0.8; font-style: italic;">Vos stands validés s'affichent avec ce symbole sur le plan.</span>
             </div>
         </div>
-
     </div>
 
     <div class="modal-overlay" id="info-modal">
@@ -230,12 +176,9 @@
 
     <button id="night-btn" onclick="toggleTheme()">☀️</button>
 
-    <script src="script.js?v=54"></script>
+    <script src="script.js?v=57"></script>
     <script>
-        function toggleMenu() { 
-            document.getElementById('side-menu').classList.toggle('open'); 
-            document.getElementById('menu-overlay').classList.toggle('open'); 
-        }
+        function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
 
         const standDetails = {
             's1': { name: 'Mario Party', desc: 'Remportez un mini-jeu contre les autres joueurs !' },
@@ -259,17 +202,13 @@
             const progress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
             document.querySelectorAll('.map-box.stand').forEach(box => {
                 const id = box.getAttribute('data-id');
-                if (progress[id]) {
-                    box.classList.add('done');
-                } else {
-                    box.classList.remove('done');
-                }
+                if (progress[id]) box.classList.add('done');
+                else box.classList.remove('done');
             });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             updateMapProgress();
-            // On vérifie le progrès toutes les 5 secondes au cas où un scan a eu lieu
             setInterval(updateMapProgress, 5000);
         });
     </script>
