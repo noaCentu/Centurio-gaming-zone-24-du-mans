@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v61 - Reset Sécurisé Anti-Autofill & Survey Fix !");
+console.log("🚀 Script Centurio v63 - Horloge Anti-Triche, Vibrations & Bouton Sync !");
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -58,11 +58,28 @@ const games = [
     { id: 'cadeau', name: '🎁 Cadeau <span class="notranslate">Centurio</span>', desc: 'Récupérez votre lot !' }
 ];
 
-// 🔄 GESTION DES SESSIONS MULTIPLES SUR UN MÊME TÉLÉPHONE
 let sessionIndex = localStorage.getItem('centurioSessionIndex') || '1';
 let userId = localStorage.getItem('centurioUserId');
 
 let socket = null;
+let clockInterval = null; // Variable pour stocker le minuteur de l'horloge
+
+// 🔄 ACTUALISER MANUELLEMENT LE RÉSEAU
+window.forceSync = function() {
+    const btn = document.getElementById('sync-btn');
+    if(btn) {
+        btn.innerText = "⏳ Synchronisation...";
+        btn.style.opacity = "0.5";
+    }
+    syncWithServer();
+    setTimeout(() => {
+        if(btn) {
+            btn.innerText = "✅ À jour !";
+            btn.style.opacity = "1";
+            setTimeout(() => { btn.innerText = "🔄 Actualiser ma page"; }, 2000);
+        }
+    }, 800);
+};
 
 window.syncWithServer = function() {
     if (!userId) return;
@@ -74,7 +91,6 @@ window.syncWithServer = function() {
                 data.games.forEach(gId => { progress[gId] = true; });
                 localStorage.setItem('centurioProgress', JSON.stringify(progress));
                 
-                // On force la synchronisation rigoureuse du questionnaire avec le serveur
                 if (data.surveyDone) {
                     localStorage.setItem('centurioSurveyDone', 'true');
                 } else {
@@ -101,6 +117,12 @@ try {
             localStorage.setItem('centurioLastValidationTime', `Dernier défi validé le ${formattedDate} à ${formattedTime}`);
 
             if (typeof closeModal === 'function') closeModal();
+            
+            // 📳 VIBRATION HAPTIQUE (2 coups courts pour dire "Validé")
+            if (navigator.vibrate) {
+                navigator.vibrate([100, 50, 100]);
+            }
+
             if (typeof confetti !== 'undefined') confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             
             if (gameId === 'cadeau') {
@@ -115,7 +137,6 @@ try {
     }
 } catch(e) {}
 
-// FINGERPRINT + SESSION INDEX
 try {
     if (typeof FingerprintJS !== 'undefined') {
         FingerprintJS.load().then(fp => {
@@ -197,6 +218,19 @@ window.updateChart = function(count) {
 
 window.openModal = function(gameId) {
     if(document.getElementById('animator-modal')) document.getElementById('animator-modal').style.display = 'flex';
+    
+    // Lancement de l'horloge en direct
+    const clockElement = document.getElementById('live-clock');
+    if (clockElement) {
+        if(clockInterval) clearInterval(clockInterval);
+        const updateClock = () => {
+            const n = new Date();
+            clockElement.innerText = n.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        };
+        updateClock(); // Appel immédiat
+        clockInterval = setInterval(updateClock, 1000); // Mise à jour toutes les secondes
+    }
+
     const url = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
     const qrC = document.getElementById('qr-container');
     if (qrC) {
@@ -216,7 +250,11 @@ window.openModal = function(gameId) {
     }
 };
 
-window.closeModal = function() { if(document.getElementById('animator-modal')) document.getElementById('animator-modal').style.display = 'none'; };
+window.closeModal = function() { 
+    if(document.getElementById('animator-modal')) document.getElementById('animator-modal').style.display = 'none'; 
+    if(clockInterval) clearInterval(clockInterval); // On arrête l'horloge quand on ferme la popup
+};
+
 window.openSurvey = function() { document.getElementById('survey-modal').style.display = 'flex'; };
 
 window.answers = { q1: null, q2: null, q3: null };
@@ -244,9 +282,7 @@ window.submitSurvey = function() {
     });
 };
 
-// 🔐 FONCTION DE RESET SECURISÉE (MAJ avec nettoyage)
 window.promptRestart = function() {
-    // Force la case mot de passe à être vide à chaque ouverture !
     const pwdInput = document.getElementById('reset-pwd');
     if (pwdInput) pwdInput.value = '';
     document.getElementById('reset-error').style.display = 'none';
@@ -267,12 +303,10 @@ window.confirmRestart = function() {
             let currentSess = parseInt(localStorage.getItem('centurioSessionIndex') || '1');
             localStorage.setItem('centurioSessionIndex', currentSess + 1);
             
-            // On fait un nettoyage intégral de la progression locale
             localStorage.removeItem('centurioProgress');
             localStorage.removeItem('centurioSurveyDone');
             localStorage.removeItem('centurioLastValidationTime');
             
-            // Le redémarrage va créer un nouvel identifiant au serveur et obliger le questionnaire
             window.location.reload();
         } else {
             errorMsg.style.display = 'block';
