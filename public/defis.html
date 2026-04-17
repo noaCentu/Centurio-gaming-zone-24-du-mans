@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=60">
+    <link rel="stylesheet" href="style.css?v=61">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -125,7 +125,8 @@
 
         <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--border-line);">
             <p style="font-size: 12px; margin-bottom: 10px; opacity: 0.7;">Vous accompagnez une autre personne ?</p>
-            <button class="btn-outline" style="font-size: 12px; max-width: none; width: auto; padding: 8px 15px;" onclick="promptRestart()">🔄 Nouvelle partie (Staff uniquement)</button>
+            <button class="btn-outline" style="font-size: 12px; max-width: none; width: auto; padding: 8px 15px;" onclick="promptRestart()">🔄 Nouvelle partie</button>
+            <p style="font-size: 10px; margin-top: 8px; opacity: 0.6; font-style: italic;">Dirige-toi vers un membre du staff pour qu'il te réinitialise ta progression.</p>
         </div>
     </div>
 
@@ -133,7 +134,7 @@
         <div class="modal fade-in">
             <h3>Validation Staff</h3>
             <p style="font-size: 12px; margin-bottom: 15px;">Demandez à un animateur de saisir son mot de passe pour recommencer à zéro.</p>
-            <input type="password" id="reset-pwd" placeholder="Mot de passe Staff" style="margin-bottom: 15px;">
+            <input type="password" id="reset-pwd" placeholder="Mot de passe Staff" style="margin-bottom: 15px;" autocomplete="new-password">
             <button class="btn-group-select" onclick="confirmRestart()" style="width: 100%;">Confirmer</button>
             <button class="btn-outline" onclick="document.getElementById('reset-modal').style.display='none'" style="max-width: none;">Annuler</button>
             <p id="reset-error" style="color: #ff4d4d; font-size: 12px; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect.</p>
@@ -201,7 +202,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=60"></script>
+    <script src="script.js?v=61"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
     </script>
