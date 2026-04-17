@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=57">
+    <link rel="stylesheet" href="style.css?v=60">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -58,8 +58,8 @@
         .btn-outline:active, .btn-outline:hover { background: var(--text-main); color: var(--modal-bg); border-color: var(--text-main); }
         #night-btn { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 25px; border: none; background: var(--brand, #f8aa37); color: white; font-size: 24px; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        textarea { background: var(--input-bg) !important; color: var(--text-main) !important; border: 2px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; font-family: inherit; }
-        textarea::placeholder { color: #888888; }
+        textarea, input[type="password"] { background: var(--input-bg) !important; color: var(--text-main) !important; border: 2px solid var(--border-line) !important; width: 100%; box-sizing: border-box; padding: 10px; border-radius: 8px; font-family: inherit; }
+        textarea::placeholder, input::placeholder { color: #888888; }
         .survey-option { border: 2px solid var(--border-line); background: var(--input-bg); padding: 10px; border-radius: 5px; cursor: pointer; color: var(--text-main); font-weight: bold; }
         .survey-option.selected { background: var(--brand); color: white; border-color: var(--brand); }
         .survey-scale { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
@@ -122,6 +122,22 @@
         
         <p style="margin: 20px 0;">Validez les 7 stands pour gagner votre cadeau !</p>
         <div id="games-list"></div>
+
+        <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid var(--border-line);">
+            <p style="font-size: 12px; margin-bottom: 10px; opacity: 0.7;">Vous accompagnez une autre personne ?</p>
+            <button class="btn-outline" style="font-size: 12px; max-width: none; width: auto; padding: 8px 15px;" onclick="promptRestart()">🔄 Nouvelle partie (Staff uniquement)</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reset-modal">
+        <div class="modal fade-in">
+            <h3>Validation Staff</h3>
+            <p style="font-size: 12px; margin-bottom: 15px;">Demandez à un animateur de saisir son mot de passe pour recommencer à zéro.</p>
+            <input type="password" id="reset-pwd" placeholder="Mot de passe Staff" style="margin-bottom: 15px;">
+            <button class="btn-group-select" onclick="confirmRestart()" style="width: 100%;">Confirmer</button>
+            <button class="btn-outline" onclick="document.getElementById('reset-modal').style.display='none'" style="max-width: none;">Annuler</button>
+            <p id="reset-error" style="color: #ff4d4d; font-size: 12px; font-weight: bold; display: none; margin-top: 10px;">Mot de passe incorrect.</p>
+        </div>
     </div>
 
     <div class="modal-overlay" id="animator-modal">
@@ -129,7 +145,7 @@
             <h3>Validation</h3>
             <p style="font-size: 13px;">Montrez ce code à l'animateur du stand.</p>
             <div id="qr-container" style="margin: 20px 0;"></div>
-            <button class="btn-outline" onclick="closeModal()">Fermer</button>
+            <button class="btn-outline" onclick="closeModal()" style="max-width: none;">Fermer</button>
         </div>
     </div>
 
@@ -157,7 +173,7 @@
             <textarea id="survey-comment" rows="3" placeholder="Votre message..."></textarea>
             
             <button class="btn-group-select" onclick="submitSurvey()" style="width: 100%; margin-top: 15px;">Envoyer</button>
-            <button class="btn-outline" onclick="document.getElementById('survey-modal').style.display='none'">Annuler</button>
+            <button class="btn-outline" onclick="document.getElementById('survey-modal').style.display='none'" style="max-width: none;">Annuler</button>
             <p id="survey-error" style="color: #ff4d4d; font-size: 12px; font-weight: bold; display: none; margin-top: 5px;">Veuillez noter les 3 premières questions.</p>
         </div>
     </div>
