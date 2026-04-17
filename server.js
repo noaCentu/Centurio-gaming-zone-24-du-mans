@@ -11,6 +11,7 @@ const io = new Server(server);
 // --- 🔒 PARAMÈTRES DE SÉCURITÉ ---
 const MOT_DE_PASSE_MATIN = "admincenturio25"; 
 const MOT_DE_PASSE_STATS = "stat2026"; 
+const MOT_DE_PASSE_RESET = "resetparty13"; // 👈 LE NOUVEAU MOT DE PASSE ICI
 const ADMIN_TOKEN = "jeton_secret_incassable_2024_xyz"; 
 const STATS_TOKEN = "jeton_secret_stats_2026_abc"; 
 
@@ -110,7 +111,7 @@ io.on('connection', async (socket) => {
 });
 
 // --- 🚦 GESTION DE L'AFFLUENCE EN TEMPS RÉEL ---
-let currentAffluence = 1; // 1=Fluide, 2=Modérée, 3=Forte, 4=Saturée
+let currentAffluence = 1;
 
 app.get('/api/affluence', (req, res) => {
     res.json({ success: true, level: currentAffluence });
@@ -121,7 +122,6 @@ app.post('/api/affluence', (req, res) => {
     if (token !== ADMIN_TOKEN) return res.json({ success: false, message: "Non autorisé" });
     
     currentAffluence = level;
-    // On envoie le signal à TOUS les visiteurs connectés instantanément !
     io.emit('affluence_updated', currentAffluence);
     
     res.json({ success: true });
@@ -134,6 +134,17 @@ app.post('/api/login', async (req, res) => {
     else if (password === MOT_DE_PASSE_STATS) res.json({ success: true, token: STATS_TOKEN, role: 'stats' });
     else res.json({ success: false });
 });
+
+// --- 🔐 NOUVELLE ROUTE : VERIFICATION DU RESET ---
+app.post('/api/verify_reset', (req, res) => {
+    const { password } = req.body;
+    if (password === MOT_DE_PASSE_RESET) {
+        res.json({ success: true });
+    } else {
+        res.json({ success: false });
+    }
+});
+// --------------------------------------------------
 
 app.get('/api/my-progress/:userId', async (req, res) => {
     try {
