@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v57 - Sans Groupe & Thème Persistant !");
+console.log("🚀 Script Centurio v60 - Reset Sécurisé par Mot de Passe Dédié !");
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -47,7 +47,6 @@ window.toggleTheme = function() {
     if (typeof updateDisplay === 'function' && document.getElementById('day-selector')) updateDisplay();
 };
 
-// 🎮 LISTE DES STANDS (IDs s1 à s7)
 const games = [
     { id: 's1', name: 'Stand 1', desc: 'Animation du Stand 1' },
     { id: 's2', name: 'Stand 2', desc: 'Animation du Stand 2' },
@@ -59,11 +58,12 @@ const games = [
     { id: 'cadeau', name: '🎁 Cadeau <span class="notranslate">Centurio</span>', desc: 'Récupérez votre lot !' }
 ];
 
-let userId = localStorage.getItem('centurioUserId') || 'user_' + Math.random().toString(36).substr(2, 9);
-localStorage.setItem('centurioUserId', userId);
+// 🔄 GESTION DES SESSIONS MULTIPLES SUR UN MÊME TÉLÉPHONE
+let sessionIndex = localStorage.getItem('centurioSessionIndex') || '1';
+let userId = localStorage.getItem('centurioUserId');
+
 let socket = null;
 
-// SYNC AVEC LE SERVEUR
 window.syncWithServer = function() {
     if (!userId) return;
     fetch(`/api/my-progress/${userId}`)
@@ -79,11 +79,10 @@ window.syncWithServer = function() {
         }).catch(() => {});
 };
 
-// GESTION DU SOCKET
 try {
     if (typeof io !== 'undefined') {
         socket = io();
-        socket.emit('register_user', userId);
+        if(userId) socket.emit('register_user', userId);
         socket.on('challenge_validated', (gameId) => {
             let progress = JSON.parse(localStorage.getItem('centurioProgress')) || {};
             progress[gameId] = true;
@@ -109,12 +108,12 @@ try {
     }
 } catch(e) {}
 
-// FINGERPRINT
+// FINGERPRINT + SESSION INDEX
 try {
     if (typeof FingerprintJS !== 'undefined') {
         FingerprintJS.load().then(fp => {
             fp.get().then(result => {
-                userId = result.visitorId;
+                userId = result.visitorId + "-S" + sessionIndex;
                 localStorage.setItem('centurioUserId', userId);
                 if(socket) socket.emit('register_user', userId);
                 syncWithServer();
@@ -123,7 +122,6 @@ try {
     } else { syncWithServer(); }
 } catch(e) { syncWithServer(); }
 
-// RENDER DE LA LISTE DES DÉFIS
 window.renderGames = function() {
     const list = document.getElementById('games-list');
     if (!list) return; 
@@ -192,7 +190,6 @@ window.updateChart = function(count) {
 
 window.openModal = function(gameId) {
     if(document.getElementById('animator-modal')) document.getElementById('animator-modal').style.display = 'flex';
-    // 🚨 On a supprimé la variable "group" ici 🚨
     const url = `${window.location.origin}/scan.html?user=${userId}&game=${gameId}`;
     const qrC = document.getElementById('qr-container');
     if (qrC) {
@@ -237,6 +234,37 @@ window.submitSurvey = function() {
         if (typeof confetti !== 'undefined') confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
         setTimeout(() => alert("Merci ! Cadeau débloqué ! 🎁"), 500);
         if (document.getElementById('games-list')) renderGames();
+    });
+};
+
+// 🔐 FONCTION DE RESET SECURISÉE (MAJ AVEC LA NOUVELLE ROUTE)
+window.promptRestart = function() {
+    document.getElementById('reset-modal').style.display = 'flex';
+};
+
+window.confirmRestart = function() {
+    const pwd = document.getElementById('reset-pwd').value;
+    const errorMsg = document.getElementById('reset-error');
+    
+    // Appel de la nouvelle route serveur
+    fetch('/api/verify_reset', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.success) {
+            let currentSess = parseInt(localStorage.getItem('centurioSessionIndex') || '1');
+            localStorage.setItem('centurioSessionIndex', currentSess + 1);
+            
+            localStorage.removeItem('centurioProgress');
+            localStorage.removeItem('centurioSurveyDone');
+            localStorage.removeItem('centurioLastValidationTime');
+            
+            window.location.reload();
+        } else {
+            errorMsg.style.display = 'block';
+        }
     });
 };
 
