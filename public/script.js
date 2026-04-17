@@ -1,4 +1,4 @@
-console.log("🚀 Script Centurio v60 - Reset Sécurisé par Mot de Passe Dédié !");
+console.log("🚀 Script Centurio v61 - Reset Sécurisé Anti-Autofill & Survey Fix !");
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -73,7 +73,14 @@ window.syncWithServer = function() {
                 let progress = {};
                 data.games.forEach(gId => { progress[gId] = true; });
                 localStorage.setItem('centurioProgress', JSON.stringify(progress));
-                if (data.surveyDone) localStorage.setItem('centurioSurveyDone', 'true');
+                
+                // On force la synchronisation rigoureuse du questionnaire avec le serveur
+                if (data.surveyDone) {
+                    localStorage.setItem('centurioSurveyDone', 'true');
+                } else {
+                    localStorage.removeItem('centurioSurveyDone');
+                }
+                
                 if (document.getElementById('games-list')) renderGames();
             }
         }).catch(() => {});
@@ -237,8 +244,12 @@ window.submitSurvey = function() {
     });
 };
 
-// 🔐 FONCTION DE RESET SECURISÉE (MAJ AVEC LA NOUVELLE ROUTE)
+// 🔐 FONCTION DE RESET SECURISÉE (MAJ avec nettoyage)
 window.promptRestart = function() {
+    // Force la case mot de passe à être vide à chaque ouverture !
+    const pwdInput = document.getElementById('reset-pwd');
+    if (pwdInput) pwdInput.value = '';
+    document.getElementById('reset-error').style.display = 'none';
     document.getElementById('reset-modal').style.display = 'flex';
 };
 
@@ -246,7 +257,6 @@ window.confirmRestart = function() {
     const pwd = document.getElementById('reset-pwd').value;
     const errorMsg = document.getElementById('reset-error');
     
-    // Appel de la nouvelle route serveur
     fetch('/api/verify_reset', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pwd })
@@ -257,10 +267,12 @@ window.confirmRestart = function() {
             let currentSess = parseInt(localStorage.getItem('centurioSessionIndex') || '1');
             localStorage.setItem('centurioSessionIndex', currentSess + 1);
             
+            // On fait un nettoyage intégral de la progression locale
             localStorage.removeItem('centurioProgress');
             localStorage.removeItem('centurioSurveyDone');
             localStorage.removeItem('centurioLastValidationTime');
             
+            // Le redémarrage va créer un nouvel identifiant au serveur et obliger le questionnaire
             window.location.reload();
         } else {
             errorMsg.style.display = 'block';
