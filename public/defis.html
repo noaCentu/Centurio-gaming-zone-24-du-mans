@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Défis - Gaming Zone</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=61">
+    <link rel="stylesheet" href="style.css?v=63">
     <link rel="icon" type="image/png" href="/centurio-logo.png?v=3">
     <meta name="theme-color" content="#291834">
 
@@ -117,7 +117,9 @@
                 <canvas id="progress-chart" width="160" height="160"></canvas>
                 <div id="chart-text" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; font-weight: 800; color: var(--text-main);">0%</div>
             </div>
-            <p id="last-validation-info" style="font-size: 12px; color: var(--text-muted); margin-top: 15px; display: none; font-weight: 600;"></p>
+            
+            <button id="sync-btn" onclick="forceSync()" style="background: transparent; color: var(--brand, #f8aa37); border: 1px solid var(--brand, #f8aa37); padding: 5px 15px; border-radius: 15px; font-size: 11px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s;">🔄 Actualiser ma page</button>
+            <p id="last-validation-info" style="font-size: 12px; color: var(--text-muted); margin-top: 10px; display: none; font-weight: 600;"></p>
         </div>
         
         <p style="margin: 20px 0;">Validez les 7 stands pour gagner votre cadeau !</p>
@@ -144,7 +146,12 @@
     <div class="modal-overlay" id="animator-modal">
         <div class="modal fade-in">
             <h3>Validation</h3>
-            <p style="font-size: 13px;">Montrez ce code à l'animateur du stand.</p>
+            <p style="font-size: 13px; margin-bottom: 5px;">Montrez ce code à l'animateur du stand.</p>
+            
+            <div id="live-clock" style="font-family: monospace; font-size: 18px; font-weight: bold; color: var(--brand, #f8aa37); background: rgba(0,0,0,0.2); display: inline-block; padding: 5px 15px; border-radius: 10px; margin-top: 10px;">
+                00:00:00
+            </div>
+            
             <div id="qr-container" style="margin: 20px 0;"></div>
             <button class="btn-outline" onclick="closeModal()" style="max-width: none;">Fermer</button>
         </div>
@@ -154,25 +161,10 @@
         <div class="modal fade-in">
             <h3>Questionnaire</h3>
             <p style="font-size: 12px; margin-bottom: 15px;">Ce formulaire est rapide et anonyme.</p>
-            
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">1. Expérience de la <span class="notranslate">Gaming Zone</span> ? *</div>
-            <div class="survey-scale" id="scale-q1">
-                <div class="survey-option" onclick="selectOpt('q1',1)">1</div><div class="survey-option" onclick="selectOpt('q1',2)">2</div><div class="survey-option" onclick="selectOpt('q1',3)">3</div><div class="survey-option" onclick="selectOpt('q1',4)">4</div><div class="survey-option" onclick="selectOpt('q1',5)">5</div>
-            </div>
-            
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">2. Apprécié l'application mobile ? *</div>
-            <div class="survey-scale" id="scale-q2">
-                <div class="survey-option" onclick="selectOpt('q2',1)">1</div><div class="survey-option" onclick="selectOpt('q2',2)">2</div><div class="survey-option" onclick="selectOpt('q2',3)">3</div><div class="survey-option" onclick="selectOpt('q2',4)">4</div><div class="survey-option" onclick="selectOpt('q2',5)">5</div>
-            </div>
-            
-            <div style="text-align: left; margin-bottom: 10px; font-size: 14px; color: var(--text-main);">3. Facile d'utilisation ? *</div>
-            <div class="survey-scale" id="scale-q3">
-                <div class="survey-option" onclick="selectOpt('q3',1)">1</div><div class="survey-option" onclick="selectOpt('q3',2)">2</div><div class="survey-option" onclick="selectOpt('q3',3)">3</div><div class="survey-option" onclick="selectOpt('q3',4)">4</div><div class="survey-option" onclick="selectOpt('q3',5)">5</div>
-            </div>
-            
-            <div style="text-align: left; margin-bottom: 5px; font-size: 14px; color: var(--text-main);">4. Idées d'amélioration ?</div>
+            <div class="survey-scale" id="scale-q1"><div class="survey-option" onclick="selectOpt('q1',1)">1</div><div class="survey-option" onclick="selectOpt('q1',2)">2</div><div class="survey-option" onclick="selectOpt('q1',3)">3</div><div class="survey-option" onclick="selectOpt('q1',4)">4</div><div class="survey-option" onclick="selectOpt('q1',5)">5</div></div>
+            <div class="survey-scale" id="scale-q2"><div class="survey-option" onclick="selectOpt('q2',1)">1</div><div class="survey-option" onclick="selectOpt('q2',2)">2</div><div class="survey-option" onclick="selectOpt('q2',3)">3</div><div class="survey-option" onclick="selectOpt('q2',4)">4</div><div class="survey-option" onclick="selectOpt('q2',5)">5</div></div>
+            <div class="survey-scale" id="scale-q3"><div class="survey-option" onclick="selectOpt('q3',1)">1</div><div class="survey-option" onclick="selectOpt('q3',2)">2</div><div class="survey-option" onclick="selectOpt('q3',3)">3</div><div class="survey-option" onclick="selectOpt('q3',4)">4</div><div class="survey-option" onclick="selectOpt('q3',5)">5</div></div>
             <textarea id="survey-comment" rows="3" placeholder="Votre message..."></textarea>
-            
             <button class="btn-group-select" onclick="submitSurvey()" style="width: 100%; margin-top: 15px;">Envoyer</button>
             <button class="btn-outline" onclick="document.getElementById('survey-modal').style.display='none'" style="max-width: none;">Annuler</button>
             <p id="survey-error" style="color: #ff4d4d; font-size: 12px; font-weight: bold; display: none; margin-top: 5px;">Veuillez noter les 3 premières questions.</p>
@@ -202,7 +194,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
-    <script src="script.js?v=61"></script>
+    <script src="script.js?v=63"></script>
     <script>
         function toggleMenu() { document.getElementById('side-menu').classList.toggle('open'); document.getElementById('menu-overlay').classList.toggle('open'); }
     </script>
